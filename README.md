@@ -13,7 +13,7 @@
 ## Dev Workflow
 For simplicity, 
 - No format with branch names and commit messages. Just use what you vibe with.
-- No preference with rebase or merge. Up to you.
+- No preference with rebase or merge (`git pull origin main`). Up to you.
 
 1. Create a new branch with `git checkout -b <branch-name>`. Call it whatever you want. (e.g. `feat/hdb-officer`)
 1. Make your changes

@@ -15,18 +15,16 @@ public class BTOProject {
     private final String id;
     // Map: <Project Type Id, Project Type>
     private final Map<String, BTOProjectType> projectTypes = new HashMap<>();
-    // Map <Enquiry Id, Enquiry>
-    private final Map<String, BTOEnquiry> enquiries = new HashMap<>();
-    // Map <Application Id, Application>
-    private final Map<String, BTOApplication> applications = new HashMap<>();
+    private final List<BTOEnquiry> enquiries = new LinkedList<>();
+    private final List<BTOApplication> applications = new LinkedList<>();
     private final String managerUserId;
-    // Map <HDB Officer Registration Id, HDB Officer Registration>
-    private final Map<String, HDBOfficerRegistration> hdbOfficerRegistrations = new HashMap<>();
-    // Map <Application Withdrawal Id, Application Withdrawal>
-    private final Map<String, BTOApplicationWithdrawal> withdrawals = new HashMap<>();
+    private final List<HDBOfficerRegistration> hdbOfficerRegistrations = new LinkedList<>();
+    private final List<BTOApplicationWithdrawal> withdrawals = new LinkedList<>();
     private int officerLimit;
     // Timestamps for application window. In UTC+8
     private long applicationOpenTimestamp, applicationCloseTimestamp;
+
+    private boolean isVisibleToPublic = true;
 
     /**
      * Constructor for BTOProject
@@ -68,22 +66,23 @@ public class BTOProject {
 
     /**
      * Enquiries getter
-     *
+     * Create copy to avoid direct mutations.
      * @return {@link #enquiries}
      */
     public List<BTOEnquiry> getEnquiries() {
-        return enquiries.values().stream().toList();
+        return enquiries.stream().toList();
     }
 
     /**
      * Applications getter
+     * Create copy to avoid direct mutations.
      * Due to the nature of how BTOApplication states are inferred, we
      * avoid exposing the map which can be mutated directly.
      *
      * @return {@link #applications}
      */
     public List<BTOApplication> getApplications() {
-        return applications.values().stream().toList();
+        return applications.stream().toList();
     }
 
     /**
@@ -94,7 +93,7 @@ public class BTOProject {
      * @return {@link #hdbOfficerRegistrations}
      */
     public List<HDBOfficerRegistration> getHdbOfficerRegistrations() {
-        return hdbOfficerRegistrations.values().stream().toList();
+        return hdbOfficerRegistrations.stream().toList();
     }
 
     /**
@@ -105,7 +104,7 @@ public class BTOProject {
      * @return {@link #withdrawals}
      */
     public List<BTOApplicationWithdrawal> getWithdrawals() {
-        return withdrawals.values().stream().toList();
+        return withdrawals.stream().toList();
     }
 
     /**
@@ -123,7 +122,7 @@ public class BTOProject {
      * @return true if the applicant is booked for this project.
      */
     public boolean isApplicantBooked(String applicantUserId) {
-        return applications.values().stream()
+        return applications.stream()
                 .anyMatch((application) ->
                         application.getApplicantUserId().equals(applicantUserId) && application.getStatus() == BTOApplicationStatus.BOOKED);
     }
@@ -139,7 +138,10 @@ public class BTOProject {
         if (projectType == null) {
             throw new RuntimeException("Project type, " + typeId + " does not exist.");
         }
-        return (int) applications.values().stream().filter((app) -> app.getStatus() == BTOApplicationStatus.BOOKED && Objects.equals(app.getTypeId(), typeId)).count();
+        return (int) applications.stream()
+                .filter((app) ->
+                        app.getStatus() == BTOApplicationStatus.BOOKED && Objects.equals(app.getTypeId(), typeId))
+                .count();
     }
 
     /**
@@ -148,11 +150,11 @@ public class BTOProject {
      * @param enquiry enquiry to add.
      */
     public void addEnquiry(BTOEnquiry enquiry) {
-        enquiries.put(enquiry.getId(), enquiry);
+        enquiries.add(enquiry);
     }
 
     public Optional<BTOApplication> getApplication(String applicationId) {
-        return Optional.ofNullable(applications.get(applicationId));
+        return applications.stream().filter((application) -> application.getId().equals(applicationId)).findFirst();
     }
 
     /**
@@ -163,7 +165,7 @@ public class BTOProject {
      * @return active application.
      */
     public Optional<BTOApplication> getActiveApplication(String applicantUserId) {
-        return applications.values().stream()
+        return applications.stream()
                 .filter(application -> {
                     if (application.getApplicantUserId().equals(applicantUserId)) {
                         final BTOApplicationStatus status = application.getStatus();
@@ -216,7 +218,7 @@ public class BTOProject {
                 applicantUserId,
                 typeId,
                 BTOApplicationStatus.PENDING);
-        applications.put(application.getId(), application);
+        applications.add(application);
     }
 
     /**
@@ -233,10 +235,11 @@ public class BTOProject {
      *                          - Is BOOKED and the new status is not UNSUCCESSFUL.
      */
     public void transitionApplicationStatus(String applicationId, BTOApplicationStatus status) throws RuntimeException {
-        final BTOApplication application = applications.get(applicationId);
-        if (application == null) {
+        final Optional<BTOApplication> applicationOpt = getApplication(applicationId);
+        if (applicationOpt.isEmpty()) {
             throw new RuntimeException("Application not found.");
         }
+        final BTOApplication application = applicationOpt.get();
 
         final BTOApplicationStatus currentStatus = application.getStatus();
         if (currentStatus == BTOApplicationStatus.PENDING) {
@@ -281,7 +284,7 @@ public class BTOProject {
      * @return active officer registration.
      */
     public Optional<HDBOfficerRegistration> getActiveOfficerRegistration(String officerUserId) {
-        return hdbOfficerRegistrations.values().stream()
+        return hdbOfficerRegistrations.stream()
                 .filter(registration -> {
                     if (registration.getOfficerUserId().equals(officerUserId)) {
                         final HDBOfficerRegistrationStatus status = registration.getStatus();
@@ -321,7 +324,7 @@ public class BTOProject {
                 UUID.randomUUID().toString(),
                 userId,
                 HDBOfficerRegistrationStatus.PENDING);
-        hdbOfficerRegistrations.put(registration.getId(), registration);
+        hdbOfficerRegistrations.add(registration);
     }
 
     /**
@@ -380,7 +383,7 @@ public class BTOProject {
      * @return list of managing officer registrations that are successful.
      */
     public List<HDBOfficerRegistration> getManagingOfficerRegistrations() {
-        return hdbOfficerRegistrations.values().stream()
+        return hdbOfficerRegistrations.stream()
                 .filter(registration -> registration.getStatus() == HDBOfficerRegistrationStatus.SUCCESSFUL)
                 .toList();
     }
@@ -393,7 +396,7 @@ public class BTOProject {
      * @return active withdrawal.
      */
     public Optional<BTOApplicationWithdrawal> getActiveWithdrawal(String applicationId) {
-        return withdrawals.values().stream()
+        return withdrawals.stream()
                 .filter(withdrawal -> {
                     if (withdrawal.getApplicationId().equals(applicationId)) {
                         final BTOApplicationWithdrawalStatus status = withdrawal.getStatus();
@@ -437,7 +440,7 @@ public class BTOProject {
                 UUID.randomUUID().toString(),
                 applicationOpt.get().getId(),
                 BTOApplicationWithdrawalStatus.PENDING);
-        withdrawals.put(withdrawal.getId(), withdrawal);
+        withdrawals.add(withdrawal);
     }
 
     /**
@@ -543,4 +546,20 @@ public class BTOProject {
         this.officerLimit = officerLimit;
     }
 
+    /**
+     * isVisibleToPublic getter
+     *
+     * @return true if this project is visible to the public
+     */
+    public boolean isVisibleToPublic() {
+        return isVisibleToPublic;
+    }
+
+    /**
+     *
+     * @param visibleToPublic visible to public
+     */
+    public void setVisibleToPublic(boolean visibleToPublic) {
+        isVisibleToPublic = visibleToPublic;
+    }
 }

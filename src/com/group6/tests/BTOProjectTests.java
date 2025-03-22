@@ -196,10 +196,9 @@ public class BTOProjectTests {
         System.out.println("Checking if users can make enquiries:");
         for (String userId : userIds) {
             project.addEnquiry(
-                    new BTOEnquiry(
-                            UUID.randomUUID().toString(),
+                    BTOEnquiry.create(
                             new BTOEnquiryMessage(userId, "How far from the nearest MRT? (" + userId + ")"),
-                            Optional.empty()
+                            null
                     )
             );
         }

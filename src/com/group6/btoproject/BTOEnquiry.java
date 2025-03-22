@@ -1,6 +1,7 @@
 package com.group6.btoproject;
 
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * BTO Enquiry class.
@@ -9,19 +10,28 @@ import java.util.Optional;
  * {@link BTOEnquiryMessage} message for sender and response.
  */
 public class BTOEnquiry {
+    /**
+     *
+     * @param senderMessage sender message
+     * @param responseMessage response message
+     * @return a BTOEnquiry instance
+     */
+    public static BTOEnquiry create(BTOEnquiryMessage senderMessage, BTOEnquiryMessage responseMessage) {
+        return new BTOEnquiry(UUID.randomUUID().toString(), senderMessage, responseMessage);
+    }
 
     private final String id;
     private BTOEnquiryMessage senderMessage;
-    private Optional<BTOEnquiryMessage> responseMessage;
+    private BTOEnquiryMessage responseMessage;
 
     /**
      * Constructor for Enquiry
      *
      * @param id              id of the enquiry.
      * @param senderMessage   sender message.
-     * @param responseMessage response message.
+     * @param responseMessage response message. NULLABLE!
      */
-    public BTOEnquiry(String id, BTOEnquiryMessage senderMessage, Optional<BTOEnquiryMessage> responseMessage) {
+    private BTOEnquiry(String id, BTOEnquiryMessage senderMessage, BTOEnquiryMessage responseMessage) {
         this.id = id;
         this.senderMessage = senderMessage;
         this.responseMessage = responseMessage;
@@ -59,14 +69,14 @@ public class BTOEnquiry {
      * @return {@link #responseMessage}
      */
     public Optional<BTOEnquiryMessage> getResponseMessage() {
-        return responseMessage;
+        return Optional.ofNullable(responseMessage);
     }
 
     /**
      *
-     * @param responseMessage response message
+     * @param responseMessage response message. NULLABLE!
      */
     public void setResponseMessage(BTOEnquiryMessage responseMessage) {
-        this.responseMessage = Optional.of(responseMessage);
+        this.responseMessage = responseMessage;
     }
 }

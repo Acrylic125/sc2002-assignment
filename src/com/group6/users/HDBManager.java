@@ -7,10 +7,11 @@ public class HDBManager extends User {
     /**
      * Constructor for HDBManager
      *
-     * @param username username
+     * @param id
+     * @param nric nric
      * @param password password
      */
-    public HDBManager(String username, String password) {
-        super(username, password);
+    public HDBManager(String id, String nric, String password) {
+        super(id, nric, password);
     }
 }

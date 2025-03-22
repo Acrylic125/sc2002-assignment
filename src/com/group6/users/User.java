@@ -7,35 +7,47 @@ package com.group6.users;
  */
 public abstract class User {
 
-    private String username;
+    private final String id;
+    private String nric;
     private String password;
 
     /**
      * Constructor for User
      *
-     * @param username username
+     * @param id id
+     * @param nric username
      * @param password password
      */
-    public User(String username, String password) {
-        this.username = username;
+    public User(String id, String nric, String password) {
+        this.id = id;
+        this.nric = nric;
         this.password = password;
     }
 
     /**
-     * Getter for {{@link #username}}.
+     * Getter for {{@link #id}}.
      *
-     * @return username
+     * @return id
      */
-    public String getUsername() {
-        return username;
+    public String getId() {
+        return id;
+    }
+
+    /**
+     * Getter for {{@link #nric}}.
+     *
+     * @return nric
+     */
+    public String getNRIC() {
+        return nric;
     }
 
     /**
      *
-     * @param username username.
+     * @param nric nric.
      */
-    public void setUsername(String username) {
-        this.username = username;
+    public void setNric(String nric) {
+        this.nric = nric;
     }
 
     /**

@@ -8,10 +8,11 @@ public class Applicant extends User {
     /**
      * Constructor for Applicant
      *
-     * @param username username
+     * @param id id
+     * @param nric nric
      * @param password password
      */
-    public Applicant(String username, String password) {
-        super(username, password);
+    public Applicant(String id, String nric, String password) {
+        super(id, nric, password);
     }
 }

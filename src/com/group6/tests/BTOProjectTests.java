@@ -3,11 +3,10 @@ package com.group6.tests;
 import com.group6.btoproject.*;
 import com.group6.utils.Utils;
 
-import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Simple  tests for {@link com.group6.btoproject.BTOProject}
+ * Simple tests for {@link com.group6.btoproject.BTOProject}
  */
 public class BTOProjectTests {
 

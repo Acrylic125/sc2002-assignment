@@ -8,11 +8,12 @@ public class HDBOfficer extends Applicant {
     /**
      * Constructor for HDBOfficer
      *
+     * @param id
      * @param username username
      * @param password password
      */
-    public HDBOfficer(String username, String password) {
-        super(username, password);
+    public HDBOfficer(String id, String username, String password) {
+        super(id, username, password);
     }
 
 }

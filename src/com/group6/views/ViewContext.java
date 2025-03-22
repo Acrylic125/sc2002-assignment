@@ -66,11 +66,6 @@ public final class ViewContext {
      */
     public void popView() {
         View v = viewStack.pop();
-        if (v == null) {
-            return;
-        }
-        v.render(this);
     }
-
 
 }

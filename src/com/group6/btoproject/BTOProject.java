@@ -13,6 +13,8 @@ import java.util.*;
 public class BTOProject {
 
     private final String id;
+    private String name;
+    private String neighbourhood;
     // Map: <Project Type Id, Project Type>
     private final Map<String, BTOProjectType> projectTypes = new HashMap<>();
     private final List<BTOEnquiry> enquiries = new LinkedList<>();
@@ -47,6 +49,42 @@ public class BTOProject {
     }
 
     /**
+     * Name getter
+     *
+     * @return {@link #name}
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Name setter
+     *
+     * @param name name
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * Neighbourhood getter
+     *
+     * @return {@link #neighbourhood}
+     */
+    public String getNeighbourhood() {
+        return neighbourhood;
+    }
+
+    /**
+     * Neighbourhood setter
+     *
+     * @param neighbourhood neighbourhood
+     */
+    public void setNeighbourhood(String neighbourhood) {
+        this.neighbourhood = neighbourhood;
+    }
+
+    /**
      * ManagerUserId getter
      *
      * @return {@link #managerUserId}
@@ -67,6 +105,7 @@ public class BTOProject {
     /**
      * Enquiries getter
      * Create copy to avoid direct mutations.
+     * 
      * @return {@link #enquiries}
      */
     public List<BTOEnquiry> getEnquiries() {
@@ -123,8 +162,8 @@ public class BTOProject {
      */
     public boolean isApplicantBooked(String applicantUserId) {
         return applications.stream()
-                .anyMatch((application) ->
-                        application.getApplicantUserId().equals(applicantUserId) && application.getStatus() == BTOApplicationStatus.BOOKED);
+                .anyMatch((application) -> application.getApplicantUserId().equals(applicantUserId)
+                        && application.getStatus() == BTOApplicationStatus.BOOKED);
     }
 
     /**
@@ -139,8 +178,8 @@ public class BTOProject {
             throw new RuntimeException("Project type, " + typeId + " does not exist.");
         }
         return (int) applications.stream()
-                .filter((app) ->
-                        app.getStatus() == BTOApplicationStatus.BOOKED && Objects.equals(app.getTypeId(), typeId))
+                .filter((app) -> app.getStatus() == BTOApplicationStatus.BOOKED
+                        && Objects.equals(app.getTypeId(), typeId))
                 .count();
     }
 
@@ -265,7 +304,7 @@ public class BTOProject {
             }
             int bookedCountForType = getBookedCountForType(application.getTypeId());
             if (bookedCountForType >= projectType.getMaxQuantity()) {
-                throw new RuntimeException("Project type, " +  application.getTypeId()  + " has no availability.");
+                throw new RuntimeException("Project type, " + application.getTypeId() + " has no availability.");
             }
 
             if (isManagingOfficer(application.getApplicantUserId())) {
@@ -317,7 +356,8 @@ public class BTOProject {
                 });
 
         if (isApplicantBooked(userId)) {
-            throw new RuntimeException("Project Applicants with approved bookings may not register to manage this project.");
+            throw new RuntimeException(
+                    "Project Applicants with approved bookings may not register to manage this project.");
         }
 
         final HDBOfficerRegistration registration = new HDBOfficerRegistration(
@@ -331,7 +371,7 @@ public class BTOProject {
      * Transition the status of an officer registration.
      *
      * @param userId user id.
-     * @param status         new status.
+     * @param status new status.
      * @throws RuntimeException If the registration:
      *                          - Is not found.
      *                          - Does NOT follow transition from PENDING TO
@@ -359,7 +399,8 @@ public class BTOProject {
                 throw new RuntimeException("Officer limit of " + officerLimit + " for this project has been reached.");
             }
             if (isApplicantBooked(userId)) {
-                throw new RuntimeException("Project Applicants with approved bookings may not register to manage this project.");
+                throw new RuntimeException(
+                        "Project Applicants with approved bookings may not register to manage this project.");
             }
         }
 
@@ -489,7 +530,6 @@ public class BTOProject {
         }
     }
 
-
     /**
      * ApplicationOpenTimestamp getter
      *
@@ -507,7 +547,6 @@ public class BTOProject {
     public Date getApplicationCloseDate() {
         return new Date(applicationCloseTimestamp);
     }
-
 
     /**
      * Set the application open date.

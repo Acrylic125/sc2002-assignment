@@ -24,3 +24,6 @@ For simplicity,
 
 **Please avoid pushing to main branch directly, pain in the ass to constantly resolve Merge Conflicts.**
 
+## Things to take note of
+- Annoyingly, we need to document the code with javadoc. Do refer to the `BTOProject` class for reference.
+- Do your "UI" logic within your own `Views`. For reference, refer to `views/ExampleView`.

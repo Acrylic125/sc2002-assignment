@@ -20,7 +20,7 @@ For simplicity,
 1. Add your changes with `git add .`.
 1. Commit your changes with `git commit -m "Your commit message"`.
 1. Push your changes with `git push origin <branch-name>`.
-1. Create a pull request on GitHub then send the PR to the group.
+1. Create a pull request on GitHub then send the PR to the group. Helps to inflate your github contribution.
 
 **Please avoid pushing to main branch directly, pain in the ass to constantly resolve Merge Conflicts.**
 

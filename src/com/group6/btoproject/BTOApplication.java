@@ -20,7 +20,7 @@ public class BTOApplication {
      * @param typeId          type id of the application.
      * @param status          status of the application.
      */
-    public BTOApplication(String id, String applicantUserId, String typeId, BTOApplicationStatus status) {
+    protected BTOApplication(String id, String applicantUserId, String typeId, BTOApplicationStatus status) {
         this.id = id;
         this.applicantUserId = applicantUserId;
         this.typeId = typeId;
@@ -68,7 +68,7 @@ public class BTOApplication {
      *
      * @param status new status
      */
-    public void setStatus(BTOApplicationStatus status) {
+    protected void setStatus(BTOApplicationStatus status) {
         this.status = status;
     }
 

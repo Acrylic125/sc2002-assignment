@@ -8,7 +8,7 @@ package com.group6.btoproject;
 public class BTOApplicationWithdrawal {
 
     private final String id;
-    private String applicationId;
+    private final String applicationId;
     private BTOApplicationWithdrawalStatus status;
 
     /**
@@ -18,7 +18,7 @@ public class BTOApplicationWithdrawal {
      * @param applicationId application id tied to this withdrawal request.
      * @param status        status of this withdrawal request.
      */
-    public BTOApplicationWithdrawal(String id, String applicationId, BTOApplicationWithdrawalStatus status) {
+    protected BTOApplicationWithdrawal(String id, String applicationId, BTOApplicationWithdrawalStatus status) {
         this.id = id;
         this.applicationId = applicationId;
         this.status = status;
@@ -56,17 +56,8 @@ public class BTOApplicationWithdrawal {
      *
      * @param status new status
      */
-    public void setStatus(BTOApplicationWithdrawalStatus status) {
+    protected void setStatus(BTOApplicationWithdrawalStatus status) {
         this.status = status;
-    }
-
-    /**
-     * ApplicationId setter
-     *
-     * @param applicationId new applicationId
-     */
-    public void setApplicationId(String applicationId) {
-        this.applicationId = applicationId;
     }
 
 }

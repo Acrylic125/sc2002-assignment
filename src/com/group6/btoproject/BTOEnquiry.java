@@ -1,5 +1,7 @@
 package com.group6.btoproject;
 
+import java.util.Optional;
+
 /**
  * BTO Enquiry class.
  * Conversation in a 1-1 QnA.
@@ -10,7 +12,7 @@ public class BTOEnquiry {
 
     private final String id;
     private BTOEnquiryMessage senderMessage;
-    private BTOEnquiryMessage responseMessage;
+    private Optional<BTOEnquiryMessage> responseMessage;
 
     /**
      * Constructor for Enquiry
@@ -19,7 +21,7 @@ public class BTOEnquiry {
      * @param senderMessage   sender message.
      * @param responseMessage response message.
      */
-    public BTOEnquiry(String id, BTOEnquiryMessage senderMessage, BTOEnquiryMessage responseMessage) {
+    public BTOEnquiry(String id, BTOEnquiryMessage senderMessage, Optional<BTOEnquiryMessage> responseMessage) {
         this.id = id;
         this.senderMessage = senderMessage;
         this.responseMessage = responseMessage;
@@ -44,12 +46,27 @@ public class BTOEnquiry {
     }
 
     /**
+     *
+     * @param senderMessage sender message
+     */
+    public void setSenderMessage(BTOEnquiryMessage senderMessage) {
+        this.senderMessage = senderMessage;
+    }
+
+    /**
      * ResponseMessage getter
      *
      * @return {@link #responseMessage}
      */
-    public BTOEnquiryMessage getResponseMessage() {
+    public Optional<BTOEnquiryMessage> getResponseMessage() {
         return responseMessage;
     }
 
+    /**
+     *
+     * @param responseMessage response message
+     */
+    public void setResponseMessage(BTOEnquiryMessage responseMessage) {
+        this.responseMessage = Optional.of(responseMessage);
+    }
 }

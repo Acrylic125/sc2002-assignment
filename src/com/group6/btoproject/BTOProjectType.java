@@ -8,19 +8,19 @@ public final class BTOProjectType {
 
     private final String id;
     private final double price;
-    private final int quantity;
+    private final int maxQuantity;
 
     /**
      * Constructor for BTOProjectType
      *
      * @param id     id of the project type.
      * @param price    price of the project type.
-     * @param quantity quantity of the project type.
+     * @param maxQuantity quantity of the project type.
      */
-    public BTOProjectType(String id, double price, int quantity) {
+    public BTOProjectType(String id, double price, int maxQuantity) {
         this.id = id;
         this.price = price;
-        this.quantity = quantity;
+        this.maxQuantity = maxQuantity;
     }
 
     /**
@@ -44,10 +44,10 @@ public final class BTOProjectType {
     /**
      * Quantity getter
      *
-     * @return {@link #quantity}
+     * @return {@link #maxQuantity}
      */
-    public int getQuantity() {
-        return quantity;
+    public int getMaxQuantity() {
+        return maxQuantity;
     }
 
 }

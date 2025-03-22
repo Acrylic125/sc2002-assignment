@@ -5,27 +5,18 @@ package com.group6.btoproject;
  */
 public class BTOEnquiryMessage {
 
-    private final String message;
     private final String senderUserId;
+    private final String message;
 
     /**
      * Constructor for Message
      *
-     * @param message      message content.
      * @param senderUserId sender user id.
+     * @param message      message content.
      */
-    public BTOEnquiryMessage(String message, String senderUserId) {
-        this.message = message;
+    public BTOEnquiryMessage( String senderUserId, String message) {
         this.senderUserId = senderUserId;
-    }
-
-    /**
-     * Message getter
-     *
-     * @return {@link #message}
-     */
-    public String getMessage() {
-        return message;
+        this.message = message;
     }
 
     /**
@@ -35,6 +26,15 @@ public class BTOEnquiryMessage {
      */
     public String getSenderUserId() {
         return senderUserId;
+    }
+
+    /**
+     * Message getter
+     *
+     * @return {@link #message}
+     */
+    public String getMessage() {
+        return message;
     }
 
 }

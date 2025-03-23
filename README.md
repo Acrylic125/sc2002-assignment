@@ -16,7 +16,7 @@ For simplicity,
 - No preference with rebase or merge (`git pull origin main`). Up to you.
 
 1. Create a new branch with `git checkout -b <branch-name>`. Call it whatever you want. (e.g. `feat/hdb-officer`)
-1. Make your changes
+1. Make your changes. **Make sure to add javadoc comments for your methods and classes.** (Requirement).
 1. Add your changes with `git add .`.
 1. Commit your changes with `git commit -m "Your commit message"`.
 1. Push your changes with `git push origin <branch-name>`.
@@ -24,3 +24,6 @@ For simplicity,
 
 **Please avoid pushing to main branch directly, pain in the ass to constantly resolve Merge Conflicts.**
 
+## Things to take note of
+- Annoyingly, we need to document the code with javadoc. Do refer to the `BTOProject` class for reference.
+- Do your "UI" logic within your own `Views`. For reference, refer to `views/ExampleView`.

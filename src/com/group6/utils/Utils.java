@@ -1,6 +1,8 @@
 package com.group6.utils;
 
-import java.util.function.Consumer;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 import java.util.function.Supplier;
 
 public class Utils {
@@ -33,6 +35,20 @@ public class Utils {
         } catch (Throwable e) {
             return new TryCatchResult<>(null, e);
         }
+    }
+
+    /**
+     * Converts a double to a comma-separated format, rounded to 2 decimal places.
+     * 
+     * @param value The double value to format
+     * @return A string representation of the value with commas and 2 decimal places
+     */
+    public static String formatMoney(double value) {
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+        symbols.setGroupingSeparator(',');
+
+        DecimalFormat formatter = new DecimalFormat("#,##0.00", symbols);
+        return formatter.format(value);
     }
 
 }

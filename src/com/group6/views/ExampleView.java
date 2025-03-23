@@ -6,7 +6,7 @@ import java.util.Scanner;
 public class ExampleView implements View {
 
     @Override
-    public void render(ViewContext ctx) {
+    public View render(ViewContext ctx) {
         while (true) {
             final Scanner scanner = ctx.getScanner();
             System.out.println("Hello! Type something (Or '#' to return: ");
@@ -17,6 +17,7 @@ public class ExampleView implements View {
             }
             System.out.println("You typed: " + str);
         }
+        return null;
     }
 
 }

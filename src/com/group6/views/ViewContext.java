@@ -63,16 +63,39 @@ public final class ViewContext {
      *
      * @param view view to show next.
      */
-    public void pushView(View view) {
+    public void startFromView(View view) throws RuntimeException {
+        if (!viewStack.isEmpty()) {
+            throw new IllegalStateException(
+                    "View stack is not empty. Can only start from a view if it was not started before.");
+        }
         viewStack.push(view);
-        view.render(this);
+        while (!viewStack.isEmpty()) {
+            View current = viewStack.peek();
+            View next = current.render(this);
+            if (current == next) {
+                // View did not change.
+                continue;
+            }
+            if (next == null) {
+                viewStack.pop();
+            } else {
+                viewStack.push(next);
+            }
+        }
     }
+    // public void pushView(View view) {
+    // viewStack.push(view);
+    // view.render(this);
+    // }
 
     /**
      * Goes to the previous view.
      */
     public void popView() {
         viewStack.pop();
+        if (!viewStack.isEmpty()) {
+            getCurrentView().render(this);
+        }
     }
 
     /**

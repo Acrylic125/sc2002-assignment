@@ -2,6 +2,8 @@ package com.group6.utils;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 import java.util.function.Supplier;
 
@@ -49,6 +51,21 @@ public class Utils {
 
         DecimalFormat formatter = new DecimalFormat("#,##0.00", symbols);
         return formatter.format(value);
+    }
+
+    /**
+     * Formats a Date object to DD/MM/YYYY pattern.
+     * 
+     * @param date The Date object to format
+     * @return A string representation of the date in DD/MM/YYYY format
+     */
+    public static String formatToDDMMYYYY(Date date) {
+        if (date == null) {
+            return null;
+        }
+
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+        return formatter.format(date);
     }
 
 }

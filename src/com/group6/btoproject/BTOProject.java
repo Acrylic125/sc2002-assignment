@@ -192,6 +192,15 @@ public class BTOProject {
         enquiries.add(enquiry);
     }
 
+    /**
+     * Delete an enquiry from the project.
+     *
+     * @param enquiryId enquiry id.
+     */
+    public void deleteEnquiry(String enquiryId) {
+        enquiries.removeIf(enquiry -> enquiry.getId().equals(enquiryId));
+    }
+
     public Optional<BTOApplication> getApplication(String applicationId) {
         return applications.stream().filter((application) -> application.getId().equals(applicationId)).findFirst();
     }

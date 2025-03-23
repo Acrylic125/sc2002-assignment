@@ -7,6 +7,7 @@ import com.group6.btoproject.HDBOfficerRegistrationStatus;
 import com.group6.users.*;
 import com.group6.views.ExampleView;
 import com.group6.views.ViewContext;
+import com.group6.views.applicant.ApplicantProjectsView;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -27,7 +28,9 @@ public class Main {
         loadDefaults(btoSystem);
 
         final ViewContext ctx = new ViewContext(btoSystem, new Scanner(System.in));
-        ctx.pushView(new ExampleView());
+        ctx.setUser(
+                btoSystem.getUsers().getUsers().values().stream().findFirst().orElseThrow());
+        ctx.startFromView(new ApplicantProjectsView());
         System.out.println("App closed!");
     }
 

@@ -3,7 +3,6 @@ package com.group6.utils;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class Utils {

@@ -1,7 +1,9 @@
 package com.group6.views;
 
 import com.group6.BTOSystem;
+import com.group6.users.User;
 
+import java.util.Optional;
 import java.util.Scanner;
 import java.util.Stack;
 
@@ -13,11 +15,12 @@ public final class ViewContext {
     private final BTOSystem btoSystem;
     private final Scanner scanner;
     private final Stack<View> viewStack = new Stack<>();
+    private User user;
 
     /**
      *
      * @param btoSystem bto system.
-     * @param scanner scanner for input.
+     * @param scanner   scanner for input.
      */
     public ViewContext(BTOSystem btoSystem, Scanner scanner) {
         this.btoSystem = btoSystem;
@@ -34,7 +37,8 @@ public final class ViewContext {
     }
 
     /**
-     * Getter for scanner. Avoid recreating Scanner instances, use this shared instance.
+     * Getter for scanner. Avoid recreating Scanner instances, use this shared
+     * instance.
      *
      * @return {@link #scanner}
      */
@@ -68,7 +72,25 @@ public final class ViewContext {
      * Goes to the previous view.
      */
     public void popView() {
-        View v = viewStack.pop();
+        viewStack.pop();
+    }
+
+    /**
+     * User getter.
+     *
+     * @return {@link #user} can be null (i.e. not logged in).
+     */
+    public Optional<User> getUser() {
+        return Optional.ofNullable(user);
+    }
+
+    /**
+     * User setter.
+     *
+     * @param user user to set.
+     */
+    public void setUser(User user) {
+        this.user = user;
     }
 
 }

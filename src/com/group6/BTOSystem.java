@@ -4,10 +4,9 @@ import com.group6.btoproject.BTOProjectManager;
 import com.group6.users.UserManager;
 
 /**
- * Holds the entire BTO System state
- *
- * See {@link com.group6.btoproject.BTOProjectManager}
- * See {@link com.group6.users.UserManager}
+ * Holds the entire BTO System state.
+ * See {@link com.group6.btoproject.BTOProjectManager}.
+ * See {@link com.group6.users.UserManager}.
  */
 public class BTOSystem {
 
@@ -15,18 +14,18 @@ public class BTOSystem {
     private final UserManager users = new UserManager();
 
     /**
-     * Getter for Project Manager
+     * Project manager getter.
      *
-     * @return Project Manager
+     * @return {@link #projects}
      */
     public BTOProjectManager getProjects() {
         return projects;
     }
 
     /**
-     * Getter for UserManager
+     * User manager getter.
      *
-     * @return User Manager
+     * @return {@link #users}
      */
     public UserManager getUsers() {
         return users;

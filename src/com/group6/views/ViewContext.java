@@ -5,6 +5,9 @@ import com.group6.BTOSystem;
 import java.util.Scanner;
 import java.util.Stack;
 
+/**
+ * Represents the context of a {@link View}.
+ */
 public final class ViewContext {
 
     private final BTOSystem btoSystem;
@@ -13,8 +16,8 @@ public final class ViewContext {
 
     /**
      *
-     * @param btoSystem bto system
-     * @param scanner scanner for input
+     * @param btoSystem bto system.
+     * @param scanner scanner for input.
      */
     public ViewContext(BTOSystem btoSystem, Scanner scanner) {
         this.btoSystem = btoSystem;
@@ -22,9 +25,9 @@ public final class ViewContext {
     }
 
     /**
-     * Getter for BTO System
+     * BTO System getter.
      *
-     * @return btoSystem
+     * @return {@link #btoSystem}
      */
     public BTOSystem getBtoSystem() {
         return btoSystem;
@@ -33,7 +36,7 @@ public final class ViewContext {
     /**
      * Getter for scanner. Avoid recreating Scanner instances, use this shared instance.
      *
-     * @return scanner
+     * @return {@link #scanner}
      */
     public Scanner getScanner() {
         return scanner;
@@ -52,9 +55,9 @@ public final class ViewContext {
     }
 
     /**
-     * Goes to view
+     * Goes to view.
      *
-     * @param view view to show next
+     * @param view view to show next.
      */
     public void pushView(View view) {
         viewStack.push(view);
@@ -62,7 +65,7 @@ public final class ViewContext {
     }
 
     /**
-     * Goes to the previous view
+     * Goes to the previous view.
      */
     public void popView() {
         View v = viewStack.pop();

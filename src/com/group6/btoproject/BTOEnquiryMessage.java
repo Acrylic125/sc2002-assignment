@@ -9,7 +9,7 @@ public class BTOEnquiryMessage {
     private final String message;
 
     /**
-     * Constructor for Message
+     * Constructor for Message.
      *
      * @param senderUserId sender user id.
      * @param message      message content.
@@ -20,7 +20,7 @@ public class BTOEnquiryMessage {
     }
 
     /**
-     * SenderUserId getter
+     * SenderUserId getter.
      *
      * @return {@link #senderUserId}
      */
@@ -29,7 +29,7 @@ public class BTOEnquiryMessage {
     }
 
     /**
-     * Message getter
+     * Message getter.
      *
      * @return {@link #message}
      */

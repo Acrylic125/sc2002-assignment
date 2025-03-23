@@ -6,7 +6,7 @@ import com.group6.utils.Utils;
 import java.util.UUID;
 
 /**
- * Simple tests for {@link com.group6.btoproject.BTOProject}
+ * Simple tests for {@link com.group6.btoproject.BTOProject}.
  */
 public class BTOProjectTests {
 
@@ -37,15 +37,12 @@ public class BTOProjectTests {
         System.out.println("Checking if applicant can apply while already having an application (Should error):");
         System.out.println("  Err: " + Utils.tryCatch(() -> {
             project.requestApply(userIds[0], "2 Room");
-            return null;
         }).getErr().getMessage());
         System.out.println("  Err: " + Utils.tryCatch(() -> {
             project.requestApply(userIds[1], "2 Room");
-            return null;
         }).getErr().getMessage());
         System.out.println("  Err: " + Utils.tryCatch(() -> {
             project.requestApply(userIds[2], "2 Room");
-            return null;
         }).getErr().getMessage());
         System.out.println("  Done!");
 
@@ -66,11 +63,9 @@ public class BTOProjectTests {
         System.out.println("Checking if can directly transition to BOOKED (Should error):");
         System.out.println("  Err: " + Utils.tryCatch(() -> {
             project.transitionApplicationStatus(applicationIds[2], BTOApplicationStatus.BOOKED);
-            return null;
         }).getErr().getMessage());
         System.out.println("  Err: " + Utils.tryCatch(() -> {
             project.transitionApplicationStatus(applicationIds[3], BTOApplicationStatus.BOOKED);
-            return null;
         }).getErr().getMessage());
         System.out.println("  Done!");
 
@@ -83,11 +78,9 @@ public class BTOProjectTests {
         System.out.println("Checking current approved applicants (status = BOOKED) can register to manage this project (Should error):");
         System.out.println("  Err: " + Utils.tryCatch(() -> {
             project.requestRegisterOfficer(userIds[0]);
-            return null;
         }).getErr().getMessage());
         System.out.println("  Err: " + Utils.tryCatch(() -> {
             project.requestRegisterOfficer(userIds[1]);
-            return null;
         }).getErr().getMessage());
         System.out.println("  Done!");
 
@@ -102,11 +95,9 @@ public class BTOProjectTests {
         System.out.println("Checking if HDB officer registrants can register (Should error):");
         System.out.println("  Err: " + Utils.tryCatch(() -> {
             project.requestRegisterOfficer(userIds[2]);
-            return null;
         }).getErr().getMessage());
         System.out.println("  Err: " + Utils.tryCatch(() -> {
             project.requestRegisterOfficer(userIds[4]);
-            return null;
         }).getErr().getMessage());
         System.out.println("  Done!");
 
@@ -125,21 +116,18 @@ public class BTOProjectTests {
         System.out.println("Checking if HDB officer registrants can be approved over limit (Should error):");
         System.out.println("  Err: " + Utils.tryCatch(() -> {
             project.transitionOfficerRegistrationStatus(userIds[4], HDBOfficerRegistrationStatus.SUCCESSFUL);
-            return null;
         }).getErr().getMessage());
         System.out.println("  Done!");
 
         System.out.println("Checking if approved HDB officer registrants can have their BTO application approved (Successful) (Should error):");
         System.out.println("  Err: " + Utils.tryCatch(() -> {
             project.transitionApplicationStatus(applicationIds[2], BTOApplicationStatus.SUCCESSFUL);
-            return null;
         }).getErr().getMessage());
         System.out.println("  Done!");
 
         System.out.println("Checking if status can be changed to SUCCESSFUL/BOOKED after limit:");
         System.out.println("  Err: " + Utils.tryCatch(() -> {
             project.transitionApplicationStatus(applicationIds[3], BTOApplicationStatus.SUCCESSFUL);
-            return null;
         }).getErr().getMessage());
 
         System.out.println("Checking if applicant can go from one application to another:");
@@ -188,7 +176,6 @@ public class BTOProjectTests {
         project.requestWithdrawApplication(applicationIds[0]);
         System.out.println("  Err (User 2): " + Utils.tryCatch(() -> {
             project.requestWithdrawApplication(applicationIds[1]);
-            return null;
         }).getErr().getMessage());
         System.out.println("  Done!");
 

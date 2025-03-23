@@ -3,11 +3,9 @@ package com.group6.btoproject;
 /**
  * Represents a HDB Officer's request to register as an officer
  * for this project.
- *
  * Note: Due to how the statuses are inferred and how registrations are managed
  * by {@link BTOProject}, this class should only be mutated by
  * {@link BTOProject} to avoid weird application states.
- *
  * See {@link HDBOfficerRegistrationStatus} for possible statuses.
  */
 public class HDBOfficerRegistration {
@@ -19,7 +17,7 @@ public class HDBOfficerRegistration {
     /**
      * Protected, only accessible by classes in the same package.
      * We want to limit the creation of this object to {@link BTOProject}.
-     * Constructor for HDBOfficerRegistration
+     * Constructor for HDBOfficerRegistration.
      *
      * @param id            id of the registration.
      * @param officerUserId officer user id.
@@ -32,7 +30,7 @@ public class HDBOfficerRegistration {
     }
 
     /**
-     * Id getter
+     * Id getter.
      *
      * @return {@link #id}
      */
@@ -41,7 +39,7 @@ public class HDBOfficerRegistration {
     }
 
     /**
-     * OfficerUserId getter
+     * OfficerUserId getter.
      *
      * @return {@link #officerUserId}
      */
@@ -50,7 +48,7 @@ public class HDBOfficerRegistration {
     }
 
     /**
-     * Status getter
+     * Status getter.
      *
      * @return {@link #status}
      */
@@ -60,7 +58,7 @@ public class HDBOfficerRegistration {
 
     /**
      * Mutations to status should be done through the {@link BTOProject}.
-     * Status setter
+     * Status setter.
      *
      * @param status new status
      */

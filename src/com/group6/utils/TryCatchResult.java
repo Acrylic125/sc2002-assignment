@@ -11,7 +11,7 @@ public final class TryCatchResult<T, E extends Throwable> {
     private final E err;
 
     /**
-     * Constructor for TryCatchResult
+     * Constructor for TryCatchResult.
      *
      * @param data data
      * @param err error
@@ -21,10 +21,20 @@ public final class TryCatchResult<T, E extends Throwable> {
         this.err = err;
     }
 
+    /**
+     * Data getter.
+     *
+     * @return {@link #data}
+     */
     public T getData() {
         return data;
     }
 
+    /**
+     * Error getter.
+     *
+     * @return {@link #err}
+     */
     public E getErr() {
         return err;
     }

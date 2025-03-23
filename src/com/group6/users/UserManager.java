@@ -1,13 +1,14 @@
 package com.group6.users;
 
-import com.group6.btoproject.BTOProject;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 /**
- * User manager
+ * User manager to manage/access users for the {@link com.group6.BTOSystem}
+ *
+ * See {@link User}.
+ * See {@link com.group6.BTOSystem}.
  */
 public class UserManager {
 
@@ -15,22 +16,22 @@ public class UserManager {
     private final Map<String, User> users = new HashMap<>();
 
     /**
-     * Constructor for UserManager
+     * Constructor for UserManager.
      */
     public UserManager() {
     }
 
     /**
-     * Users getter
+     * Users getter.
      *
-     * @return users
+     * @return {@link #users}
      */
     public Map<String, User> getUsers() {
         return users;
     }
 
     /**
-     * Get a user by id
+     * Get a user by id.
      *
      * @param id id of the project.
      * @return user with the id.
@@ -40,7 +41,7 @@ public class UserManager {
     }
 
     /**
-     * Add a user to the manager
+     * Add a user to the manager.
      *
      * @param user user to be added.
      */

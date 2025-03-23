@@ -2,7 +2,6 @@ package com.group6.btoproject;
 
 /**
  * Represents an applicant's BTO application.
- *
  * See {@link BTOApplicationStatus} for possible statuses.
  */
 public class BTOApplication {
@@ -13,7 +12,7 @@ public class BTOApplication {
     private BTOApplicationStatus status;
 
     /**
-     * Constructor for BTOApplication
+     * Constructor for BTOApplication.
      *
      * @param id              id of the application.
      * @param applicantUserId applicant user id.
@@ -28,7 +27,7 @@ public class BTOApplication {
     }
 
     /**
-     * Id getter
+     * Id getter.
      *
      * @return {@link #id}
      */
@@ -37,7 +36,7 @@ public class BTOApplication {
     }
 
     /**
-     * ApplicantUserId getter
+     * ApplicantUserId getter.
      *
      * @return {@link #applicantUserId}
      */
@@ -46,7 +45,7 @@ public class BTOApplication {
     }
 
     /**
-     * TypeId getter
+     * TypeId getter.
      *
      * @return {@link #typeId}
      */
@@ -55,7 +54,7 @@ public class BTOApplication {
     }
 
     /**
-     * Status getter
+     * Status getter.
      *
      * @return {@link #status}
      */
@@ -64,7 +63,7 @@ public class BTOApplication {
     }
 
     /**
-     * Status setter
+     * Status setter.
      *
      * @param status new status
      */

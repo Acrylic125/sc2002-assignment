@@ -1,8 +1,8 @@
 package com.group6.btoproject;
 
 /**
- * Represents a {@link  BTOProject} types.
- * (i.e. 2 Room, 3 ROom)
+ * Represents a {@link  BTOProject} types
+ * (i.e. 2 Room, 3 ROom).
  */
 public final class BTOProjectType {
 
@@ -11,7 +11,7 @@ public final class BTOProjectType {
     private final int maxQuantity;
 
     /**
-     * Constructor for BTOProjectType
+     * Constructor for BTOProjectType.
      *
      * @param id     id of the project type.
      * @param price    price of the project type.
@@ -24,7 +24,7 @@ public final class BTOProjectType {
     }
 
     /**
-     * Name getter
+     * Name getter.
      *
      * @return {@link #id}
      */
@@ -33,7 +33,7 @@ public final class BTOProjectType {
     }
 
     /**
-     * Price getter
+     * Price getter.
      *
      * @return {@link #price}
      */
@@ -42,7 +42,7 @@ public final class BTOProjectType {
     }
 
     /**
-     * Quantity getter
+     * Quantity getter.
      *
      * @return {@link #maxQuantity}
      */

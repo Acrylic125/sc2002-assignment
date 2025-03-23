@@ -29,7 +29,7 @@ public class BTOProject {
     private boolean isVisibleToPublic = true;
 
     /**
-     * Constructor for BTOProject
+     * Constructor for BTOProject.
      *
      * @param id            id of the project.
      * @param managerUserId manager user id.
@@ -40,7 +40,7 @@ public class BTOProject {
     }
 
     /**
-     * Id getter
+     * Id getter.
      *
      * @return {@link #id}
      */
@@ -49,7 +49,7 @@ public class BTOProject {
     }
 
     /**
-     * Name getter
+     * Name getter.
      *
      * @return {@link #name}
      */
@@ -58,7 +58,7 @@ public class BTOProject {
     }
 
     /**
-     * Name setter
+     * Name setter.
      *
      * @param name name
      */
@@ -67,7 +67,7 @@ public class BTOProject {
     }
 
     /**
-     * Neighbourhood getter
+     * Neighbourhood getter.
      *
      * @return {@link #neighbourhood}
      */
@@ -76,7 +76,7 @@ public class BTOProject {
     }
 
     /**
-     * Neighbourhood setter
+     * Neighbourhood setter.
      *
      * @param neighbourhood neighbourhood
      */
@@ -85,7 +85,7 @@ public class BTOProject {
     }
 
     /**
-     * ManagerUserId getter
+     * ManagerUserId getter.
      *
      * @return {@link #managerUserId}
      */
@@ -94,7 +94,7 @@ public class BTOProject {
     }
 
     /**
-     * ProjectTypes getter
+     * ProjectTypes getter.
      *
      * @return {@link #projectTypes}
      */
@@ -103,7 +103,7 @@ public class BTOProject {
     }
 
     /**
-     * Enquiries getter
+     * Enquiries getter.
      * Create copy to avoid direct mutations.
      * 
      * @return {@link #enquiries}
@@ -113,7 +113,7 @@ public class BTOProject {
     }
 
     /**
-     * Applications getter
+     * Applications getter.
      * Create copy to avoid direct mutations.
      * Due to the nature of how BTOApplication states are inferred, we
      * avoid exposing the map which can be mutated directly.
@@ -125,7 +125,7 @@ public class BTOProject {
     }
 
     /**
-     * HdbOfficerRegistrations getter
+     * HdbOfficerRegistrations getter.
      * Due to the nature of how HDBOfficerRegistration states are inferred, we
      * avoid exposing the map which can be mutated directly.
      *
@@ -136,7 +136,7 @@ public class BTOProject {
     }
 
     /**
-     * Withdrawals getter
+     * Withdrawals getter.
      * Due to the nature of how BTOApplicationWithdrawal states are inferred, we
      * avoid exposing the map which can be mutated directly.
      *
@@ -157,7 +157,7 @@ public class BTOProject {
 
     /**
      *
-     * @param applicantUserId applicant user id
+     * @param applicantUserId applicant user id.
      * @return true if the applicant is booked for this project.
      */
     public boolean isApplicantBooked(String applicantUserId) {
@@ -168,7 +168,7 @@ public class BTOProject {
 
     /**
      *
-     * @param typeId type id
+     * @param typeId type id.
      * @return count of booked applications (Count of occupied)
      * @throws RuntimeException if the project type does not exist.
      */

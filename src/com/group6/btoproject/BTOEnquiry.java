@@ -12,9 +12,9 @@ import java.util.UUID;
 public class BTOEnquiry {
     /**
      *
-     * @param senderMessage sender message
-     * @param responseMessage response message
-     * @return a BTOEnquiry instance
+     * @param senderMessage sender message.
+     * @param responseMessage response message.
+     * @return {@link BTOEnquiry} instance.
      */
     public static BTOEnquiry create(BTOEnquiryMessage senderMessage, BTOEnquiryMessage responseMessage) {
         return new BTOEnquiry(UUID.randomUUID().toString(), senderMessage, responseMessage);
@@ -25,7 +25,7 @@ public class BTOEnquiry {
     private BTOEnquiryMessage responseMessage;
 
     /**
-     * Constructor for Enquiry
+     * Constructor for Enquiry.
      *
      * @param id              id of the enquiry.
      * @param senderMessage   sender message.
@@ -38,7 +38,7 @@ public class BTOEnquiry {
     }
 
     /**
-     * Id getter
+     * Id getter.
      *
      * @return {@link #id}
      */
@@ -47,7 +47,7 @@ public class BTOEnquiry {
     }
 
     /**
-     * SenderMessage getter
+     * SenderMessage getter.
      *
      * @return {@link #senderMessage}
      */
@@ -57,14 +57,14 @@ public class BTOEnquiry {
 
     /**
      *
-     * @param senderMessage sender message
+     * @param senderMessage sender message.
      */
     public void setSenderMessage(BTOEnquiryMessage senderMessage) {
         this.senderMessage = senderMessage;
     }
 
     /**
-     * ResponseMessage getter
+     * ResponseMessage getter.
      *
      * @return {@link #responseMessage}
      */

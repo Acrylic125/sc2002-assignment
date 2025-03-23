@@ -2,7 +2,6 @@ package com.group6.btoproject;
 
 /**
  * Represents an applicant's request to withdraw from a BTO Application.
- *
  * See {@link BTOApplicationWithdrawalStatus} for possible statuses.
  */
 public class BTOApplicationWithdrawal {
@@ -12,7 +11,7 @@ public class BTOApplicationWithdrawal {
     private BTOApplicationWithdrawalStatus status;
 
     /**
-     * Constructor for BTOApplicationWithdrawal
+     * Constructor for BTOApplicationWithdrawal.
      *
      * @param id            id of the withdrawal.
      * @param applicationId application id tied to this withdrawal request.
@@ -25,7 +24,7 @@ public class BTOApplicationWithdrawal {
     }
 
     /**
-     * Id getter
+     * Id getter.
      *
      * @return {@link #id}
      */
@@ -34,7 +33,7 @@ public class BTOApplicationWithdrawal {
     }
 
     /**
-     * ApplicationId getter
+     * ApplicationId getter.
      *
      * @return {@link #applicationId}
      */
@@ -43,7 +42,7 @@ public class BTOApplicationWithdrawal {
     }
 
     /**
-     * Status getter
+     * Status getter.
      *
      * @return {@link #status}
      */
@@ -52,7 +51,7 @@ public class BTOApplicationWithdrawal {
     }
 
     /**
-     * Status setter
+     * Status setter.
      *
      * @param status new status
      */

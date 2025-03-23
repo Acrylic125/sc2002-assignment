@@ -4,9 +4,7 @@ import com.group6.btoproject.BTOProject;
 import com.group6.btoproject.BTOProjectManager;
 import com.group6.btoproject.BTOProjectType;
 import com.group6.btoproject.HDBOfficerRegistrationStatus;
-import com.group6.users.Applicant;
-import com.group6.users.UserManager;
-import com.group6.users.UserMartialStatus;
+import com.group6.users.*;
 import com.group6.views.ExampleView;
 import com.group6.views.ViewContext;
 
@@ -74,35 +72,35 @@ public class Main {
         userManager.addUser(rachel);
 
         // Adding Daniel
-        Applicant daniel = new Applicant(UUID.randomUUID().toString(), "T2109876H", "password");
+        HDBOfficer daniel = new HDBOfficer(UUID.randomUUID().toString(), "T2109876H", "password");
         daniel.setName("Daniel");
         daniel.setAge(36);
         daniel.setMartialStatus(UserMartialStatus.SINGLE);
         userManager.addUser(daniel);
 
         // Adding Emily
-        Applicant emily = new Applicant(UUID.randomUUID().toString(), "S6543210I", "password");
+        HDBOfficer emily = new HDBOfficer(UUID.randomUUID().toString(), "S6543210I", "password");
         emily.setName("Emily");
         emily.setAge(28);
         emily.setMartialStatus(UserMartialStatus.SINGLE);
         userManager.addUser(emily);
 
         // Adding David
-        Applicant david = new Applicant(UUID.randomUUID().toString(), "T1234567J", "password");
+        HDBOfficer david = new HDBOfficer(UUID.randomUUID().toString(), "T1234567J", "password");
         david.setName("David");
         david.setAge(29);
         david.setMartialStatus(UserMartialStatus.MARRIED);
         userManager.addUser(david);
 
         // Adding Michael
-        Applicant michael = new Applicant(UUID.randomUUID().toString(), "T8765432F", "password");
+        HDBManager michael = new HDBManager(UUID.randomUUID().toString(), "T8765432F", "password");
         michael.setName("Michael");
         michael.setAge(36);
         michael.setMartialStatus(UserMartialStatus.SINGLE);
         userManager.addUser(michael);
 
         // Adding Jessica
-        Applicant jessica = new Applicant(UUID.randomUUID().toString(), "S5678901G", "password");
+        HDBManager jessica = new HDBManager(UUID.randomUUID().toString(), "S5678901G", "password");
         jessica.setName("Jessica");
         jessica.setAge(26);
         jessica.setMartialStatus(UserMartialStatus.MARRIED);

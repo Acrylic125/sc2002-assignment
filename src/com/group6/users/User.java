@@ -1,9 +1,9 @@
 package com.group6.users;
 
 /**
- * See {@link Applicant}
- * See {@link HDBOfficer}
- * See {@link HDBManager}
+ * See {@link Applicant}.
+ * See {@link HDBOfficer}.
+ * See {@link HDBManager}.
  */
 public abstract class User {
 
@@ -15,11 +15,11 @@ public abstract class User {
     private UserMartialStatus martialStatus = UserMartialStatus.SINGLE;
 
     /**
-     * Constructor for User
+     * Constructor for User.
      *
-     * @param id       id
-     * @param nric     username
-     * @param password password
+     * @param id       id.
+     * @param nric     username.
+     * @param password password.
      */
     public User(String id, String nric, String password) {
         this.id = id;
@@ -28,24 +28,25 @@ public abstract class User {
     }
 
     /**
-     * Getter for {{@link #id}}.
+     * Id getter
      *
-     * @return id
+     * @return {@link #id}
      */
     public String getId() {
         return id;
     }
 
     /**
-     * Getter for {{@link #nric}}.
+     * Nric getter.
      *
-     * @return nric
+     * @return {@link #nric}
      */
     public String getNRIC() {
         return nric;
     }
 
     /**
+     * Nric setter.
      *
      * @param nric nric.
      */
@@ -54,15 +55,16 @@ public abstract class User {
     }
 
     /**
-     * Getter for {{@link #password}}.
+     * Password getter.
      *
-     * @return password
+     * @return {@link #password}
      */
     public String getPassword() {
         return password;
     }
 
     /**
+     * Password setter.
      *
      * @param password password.
      */
@@ -71,9 +73,9 @@ public abstract class User {
     }
 
     /**
-     * Getter for {{@link #name}}.
+     * Name getter.
      *
-     * @return name
+     * @return {@link #name}
      */
     public String getName() {
         return name;
@@ -88,7 +90,7 @@ public abstract class User {
     }
 
     /**
-     * Getter for {{@link #age}}.
+     * Age getter.
      *
      * @return age
      */
@@ -97,6 +99,7 @@ public abstract class User {
     }
 
     /**
+     * Age setter.
      *
      * @param age age.
      */
@@ -105,15 +108,16 @@ public abstract class User {
     }
 
     /**
-     * Getter for {{@link #martialStatus}}.
+     * Marital status getter.
      *
-     * @return martialStatus
+     * @return {@link #martialStatus}
      */
     public UserMartialStatus getMartialStatus() {
         return martialStatus;
     }
 
     /**
+     * Marital status setter.
      *
      * @param martialStatus martialStatus.
      */

@@ -123,6 +123,8 @@ public class Main {
         acaciaBreezeYishun.requestRegisterOfficer(emily.getId());
         acaciaBreezeYishun.transitionOfficerRegistrationStatus(daniel.getId(), HDBOfficerRegistrationStatus.SUCCESSFUL);
         acaciaBreezeYishun.transitionOfficerRegistrationStatus(emily.getId(), HDBOfficerRegistrationStatus.SUCCESSFUL);
+
+        btoSystem.getProjects().addProject(acaciaBreezeYishun);
     }
 
     // public static List<User> parseUserCSV(String filePath) {

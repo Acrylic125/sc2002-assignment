@@ -59,9 +59,9 @@ public final class ViewContext {
     }
 
     /**
-     * Goes to view.
+     * Start from a view.
      *
-     * @param view view to show next.
+     * @param view root view.
      */
     public void startFromView(View view) throws RuntimeException {
         if (!viewStack.isEmpty()) {
@@ -81,20 +81,6 @@ public final class ViewContext {
             } else {
                 viewStack.push(next);
             }
-        }
-    }
-    // public void pushView(View view) {
-    // viewStack.push(view);
-    // view.render(this);
-    // }
-
-    /**
-     * Goes to the previous view.
-     */
-    public void popView() {
-        viewStack.pop();
-        if (!viewStack.isEmpty()) {
-            getCurrentView().render(this);
         }
     }
 

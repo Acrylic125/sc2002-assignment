@@ -53,6 +53,12 @@ public class ApplicantViewAppliedProjects implements View {
     }
 
     private void showApplications(List<BTOFullApplication> fullApplications) {
+        System.out.println("Applied Projects");
+        if (fullApplications.isEmpty()) {
+            System.out.println("(No Projects Applied)");
+            System.out.println("");
+            return;
+        }
         final UserManager userManager = ctx.getBtoSystem().getUsers();
 
         int lastIndex = Math.min(page * PAGE_SIZE, fullApplications.size());
@@ -73,7 +79,7 @@ public class ApplicantViewAppliedProjects implements View {
                     .map(Optional::get)
                     .toList();
             String managerName = managerOpt.isPresent() ? managerOpt.get().getName() : "(Unknown)";
-            String officerNames = officers.size() > 0
+            String officerNames = !officers.isEmpty()
                     ? officers.stream().map(User::getName).reduce((a, b) -> {
                         if (a.isEmpty()) {
                             return b;
@@ -137,7 +143,5 @@ public class ApplicantViewAppliedProjects implements View {
             }
         }
     }
-
-
 
 }

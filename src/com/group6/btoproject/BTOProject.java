@@ -237,6 +237,10 @@ public class BTOProject {
      *                          - is BOOKED and has the same applicantUserId.
      */
     public void requestApply(String applicantUserId, String typeId) throws RuntimeException {
+        if (!isApplicationWindowOpen()) {
+            throw new RuntimeException("Application window is closed.");
+        }
+
         getActiveApplication(applicantUserId)
                 .ifPresent(application -> {
                     final BTOApplicationStatus status = application.getStatus();

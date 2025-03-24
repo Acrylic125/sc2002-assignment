@@ -66,8 +66,14 @@ public class ApplicantApplyProjectView implements View {
             return null;
         }
 
-        project.requestApply(user.getId(), typeOpt.get());
-        System.out.println("Application submitted successfully.");
+        Utils.tryCatch(() -> {
+            project.requestApply(user.getId(), typeOpt.get());
+        }).getErr().ifPresentOrElse((err) -> {
+            System.out.println("Failed to apply for project: ");
+            System.out.println(err.getMessage());
+        }, () -> {
+            System.out.println("Application submitted successfully.");
+        });
         System.out.println("Type anything to continue.");
         scanner.nextLine();
 
@@ -96,6 +102,7 @@ public class ApplicantApplyProjectView implements View {
                 System.out.println("The application window for this project is closed. Please choose another project.");
                 System.out.println("Type anything to continue.");
                 scanner.nextLine();
+                continue;
             }
 
             if (user instanceof HDBOfficer) {

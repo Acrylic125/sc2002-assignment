@@ -103,16 +103,14 @@ public class ApplicantApplicationWithdrawalView implements View {
         System.out.println("Type 'y' to confirm or type anything else to cancel:");
         String option = scanner.nextLine().trim();
         if (option.equals("y")) {
-            System.out.println("Sending a request to withdraw from this project.");
             Utils.tryCatch(() -> {
-                        project.requestWithdrawApplication(user.getId());
-                    })
-                    .getErr()
-                    .ifPresentOrElse((err) -> {
-                        System.out.println("Failed to withdraw from the project: " + err.getMessage());
-                    }, () -> {
-                        System.out.println("Successfully requested to withdraw from the project.");
-                    });
+                project.requestWithdrawApplication(fullApplication.getApplication().getId());
+            }).getErr().ifPresentOrElse((err) -> {
+                System.out.println("Failed to withdraw from the project: ");
+                System.out.println(err.getMessage());
+            }, () -> {
+                System.out.println("Successfully requested to withdraw from the project.");
+            });
             System.out.println("Type anything to continue.");
             scanner.nextLine();
         }

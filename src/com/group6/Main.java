@@ -7,6 +7,7 @@ import com.group6.btoproject.HDBOfficerRegistrationStatus;
 import com.group6.users.*;
 import com.group6.views.ExampleView;
 import com.group6.views.ViewContext;
+import com.group6.views.applicant.ApplicantHomeView;
 import com.group6.views.applicant.ApplicantProjectsView;
 
 import java.time.LocalDate;
@@ -30,7 +31,7 @@ public class Main {
         final ViewContext ctx = new ViewContext(btoSystem, new Scanner(System.in));
         ctx.setUser(
                 btoSystem.getUsers().getUsers().values().stream().findFirst().orElseThrow());
-        ctx.startFromView(new ApplicantProjectsView());
+        ctx.startFromView(new ApplicantHomeView());
         System.out.println("App closed!");
     }
 

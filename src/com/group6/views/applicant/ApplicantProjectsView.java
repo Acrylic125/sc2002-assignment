@@ -70,7 +70,7 @@ public class ApplicantProjectsView implements View {
                     .map(Optional::get)
                     .toList();
             String managerName = managerOpt.isPresent() ? managerOpt.get().getName() : "(Unknown)";
-            String officerNames = officers.size() > 0
+            String officerNames = !officers.isEmpty()
                     ? officers.stream().map(User::getName).reduce((a, b) -> {
                         if (a.isEmpty()) {
                             return b;

@@ -32,7 +32,34 @@ public class ApplicantHomeView implements View {
             return null;
         }
 
-        return null;
+        return showOptions();
+    }
+
+    private View showOptions() {
+        final Scanner scanner = ctx.getScanner();
+
+        while (true) {
+            System.out.println("Applicant Home Menu");
+            System.out.println("1. View All Projects");
+            System.out.println("2. View My Applied Projects");
+            System.out.println("3. View My Enquiries");
+            System.out.println("");
+            System.out.println("Type the number of the option you want to select or leave empty ('') to cancel.");
+
+            String option = scanner.nextLine().trim();
+            switch (option) {
+                case "1":
+                    return new ApplicantProjectsView();
+                case "2":
+                    return new ApplicantViewAppliedProjects();
+                case "":
+                    return null;
+                default:
+                    System.out.println("Invalid option.");
+                    System.out.println("Type anything to continue.");
+                    scanner.nextLine();
+            }
+        }
     }
 
 }

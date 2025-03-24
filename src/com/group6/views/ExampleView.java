@@ -12,7 +12,6 @@ public class ExampleView implements View {
             System.out.println("Hello! Type something (Or '#' to return: ");
             String str = scanner.nextLine();
             if (Objects.equals(str, "#")) {
-                ctx.popView();
                 return null;
             }
             System.out.println("You typed: " + str);

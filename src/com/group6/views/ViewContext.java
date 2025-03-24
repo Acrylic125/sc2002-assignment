@@ -60,7 +60,12 @@ public final class ViewContext {
 
     /**
      * Start from a view.
-     *
+     * Within a view, you can navigate to other views by returning in {@link View#render(ViewContext)}.
+     * Return null to go back (i.e. cancel).
+     * Return a new view instance to go to that view.
+     * Return the view (i.e. this) to stay within the view.
+     * See {@link com.group6.views.applicant.ApplicantProjectsView} and {@link com.group6.views.applicant.ApplicantProjectEnquiryView} for an example.
+     * 
      * @param view root view.
      */
     public void startFromView(View view) throws RuntimeException {

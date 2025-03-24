@@ -13,7 +13,7 @@ public class ExampleView implements View {
             String str = scanner.nextLine();
             if (Objects.equals(str, "#")) {
                 ctx.popView();
-                break;
+                return null;
             }
             System.out.println("You typed: " + str);
         }

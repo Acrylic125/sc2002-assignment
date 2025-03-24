@@ -40,7 +40,12 @@ public class ApplicantProjectsView implements View {
 
         this.ctx = ctx;
         this.user = userOpt.get();
-        this.projects = new ArrayList<>(projectManager.getProjects().values().stream().toList());
+        this.projects = new ArrayList<>(
+                projectManager.getProjects().values().stream()
+                        .filter((project) -> project.isVisibleToPublic()
+                                || user instanceof HDBOfficer
+                                || user instanceof HDBManager)
+                        .toList());
         this.projects.sort((a, b) -> a.getName().compareTo(b.getName()));
 
         this.showProjects();
@@ -54,7 +59,7 @@ public class ApplicantProjectsView implements View {
         // Render the projects in the page.
         for (int i = (page - 1) * PAGE_SIZE; i < lastIndex; i++) {
             final BTOProject project = projects.get(i);
-            final List<BTOProjectType> types = project.getProjectTypes();
+            final List<BTOProjectType> types = new ArrayList<>(project.getProjectTypes());
 
             Optional<User> managerOpt = userManager.getUser(project.getManagerUserId());
             List<User> officers = project.getManagingOfficerRegistrations().stream()
@@ -78,8 +83,10 @@ public class ApplicantProjectsView implements View {
             System.out.println("ID: " + project.getId());
             System.out.println("Types (No. Units Available / Total No. Units / Price):");
             if (types.size() <= 0) {
-                System.out.println("  No types available");
+                System.out.println("  (No types available)");
             } else {
+                types.sort((a, b) -> a.getId().compareTo(b.getId()));
+
                 for (BTOProjectType type : types) {
                     System.out.println(
                             "  " + type.getId() + " " +
@@ -93,6 +100,7 @@ public class ApplicantProjectsView implements View {
             if (user instanceof HDBOfficer || user instanceof HDBManager) {
                 System.out.println("Visible to public: " + project.isVisibleToPublic());
             }
+            System.out.println("");
         }
     }
 
@@ -100,12 +108,13 @@ public class ApplicantProjectsView implements View {
         final Scanner scanner = ctx.getScanner();
 
         while (true) {
-            System.out.println("");
             System.out.println("Page " + page + " / " + getLastPage() +
                     " - Type 'e' to enquire, 'a' to apply, 'f' to filter, 'n' to go to next page, 'p' to go to previous page, 'page' to go to a specific page,  or leave empty ('') to go back:");
 
             String option = scanner.nextLine().trim();
             switch (option) {
+                case "a":
+                    return new ApplicantApplyProject();
                 case "e":
                     return new ApplicantProjectEnquiryView();
                 case "":

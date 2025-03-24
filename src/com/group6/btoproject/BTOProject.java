@@ -574,6 +574,16 @@ public class BTOProject {
     }
 
     /**
+     * Check if the application window is open.
+     *
+     * @return true if the application window is open.
+     */
+    public boolean isApplicationWindowOpen() {
+        final long currentTime = System.currentTimeMillis();
+        return currentTime >= applicationOpenTimestamp && currentTime <= applicationCloseTimestamp;
+    }
+
+    /**
      * OfficerLimit getter
      *
      * @return {@link #officerLimit}

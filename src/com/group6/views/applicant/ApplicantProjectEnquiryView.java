@@ -27,10 +27,8 @@ public class ApplicantProjectEnquiryView implements View {
             System.out.println("You are not logged in. Please sign in.");
             return null;
         }
-        final User user = userOpt.get();
-
         this.ctx = ctx;
-        this.user = user;
+        this.user = userOpt.get();
 
         final Optional<BTOProject> projectOpt = showRequestProject();
         if (projectOpt.isEmpty()) {

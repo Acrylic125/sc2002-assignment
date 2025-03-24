@@ -1,11 +1,13 @@
 package com.group6.btoproject;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 /**
- * Represents a central point to manage/access projects of a {@link com.group6.BTOSystem}
+ * Represents a central point to manage/access projects of a
+ * {@link com.group6.BTOSystem}
  *
  * See {@link BTOProject}.
  * See {@link com.group6.BTOSystem}.
@@ -47,6 +49,20 @@ public class BTOProjectManager {
      */
     public void addProject(BTOProject project) {
         projects.put(project.getId(), project);
+    }
+
+    /**
+     * Get all active projects for a user.
+     * Although a user SHOULD only have one active application for a project,
+     * there is no guarantee that this is the case on the code level.
+     *
+     * @param userId id of the user.
+     * @return list of active projects for the user.
+     */
+    public List<BTOProject> getActiveProjectsForUser(String userId) {
+        return projects.values().stream()
+                .filter(p -> p.getActiveApplication(userId).isPresent())
+                .toList();
     }
 
 }

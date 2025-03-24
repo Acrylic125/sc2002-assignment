@@ -127,7 +127,19 @@ public class Main {
         acaciaBreezeYishun.transitionOfficerRegistrationStatus(daniel.getId(), HDBOfficerRegistrationStatus.SUCCESSFUL);
         acaciaBreezeYishun.transitionOfficerRegistrationStatus(emily.getId(), HDBOfficerRegistrationStatus.SUCCESSFUL);
 
+        BTOProject someBtoProject = new BTOProject(UUID.randomUUID().toString(), jessica.getId());
+        someBtoProject.setName("Some BTO Project");
+        someBtoProject.setNeighbourhood("Palau NTU");
+        someBtoProject.addProjectType(new BTOProjectType("2 Room", 350_000, 2));
+        someBtoProject.addProjectType(new BTOProjectType("3 Room", 450_000, 2));
+
+        someBtoProject.setApplicationWindow(
+                Date.from(LocalDate.of(2025, 2, 15).atStartOfDay(ZoneId.systemDefault()).toInstant()),
+                Date.from(LocalDate.of(2025, 4, 20).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        someBtoProject.setOfficerLimit(3);
+
         btoSystem.getProjects().addProject(acaciaBreezeYishun);
+        btoSystem.getProjects().addProject(someBtoProject);
     }
 
     // public static List<User> parseUserCSV(String filePath) {

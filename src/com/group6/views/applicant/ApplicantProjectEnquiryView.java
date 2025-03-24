@@ -11,6 +11,7 @@ import com.group6.btoproject.BTOProjectManager;
 import com.group6.users.HDBManager;
 import com.group6.users.HDBOfficer;
 import com.group6.users.User;
+import com.group6.users.UserManager;
 import com.group6.views.View;
 import com.group6.views.ViewContext;
 
@@ -96,6 +97,9 @@ public class ApplicantProjectEnquiryView implements View {
             String opt = scanner.nextLine();
             switch (opt) {
                 case "v":
+                    showViewEnquiry(project);
+                    // Reshow enquiries.
+                    showEnquiries(project);
                     break;
                 case "a":
                     showAddEnquiry(project);
@@ -117,6 +121,51 @@ public class ApplicantProjectEnquiryView implements View {
                 default:
                     System.out.println("Invalid option.");
             }
+        }
+    }
+
+    private void showViewEnquiry(BTOProject project) {
+        final UserManager userManager = ctx.getBtoSystem().getUsers();
+        final Scanner scanner = ctx.getScanner();
+
+        BTOEnquiry enquiry;
+        while (true) {
+            System.out.println("What would you like to view?");
+            System.out.println("Type the enquiry id, or leave empty ('') to cancel:");
+            String opt = scanner.nextLine().trim();
+            if (opt.isEmpty()) {
+                return;
+            }
+            Optional<BTOEnquiry> enquiryOpt = project.getEnquiries().stream()
+                    .filter((_enquiry) -> _enquiry.getId().equals(opt))
+                    .findFirst();
+            if (enquiryOpt.isEmpty()) {
+                System.out.println("Enquiry not found. Please type in a valid id.");
+                continue;
+            }
+            enquiry = enquiryOpt.get();
+            if (!enquiry.getSenderMessage().getSenderUserId().equals(user.getId())
+                    || !(user instanceof HDBOfficer || user instanceof HDBManager)) {
+                System.out.println(
+                        "You are not the sender of this enquiry, you may not view it. Please type in a valid id.");
+                continue;
+            }
+            break;
+        }
+
+        System.out.println("Enquiry ID: " + enquiry.getId());
+        System.out.println("Message: " + enquiry.getSenderMessage().getMessage());
+        Optional<BTOEnquiryMessage> response = enquiry.getResponseMessage();
+        if (response.isPresent()) {
+            System.out.println("Response: " + response.get().getMessage());
+            Optional<User> responderOpt = userManager.getUser(response.get().getSenderUserId());
+            if (responderOpt.isPresent()) {
+                System.out.println("Responder: " + responderOpt.get().getName());
+            } else {
+                System.out.println("Responder: (Unknown)");
+            }
+        } else {
+            System.out.println("Response: (No Response)");
         }
     }
 

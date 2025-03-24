@@ -17,21 +17,23 @@ import com.group6.utils.Utils;
 import com.group6.views.View;
 import com.group6.views.ViewContext;
 
-public class ApplicantApplyProject implements View {
+public class ApplicantApplyProjectView implements View {
     private ViewContext ctx;
     private User user;
 
     @Override
     public View render(ViewContext ctx) {
+        final Scanner scanner = ctx.getScanner();
         final Optional<User> userOpt = ctx.getUser();
         if (userOpt.isEmpty()) {
             System.out.println("You are not logged in. Please sign in.");
+            System.out.println("Type anything to continue.");
+            scanner.nextLine();
             return null;
         }
         this.ctx = ctx;
         this.user = userOpt.get();
 
-        final Scanner scanner = ctx.getScanner();
         if (user instanceof HDBManager) {
             System.out.println("HDB Managers cannot apply for projects.");
             System.out.println("Type anything to continue.");
@@ -131,7 +133,7 @@ public class ApplicantApplyProject implements View {
                 System.out.println("  (No types available)");
                 System.out.println("Type anything to continue.");
                 scanner.nextLine();
-                return null;
+                return Optional.empty();
             } else {
                 types.sort((a, b) -> a.getId().compareTo(b.getId()));
 
@@ -151,7 +153,7 @@ public class ApplicantApplyProject implements View {
                     System.out.println("All types are fully booked. Please choose another project.");
                     System.out.println("Type anything to continue.");
                     scanner.nextLine();
-                    return null;
+                    return Optional.empty();
                 }
 
                 System.out

@@ -114,7 +114,7 @@ public class ApplicantProjectsView implements View {
             String option = scanner.nextLine().trim();
             switch (option) {
                 case "a":
-                    return new ApplicantApplyProject();
+                    return new ApplicantApplyProjectView();
                 case "e":
                     return new ApplicantProjectEnquiryView();
                 case "":

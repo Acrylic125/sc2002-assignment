@@ -14,18 +14,35 @@ import com.group6.btoproject.BTOProjectManager.BTOFullApplication;
 import com.group6.users.User;
 import com.group6.users.UserManager;
 import com.group6.utils.Utils;
+import com.group6.views.PaginatedView;
 import com.group6.views.View;
 import com.group6.views.ViewContext;
 
-public class ApplicantViewMyAppliedProjects implements View {
+public class ApplicantViewMyAppliedProjects implements PaginatedView {
     private static final int PAGE_SIZE = 3;
 
     private ViewContext ctx;
     private User user;
     private int page = 1;
+    private List<BTOFullApplication> applications = new ArrayList<>();
 
-    private int getLastPage(List<BTOFullApplication> applications) {
-        return applications.size() / PAGE_SIZE + 1;
+    @Override
+    public int getLastPage() {
+        int size = applications.size();
+        if (size % PAGE_SIZE == 0) {
+            return size / PAGE_SIZE;
+        }
+        return size / PAGE_SIZE + 1;
+    }
+
+    @Override
+    public void setPage(int page) {
+        this.page = page;
+    }
+
+    @Override
+    public int getPage() {
+        return page;
     }
 
     @Override
@@ -43,27 +60,26 @@ public class ApplicantViewMyAppliedProjects implements View {
         this.ctx = ctx;
         this.user = userOpt.get();
 
-        List<BTOFullApplication> applications = new ArrayList<>(
+        this.applications = new ArrayList<>(
                 projectManager.getAllApplicationsForUser(user.getId()));
         applications.sort((a, b) -> a.getProject().getName().compareTo(b.getProject().getName()));
 
-        showApplications(applications);
-        return showOptions(applications);
+        return showOptions();
     }
 
-    private void showApplications(List<BTOFullApplication> fullApplications) {
+    private void showApplications() {
         System.out.println("Applied Projects");
-        if (fullApplications.isEmpty()) {
+        if (applications.isEmpty()) {
             System.out.println("(No Projects Applied)");
             System.out.println("");
             return;
         }
         final UserManager userManager = ctx.getBtoSystem().getUsers();
 
-        int lastIndex = Math.min(page * PAGE_SIZE, fullApplications.size());
+        int lastIndex = Math.min(page * PAGE_SIZE, applications.size());
         // Render the projects in the page.
         for (int i = (page - 1) * PAGE_SIZE; i < lastIndex; i++) {
-            final BTOFullApplication fullApplication = fullApplications.get(i);
+            final BTOFullApplication fullApplication = applications.get(i);
             final BTOProject project = fullApplication.getProject();
             final BTOApplication application = fullApplication.getApplication();
             final Optional<BTOApplicationWithdrawal> withdrawalOpt = fullApplication.getWithdrawal();
@@ -120,11 +136,12 @@ public class ApplicantViewMyAppliedProjects implements View {
         }
     }
 
-    private View showOptions(List<BTOFullApplication> fullApplications) {
+    private View showOptions() {
         final Scanner scanner = ctx.getScanner();
 
         while (true) {
-            System.out.println("Page " + page + " / " + getLastPage(fullApplications) +
+            showApplications();
+            System.out.println("Page " + page + " / " + getLastPage() +
                     " - Type 'e' to enquire, 'a' to apply, 'f' to filter, 'n' to go to next page, 'p' to go to previous page, 'page' to go to a specific page,  or leave empty ('') to go back:");
 
             String option = scanner.nextLine().trim();
@@ -133,6 +150,31 @@ public class ApplicantViewMyAppliedProjects implements View {
                     return new ApplicantProjectEnquiryView();
                 case "w":
                     return new ApplicantApplicationWithdrawalView();
+                case "n":
+                    if (!this.nextPage()) {
+                        System.out.println("You are already on the last page.");
+                        System.out.println("Type anything to continue.");
+                        scanner.nextLine();
+                    }
+                    break;
+                case "p":
+                    if (!this.prevPage()) {
+                        System.out.println("You are already on the first page.");
+                        System.out.println("Type anything to continue.");
+                        scanner.nextLine();
+                    }
+                    break;
+                case "page":
+                    Optional<Integer> pageOpt = this.requestPage(scanner);
+                    if (pageOpt.isEmpty()) {
+                        break;
+                    }
+                    if (!this.page(pageOpt.get())) {
+                        System.out.println("Invalid page number.");
+                        System.out.println("Type anything to continue.");
+                        scanner.nextLine();
+                    }
+                    break;
                 case "":
                     return null;
                 default:

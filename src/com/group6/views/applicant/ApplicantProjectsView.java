@@ -13,10 +13,11 @@ import com.group6.users.HDBOfficer;
 import com.group6.users.User;
 import com.group6.users.UserManager;
 import com.group6.utils.Utils;
+import com.group6.views.PaginatedView;
 import com.group6.views.View;
 import com.group6.views.ViewContext;
 
-public class ApplicantProjectsView implements View {
+public class ApplicantProjectsView implements PaginatedView {
 
     private static final int PAGE_SIZE = 3;
 
@@ -25,8 +26,23 @@ public class ApplicantProjectsView implements View {
     private int page = 1;
     private List<BTOProject> projects = new ArrayList<>();
 
-    private int getLastPage() {
-        return projects.size() / PAGE_SIZE + 1;
+    @Override
+    public int getLastPage() {
+        int size = projects.size();
+        if (size % PAGE_SIZE == 0) {
+            return size / PAGE_SIZE;
+        }
+        return size / PAGE_SIZE + 1;
+    }
+
+    @Override
+    public void setPage(int page) {
+        this.page = page;
+    }
+
+    @Override
+    public int getPage() {
+        return page;
     }
 
     @Override
@@ -48,7 +64,6 @@ public class ApplicantProjectsView implements View {
                         .toList());
         this.projects.sort((a, b) -> a.getName().compareTo(b.getName()));
 
-        this.showProjects();
         return this.showOptions();
     }
 
@@ -108,6 +123,7 @@ public class ApplicantProjectsView implements View {
         final Scanner scanner = ctx.getScanner();
 
         while (true) {
+            showProjects();
             System.out.println("Page " + page + " / " + getLastPage() +
                     " - Type 'e' to enquire, 'a' to apply, 'f' to filter, 'n' to go to next page, 'p' to go to previous page, 'page' to go to a specific page,  or leave empty ('') to go back:");
 
@@ -117,6 +133,31 @@ public class ApplicantProjectsView implements View {
                     return new ApplicantApplyProjectView();
                 case "e":
                     return new ApplicantProjectEnquiryView();
+                case "n":
+                    if (!this.nextPage()) {
+                        System.out.println("You are already on the last page.");
+                        System.out.println("Type anything to continue.");
+                        scanner.nextLine();
+                    }
+                    break;
+                case "p":
+                    if (!this.prevPage()) {
+                        System.out.println("You are already on the first page.");
+                        System.out.println("Type anything to continue.");
+                        scanner.nextLine();
+                    }
+                    break;
+                case "page":
+                    Optional<Integer> pageOpt = this.requestPage(scanner);
+                    if (pageOpt.isEmpty()) {
+                        break;
+                    }
+                    if (!this.page(pageOpt.get())) {
+                        System.out.println("Invalid page number.");
+                        System.out.println("Type anything to continue.");
+                        scanner.nextLine();
+                    }
+                    break;
                 case "":
                     return null;
                 default:

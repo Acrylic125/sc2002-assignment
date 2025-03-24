@@ -5,6 +5,7 @@ import com.group6.btoproject.BTOProjectManager;
 import com.group6.users.HDBManager;
 import com.group6.users.HDBOfficer;
 import com.group6.users.User;
+import com.group6.views.PaginatedView;
 import com.group6.views.View;
 import com.group6.views.ViewContext;
 
@@ -13,15 +14,31 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
-public class ApplicantViewMyEnquiriesView implements View {
+public class ApplicantViewMyEnquiriesView implements PaginatedView {
     private static final int PAGE_SIZE = 3;
 
     private ViewContext ctx;
     private User user;
     private int page = 1;
+    private List<BTOProject> projects = new ArrayList<>();
 
-    private int getLastPage(List<BTOProject> projects) {
-        return projects.size() / PAGE_SIZE + 1;
+    @Override
+    public int getLastPage() {
+        int size = projects.size();
+        if (size % PAGE_SIZE == 0) {
+            return size / PAGE_SIZE;
+        }
+        return size / PAGE_SIZE + 1;
+    }
+
+    @Override
+    public void setPage(int page) {
+        this.page = page;
+    }
+
+    @Override
+    public int getPage() {
+        return page;
     }
 
     @Override
@@ -38,8 +55,7 @@ public class ApplicantViewMyEnquiriesView implements View {
 
         this.ctx = ctx;
         this.user = userOpt.get();
-
-        List<BTOProject> projects = new ArrayList<>(
+        this.projects = new ArrayList<>(
                 projectManager.getProjects().values().stream()
                         .filter((project) -> {
                             if (!(project.isVisibleToPublic()
@@ -54,12 +70,11 @@ public class ApplicantViewMyEnquiriesView implements View {
                         })
                         .toList());
         projects.sort((a, b) -> a.getName().compareTo(b.getName()));
-        showProjects(projects);
 
-        return showOptions(projects);
+        return showOptions();
     }
 
-    private void showProjects(List<BTOProject> projects) {
+    private void showProjects() {
         int lastIndex = Math.min(page * PAGE_SIZE, projects.size());
         System.out.println("Your Eqnuiries:");
         System.out.println("Project Id | Project Name");
@@ -74,17 +89,43 @@ public class ApplicantViewMyEnquiriesView implements View {
         }
     }
 
-    private View showOptions(List<BTOProject> projects) {
+    private View showOptions() {
         final Scanner scanner = ctx.getScanner();
 
         while (true) {
-            System.out.println("Page " + page + " / " + getLastPage(projects) +
+            showProjects();
+            System.out.println("Page " + page + " / " + getLastPage() +
                     " - Type 'e' to enquire, 'n' to go to next page, 'p' to go to previous page,'page' to go to a specific page, or leave empty ('') to go back:");
 
             String option = scanner.nextLine().trim();
             switch (option) {
                 case "e":
                     return new ApplicantProjectEnquiryView(true);
+                case "n":
+                    if (!this.nextPage()) {
+                        System.out.println("You are already on the last page.");
+                        System.out.println("Type anything to continue.");
+                        scanner.nextLine();
+                    }
+                    break;
+                case "p":
+                    if (!this.prevPage()) {
+                        System.out.println("You are already on the first page.");
+                        System.out.println("Type anything to continue.");
+                        scanner.nextLine();
+                    }
+                    break;
+                case "page":
+                    Optional<Integer> pageOpt = this.requestPage(scanner);
+                    if (pageOpt.isEmpty()) {
+                        break;
+                    }
+                    if (!this.page(pageOpt.get())) {
+                        System.out.println("Invalid page number.");
+                        System.out.println("Type anything to continue.");
+                        scanner.nextLine();
+                    }
+                    break;
                 case "":
                     return null;
                 default:

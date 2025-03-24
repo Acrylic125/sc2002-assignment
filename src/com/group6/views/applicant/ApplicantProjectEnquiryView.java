@@ -53,6 +53,8 @@ public class ApplicantProjectEnquiryView implements View {
             final Optional<BTOProject> projectOpt = projectManager.getProject(projectId);
             if (projectOpt.isEmpty()) {
                 System.out.println("Project not found, please type in a valid project id.");
+                System.out.println("Type anything to continue.");
+                scanner.nextLine();
                 continue;
             }
             return projectOpt;

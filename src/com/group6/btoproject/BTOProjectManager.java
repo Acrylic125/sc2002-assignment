@@ -1,6 +1,7 @@
 package com.group6.btoproject;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -63,6 +64,49 @@ public class BTOProjectManager {
         return projects.values().stream()
                 .filter(p -> p.getActiveApplication(userId).isPresent())
                 .toList();
+    }
+
+    public static class BTOFullApplication {
+        private final BTOProject project;
+        private final BTOApplication application;
+        private final BTOApplicationWithdrawal withdrawal;
+
+        public BTOFullApplication(BTOProject project, BTOApplication application, BTOApplicationWithdrawal withdrawal) {
+            this.project = project;
+            this.application = application;
+            this.withdrawal = withdrawal;
+        }
+
+        public BTOProject getProject() {
+            return project;
+        }
+
+        public BTOApplication getApplication() {
+            return application;
+        }
+
+        public Optional<BTOApplicationWithdrawal> getWithdrawal() {
+            return Optional.ofNullable(withdrawal);
+        }
+    }
+
+    /**
+     * Get all project applications applied by a user.
+     *
+     * @param userId id of the user.
+     * @return list of projects applied by the user.
+     */
+    public List<BTOFullApplication> getAllApplicationsForUser(String userId) {
+        LinkedList<BTOFullApplication> result = new LinkedList<>();
+        projects.values().forEach(project -> {
+            project.getApplications().forEach(application -> {
+                if (application.getApplicantUserId().equals(userId)) {
+                    Optional<BTOApplicationWithdrawal> wotjdrawaOpt = project.getActiveWithdrawal(application.getId());
+                    result.add(new BTOFullApplication(project, application, wotjdrawaOpt.orElse(null)));
+                }
+            });
+        });
+        return result;
     }
 
 }

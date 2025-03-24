@@ -51,7 +51,9 @@ public class ApplicantHomeView implements View {
                 case "1":
                     return new ApplicantProjectsView();
                 case "2":
-                    return new ApplicantViewAppliedProjects();
+                    return new ApplicantViewMyAppliedProjects();
+                case "3":
+                    return new ApplicantViewMyEnquiriesView();
                 case "":
                     return null;
                 default:

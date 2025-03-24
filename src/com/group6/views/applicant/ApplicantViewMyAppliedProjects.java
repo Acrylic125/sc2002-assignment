@@ -7,7 +7,6 @@ import java.util.Scanner;
 
 import com.group6.btoproject.BTOApplication;
 import com.group6.btoproject.BTOApplicationWithdrawal;
-import com.group6.btoproject.BTOApplicationWithdrawalStatus;
 import com.group6.btoproject.BTOProject;
 import com.group6.btoproject.BTOProjectManager;
 import com.group6.btoproject.BTOProjectType;
@@ -18,7 +17,7 @@ import com.group6.utils.Utils;
 import com.group6.views.View;
 import com.group6.views.ViewContext;
 
-public class ApplicantViewAppliedProjects implements View {
+public class ApplicantViewMyAppliedProjects implements View {
     private static final int PAGE_SIZE = 3;
 
     private ViewContext ctx;

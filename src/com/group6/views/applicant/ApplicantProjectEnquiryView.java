@@ -20,6 +20,17 @@ public class ApplicantProjectEnquiryView implements View {
     private ViewContext ctx;
     private User user;
 
+    // Used by HDBOfficer and HDB Manager
+    private final boolean filterUserEnquiries;
+
+    public ApplicantProjectEnquiryView() {
+        this(false);
+    }
+
+    public ApplicantProjectEnquiryView(boolean filterUserEnquiries) {
+        this.filterUserEnquiries = filterUserEnquiries;
+    }
+
     @Override
     public View render(ViewContext ctx) {
         final Optional<User> userOpt = ctx.getUser();
@@ -69,7 +80,7 @@ public class ApplicantProjectEnquiryView implements View {
         System.out.println("Enquiry ID | Message | Response");
         List<BTOEnquiry> enquiries = project.getEnquiries().stream()
                 .filter((enquiry) -> {
-                    if (user instanceof HDBOfficer || user instanceof HDBManager) {
+                    if (!filterUserEnquiries && (user instanceof HDBOfficer || user instanceof HDBManager)) {
                         return true;
                     }
                     return enquiry.getSenderMessage().getSenderUserId().equals(user.getId());
@@ -148,7 +159,7 @@ public class ApplicantProjectEnquiryView implements View {
             }
             enquiry = enquiryOpt.get();
             if (!enquiry.getSenderMessage().getSenderUserId().equals(user.getId())
-                    || !(user instanceof HDBOfficer || user instanceof HDBManager)) {
+                    || !(!filterUserEnquiries && (user instanceof HDBOfficer || user instanceof HDBManager))) {
                 System.out.println(
                         "You are not the sender of this enquiry, you may not view it. Please type in a valid id.");
                 continue;

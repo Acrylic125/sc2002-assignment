@@ -16,7 +16,6 @@ public class ExampleView implements View {
             }
             System.out.println("You typed: " + str);
         }
-        return null;
     }
 
 }

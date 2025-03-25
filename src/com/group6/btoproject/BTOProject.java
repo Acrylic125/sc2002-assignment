@@ -528,11 +528,11 @@ public class BTOProject {
         if (withdrawalOpt.isEmpty()) {
             throw new RuntimeException("There is no pending withdrawal request.");
         }
-        if (withdrawalOpt.get().getStatus() != BTOApplicationWithdrawalStatus.PENDING) {
+        final BTOApplicationWithdrawal withdrawal = withdrawalOpt.get();
+        if (withdrawal.getStatus() != BTOApplicationWithdrawalStatus.PENDING) {
             throw new RuntimeException("There is no pending withdrawal request.");
         }
 
-        final BTOApplicationWithdrawal withdrawal = withdrawalOpt.get();
         if (status == BTOApplicationWithdrawalStatus.SUCCESSFUL) {
             withdrawal.setStatus(BTOApplicationWithdrawalStatus.SUCCESSFUL);
             application.setStatus(BTOApplicationStatus.UNSUCCESSFUL);

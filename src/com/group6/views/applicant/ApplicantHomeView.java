@@ -40,7 +40,7 @@ public class ApplicantHomeView implements AuthenticatedView {
                 case "1":
                     return new ApplicantProjectsView();
                 case "2":
-                    return new ApplicantViewMyAppliedProjects();
+                    return new ApplicantViewMyApplicationsView();
                 case "3":
                     return new ApplicantViewMyEnquiriesView();
                 case "":

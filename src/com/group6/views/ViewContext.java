@@ -19,7 +19,7 @@ public final class ViewContext {
     private final Stack<View> viewStack = new Stack<>();
     private User user;
     private final ProjectsViewFilters viewAllProjectsFilters = new ProjectsViewFilters();
-    private final ApplicantViewMyApplicationFilters viewAppliedProjectsFilters = new ApplicantViewMyApplicationFilters();
+    private final ApplicantViewMyApplicationFilters viewMyApplicationFilters = new ApplicantViewMyApplicationFilters();
 
     /**
      *
@@ -124,12 +124,12 @@ public final class ViewContext {
     }
 
     /**
-     * Applied projects view filters getter.
+     * Application view filters getter.
      *
-     * @return {@link #viewAppliedProjectsFilters}
+     * @return {@link #viewMyApplicationFilters}
      */
-    public ApplicantViewMyApplicationFilters getViewAppliedProjectsFilters() {
-        return viewAppliedProjectsFilters;
+    public ApplicantViewMyApplicationFilters getViewApplicationFilters() {
+        return viewMyApplicationFilters;
     }
 
 }

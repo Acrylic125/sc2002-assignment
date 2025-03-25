@@ -19,7 +19,7 @@ import com.group6.views.PaginatedView;
 import com.group6.views.View;
 import com.group6.views.ViewContext;
 
-public class ApplicantViewMyAppliedProjects implements PaginatedView, AuthenticatedView {
+public class ApplicantViewMyApplicationsView implements PaginatedView, AuthenticatedView {
     private static final int PAGE_SIZE = 3;
 
     private ViewContext ctx;
@@ -140,6 +140,8 @@ public class ApplicantViewMyAppliedProjects implements PaginatedView, Authentica
                     return new ApplicantProjectEnquiryView();
                 case "w":
                     return new ApplicantApplicationWithdrawalView();
+                case "f":
+                    return new ApplicantViewMyApplicationsFilterView();
                 case "n":
                     if (!this.nextPage()) {
                         System.out.println("You are already on the last page.");

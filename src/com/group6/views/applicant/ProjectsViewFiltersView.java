@@ -1,10 +1,6 @@
 package com.group6.views.applicant;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 
 import com.group6.BTOSystem;
 import com.group6.users.HDBManager;
@@ -17,12 +13,16 @@ import com.group6.views.ViewSortType;
 
 public class ProjectsViewFiltersView implements AuthenticatedView {
 
-    private ViewContext ctx;
-    private User user;
+    protected ViewContext ctx;
+    protected User user;
 
-    private List<String> projectTypes = new ArrayList<>();
+    protected List<String> projectTypes = new ArrayList<>();
 
-    private String stringifySortName(ViewSortType sortType) {
+    protected ProjectsViewFilters getProjectFilters() {
+        return ctx.getViewAllProjectsFilters();
+    }
+
+    protected String stringifySortName(ViewSortType sortType) {
         switch (sortType) {
             case ASC:
                 return "A-Z";
@@ -33,6 +33,35 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
         }
     }
 
+    protected String stringifySearchTerm(String searchTerm) {
+        if (searchTerm.isEmpty()) {
+            return "(Empty)";
+        }
+        return searchTerm;
+    }
+
+    protected String stringifyLocation(String location) {
+        if (location.isEmpty()) {
+            return "(Empty)";
+        }
+        return location;
+    }
+
+    protected String stringifyProjectTypesAvailability(Collection<String> projectTypes) {
+        String value = this.projectTypes.stream()
+                .filter(projectTypes::contains)
+                .reduce("", (a, b) -> {
+                    if (a.isEmpty()) {
+                        return b;
+                    }
+                    return a + ", " + b;
+                });
+        if (value.isEmpty()) {
+            return "(Empty)";
+        }
+        return value;
+    }
+
     @Override
     public View render(ViewContext ctx, User user) {
         this.ctx = ctx;
@@ -41,37 +70,16 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
         final BTOSystem btoSystem = ctx.getBtoSystem();
         this.projectTypes = btoSystem.getProjects().getAllProjectTypes();
         this.projectTypes.sort(String::compareTo);
-
         showOptions();
-
         return null;
     }
 
-    private void showOptions() {
-        final ProjectsViewFilters filters = ctx.getViewAllProjectsFilters();
+    protected void showOptions() {
+        final ProjectsViewFilters filters = getProjectFilters();
         while (true) {
-            String searchTermValue = filters.getSearchTerm();
-            if (searchTermValue.isEmpty()) {
-                searchTermValue = "(Empty)";
-            }
-
-            String locationValue = filters.getLocation();
-            if (locationValue.isEmpty()) {
-                locationValue = "(Empty)";
-            }
-
-            String projectTypesValue = this.projectTypes.stream()
-                    .filter((filter) -> filters.getFilterAvailableProjectTypes().contains(filter))
-                    .reduce("", (a, b) -> {
-                        if (a.isEmpty()) {
-                            return b;
-                        }
-                        return a + ", " + b;
-                    });
-            if (projectTypesValue.isEmpty()) {
-                projectTypesValue = "(Empty)";
-            }
-
+            String searchTermValue = stringifySearchTerm(filters.getSearchTerm());
+            String locationValue = stringifyLocation(filters.getLocation());
+            String projectTypesValue = stringifyProjectTypesAvailability(filters.getFilterAvailableProjectTypes());
             String sortTypeValue = stringifySortName(filters.getSortByName());
 
             boolean canFilterByManagedProjects = user instanceof HDBOfficer || user instanceof HDBManager;
@@ -119,31 +127,31 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
         }
     }
 
-    private void showFilterBySearchTerm() {
+    protected void showFilterBySearchTerm() {
         final Scanner scanner = ctx.getScanner();
-        final ProjectsViewFilters filters = ctx.getViewAllProjectsFilters();
+        final ProjectsViewFilters filters = this.getProjectFilters();
         System.out.println("Type the search term you want to filter, or leave empty (i.e. '') to not set one.  ");
         String searchTerm = scanner.nextLine().trim();
         filters.setSearchTerm(searchTerm);
-        System.out.println("Search term set to: " + searchTerm);
+        System.out.println("Search term set to: " + stringifySearchTerm(searchTerm));
         System.out.println("Type anything to continue.");
         scanner.nextLine();
     }
 
-    private void showFilterByLocation() {
+    protected void showFilterByLocation() {
         final Scanner scanner = ctx.getScanner();
-        final ProjectsViewFilters filters = ctx.getViewAllProjectsFilters();
+        final ProjectsViewFilters filters = this.getProjectFilters();
         System.out.println("Type the location you want to filter, or leave empty (i.e. '') to not set one.  ");
         String location = scanner.nextLine().trim();
         filters.setLocation(location);
-        System.out.println("Location set to: " + location);
+        System.out.println("Location set to: " + stringifyLocation(location));
         System.out.println("Type anything to continue.");
         scanner.nextLine();
     }
 
-    private void showFilterByProjectType() {
+    protected void showFilterByProjectType() {
         final Scanner scanner = ctx.getScanner();
-        final ProjectsViewFilters filters = ctx.getViewAllProjectsFilters();
+        final ProjectsViewFilters filters = this.getProjectFilters();
         if (projectTypes.isEmpty()) {
             System.out.println("No project types available.");
             System.out.println("Type anything to continue.");
@@ -152,14 +160,16 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
         }
 
         String projectTypesFilterRaw = "";
+        final String currentProjectTypesFilterValue = stringifyProjectTypesAvailability(filters.getFilterAvailableProjectTypes());
         while (true) {
             System.out.println("Project Types with Availability");
-            System.out.println("Project Type ID | Filtering");
+            System.out.println("Currently filtering by: " + currentProjectTypesFilterValue);
+            System.out.println("Project Type ID:");
             for (String projectType : projectTypes) {
-                System.out.println(projectType + " | " + (filters.getFilterAvailableProjectTypes().contains(projectType)));
+                System.out.println("  " + projectType);
             }
             System.out.println("");
-            System.out.println("Type the flat type you want to filter, or leave empty ('') to not set one.");
+            System.out.println("Type the project type you want to filter, or leave empty ('') to not set one.");
             System.out.println("* You may specify multiple by leaving a ',' between entries(e.g. \"2 Room, 3 Room\") which will filter for projects with EITHER 2 Room or 3 Room availability.");
 
             projectTypesFilterRaw = scanner.nextLine().trim();
@@ -169,14 +179,14 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
             String[] projectTypesFilter = projectTypesFilterRaw.split(",");
 
             boolean areAllValid = true;
-            Set<String> excludeProjectTypes = new HashSet<>();
+            Set<String> newProjectTypeFilters = new HashSet<>();
             for (String projectType : projectTypesFilter) {
                 projectType = projectType.trim();
-                if (!projectTypes.contains(projectType)) {
+                if (!this.projectTypes.contains(projectType)) {
                     areAllValid = false;
                     System.out.println("Invalid project type: " + projectType);
                 } else {
-                    excludeProjectTypes.add(projectType);
+                    newProjectTypeFilters.add(projectType);
                 }
             }
             if (!areAllValid) {
@@ -184,18 +194,18 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
                 scanner.nextLine();
                 continue;
             }
-            filters.setFilterAvailableProjectTypes(excludeProjectTypes);
+            filters.setFilterAvailableProjectTypes(newProjectTypeFilters);
             break;
         }
 
-        System.out.println("Project Types set to: " + (projectTypesFilterRaw.isEmpty() ? "(Empty)" : projectTypesFilterRaw));
+        System.out.println("Project Types Availability set to: " + stringifyProjectTypesAvailability(filters.getFilterAvailableProjectTypes()));
         System.out.println("Type anything to continue.");
         scanner.nextLine();
     }
 
-    private void showNameSort() {
+    protected void showNameSort() {
         final Scanner scanner = ctx.getScanner();
-        final ProjectsViewFilters filters = ctx.getViewAllProjectsFilters();
+        final ProjectsViewFilters filters = this.getProjectFilters();
 
         while (true) {
             String sortTypeValue = stringifySortName(filters.getSortByName());
@@ -233,9 +243,9 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
         scanner.nextLine();
     }
 
-    private void showFilterByManagedProjects() {
+    protected void showFilterByManagedProjects() {
         final Scanner scanner = ctx.getScanner();
-        final ProjectsViewFilters filters = ctx.getViewAllProjectsFilters();
+        final ProjectsViewFilters filters = this.getProjectFilters();
 
         while (true) {
             System.out.println("Only Show Managed Projects");

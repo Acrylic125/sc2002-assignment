@@ -1,48 +1,92 @@
 package com.group6.views.applicant;
 
 import com.group6.btoproject.BTOApplicationStatus;
+import com.group6.btoproject.BTOApplicationWithdrawalStatus;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * See {@link ApplicantViewMyAppliedProjects}
+ * See {@link ApplicantViewMyApplicationsView}
  */
-public class ApplicantViewMyApplicationFilters extends ProjectsViewFilters {
+public class ApplicantViewMyApplicationFilters {
 
-    private Set<BTOApplicationStatus> statusesFilter = new HashSet<>();
+    private Set<BTOApplicationStatus> applicationStatusesFilter = new HashSet<>();
+    private Set<BTOApplicationWithdrawalStatus> withdrawalStatusesFilter = new HashSet<>();
+    private boolean shouldIncludeNAWithdrawals = true;
+    private ProjectsViewFilters projectsViewFilters = new ProjectsViewFilters();
 
-    public Set<BTOApplicationStatus> getStatusesFilter() {
-        return Collections.unmodifiableSet(statusesFilter);
+    /**
+     * Application statuses filters getter.
+     *
+     * @return {{@link #applicationStatusesFilter}}
+     */
+    public Set<BTOApplicationStatus> getApplicationStatusesFilter() {
+        return Collections.unmodifiableSet(applicationStatusesFilter);
     }
 
     /**
      * Filter project application statuses.
      *
-     * @param statusesFilter filter application statuses
+     * @param applicationStatusesFilter filter application statuses.
      */
-    public void setStatusesFilter(Set<BTOApplicationStatus> statusesFilter) {
-        this.statusesFilter = statusesFilter;
+    public void setApplicationStatusesFilter(Set<BTOApplicationStatus> applicationStatusesFilter) {
+        this.applicationStatusesFilter = applicationStatusesFilter;
     }
 
     /**
-     * Adds an application status to the filters.
+     * Withdrawal statuses filters getter.
      *
-     * @param status status.
+     * @return {{@link #withdrawalStatusesFilter}}
      */
-    public void addStatusFilter(BTOApplicationStatus status) {
-        this.statusesFilter.add(status);
+    public Set<BTOApplicationWithdrawalStatus> getWithdrawalStatusesFilter() {
+        return withdrawalStatusesFilter;
     }
 
+    /**
+     * Filter project withdrawal statuses.
+     *
+     * @param withdrawalStatusesFilter filter withdrawal statuses.
+     */
+    public void setWithdrawalStatusesFilter(Set<BTOApplicationWithdrawalStatus> withdrawalStatusesFilter) {
+        this.withdrawalStatusesFilter = withdrawalStatusesFilter;
+    }
 
     /**
-     * Removes an application status from the filters.
+     * Should include N/A withdrawals getter.
      *
-     * @param status status.
+     * @return {@link #shouldIncludeNAWithdrawals}
      */
-    public void removeStatusFilter(BTOApplicationStatus status) {
-        this.statusesFilter.remove(status);
+    public boolean isShouldIncludeNAWithdrawals() {
+        return shouldIncludeNAWithdrawals;
+    }
+
+    /**
+     * Should include N/A withdrawals setter.
+     *
+     * @param shouldIncludeNAWithdrawals filter applications without withdrawals.
+     */
+    public void setShouldIncludeNAWithdrawals(boolean shouldIncludeNAWithdrawals) {
+        this.shouldIncludeNAWithdrawals = shouldIncludeNAWithdrawals;
+    }
+
+    /**
+     * Project view filters getter.
+     *
+     * @return {{@link #projectsViewFilters}}
+     */
+    public ProjectsViewFilters getProjectsViewFilters() {
+        return projectsViewFilters;
+    }
+
+    /**
+     * Project view filters setter.
+     *
+     * @param projectsViewFilters project view filters.
+     */
+    public void setProjectsViewFilters(ProjectsViewFilters projectsViewFilters) {
+        this.projectsViewFilters = projectsViewFilters;
     }
 
 }

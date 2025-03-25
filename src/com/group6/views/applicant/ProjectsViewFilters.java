@@ -119,47 +119,64 @@ public class ProjectsViewFilters {
         this.onlyShowManagedProjects = onlyShowManagedProjects;
     }
 
-    public List<BTOProject> applyFilters(List<BTOProject> projects, User user) {
+    /**
+     * Checks if a project, given the user filtering, can pass.
+     *
+     * @param project the project being filtered.
+     * @param user the user filtering.
+     * @return true if project passes the filters.
+     */
+    public boolean canFilterProject(BTOProject project, User user) {
         final String searchTerm = getSearchTerm().toLowerCase();
         final String location = getLocation();
+
+        // Filter by search term.
+        if (!searchTerm.isEmpty() && !project.getName().toLowerCase().contains(searchTerm)) {
+            return false;
+        }
+
+        // Filter by location.
+        if (!location.isEmpty()
+                && !project.getNeighbourhood().equals(location)) {
+            return false;
+        }
+
+        // Filter by project types with availability.
+        Set<String> availableProjectTypesFilter = getFilterAvailableProjectTypes();
+        if (!availableProjectTypesFilter.isEmpty()) {
+            if (availableProjectTypesFilter.stream().noneMatch((projectTypeId) -> {
+                Optional<BTOProjectType> projectTypeOpt = project.getProjectTypes().stream()
+                        .filter((_projectType) -> _projectType.getId().equals(projectTypeId))
+                        .findFirst();
+                if (projectTypeOpt.isEmpty()) {
+                    return false;
+                }
+                try {
+                    return project.getBookedCountForType(projectTypeId) < projectTypeOpt.get().getMaxQuantity();
+                } catch (RuntimeException ex) {
+                    return false;
+                }
+            })) {
+                return false;
+            }
+        }
+
+        // Filter by managing project.
+        return !isOnlyShowManagedProjects() || (project.getManagerUserId().equals(user.getId())
+                || project.getManagingOfficerRegistrations().stream()
+                .anyMatch((reg) -> reg.getOfficerUserId().equals(user.getId())));
+    }
+
+    /**
+     * Applies the filters INCLUDING SORTING, to a list of projects, given the user.
+     *
+     * @param projects the list of projects.
+     * @param user the user doing the filtering.
+     * @return a list of projects filtered and sorted.
+     */
+    public List<BTOProject> applyFilters(List<BTOProject> projects, User user) {
         List<BTOProject> filteredProjects = projects.stream()
-                .filter((project) -> {
-                    // Filter by search term.
-                    if (!searchTerm.isEmpty() && !project.getName().toLowerCase().contains(searchTerm)) {
-                        return false;
-                    }
-
-                    // Filter by location.
-                    if (!location.isEmpty()
-                            && !project.getNeighbourhood().equals(location)) {
-                        return false;
-                    }
-
-                    // Filter by project types with availability.
-                    Set<String> availableProjectTypesFilter = getFilterAvailableProjectTypes();
-                    if (!availableProjectTypesFilter.isEmpty()) {
-                        if (availableProjectTypesFilter.stream().noneMatch((projectTypeId) -> {
-                            Optional<BTOProjectType> projectTypeOpt = project.getProjectTypes().stream()
-                                    .filter((_projectType) -> _projectType.getId().equals(projectTypeId))
-                                    .findFirst();
-                            if (projectTypeOpt.isEmpty()) {
-                                return false;
-                            }
-                            try {
-                                return project.getBookedCountForType(projectTypeId) < projectTypeOpt.get().getMaxQuantity();
-                            } catch (RuntimeException ex) {
-                                return false;
-                            }
-                        })) {
-                            return false;
-                        }
-                    }
-
-                    // Filter by managing project.
-                    return !isOnlyShowManagedProjects() || (project.getManagerUserId().equals(user.getId())
-                            || project.getManagingOfficerRegistrations().stream()
-                            .anyMatch((reg) -> reg.getOfficerUserId().equals(user.getId())));
-                })
+                .filter((project) -> canFilterProject(project, user))
                 .toList();
         ViewSortType sortByName = getSortByName();
         if (sortByName == ViewSortType.NONE) {

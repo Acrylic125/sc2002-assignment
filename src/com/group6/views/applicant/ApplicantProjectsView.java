@@ -26,10 +26,11 @@ public class ApplicantProjectsView implements PaginatedView, AuthenticatedView {
     private User user;
     private int page = 1;
     private List<BTOProject> projects = new ArrayList<>();
+    private List<BTOProject> filteredProjects = new ArrayList<>();
 
     @Override
     public int getLastPage() {
-        int size = projects.size();
+        int size = filteredProjects.size();
         if (size % PAGE_SIZE == 0) {
             return size / PAGE_SIZE;
         }
@@ -49,26 +50,32 @@ public class ApplicantProjectsView implements PaginatedView, AuthenticatedView {
     @Override
     public View render(ViewContext ctx, User user) {
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+        final ProjectsViewFilters filters = ctx.getViewAllProjectsFilters();
 
         this.ctx = ctx;
         this.user = user;
-        this.projects = new ArrayList<>(
-                projectManager.getProjects().values().stream()
-                        .filter((project) -> project.isVisibleToPublic()
-                                || user instanceof HDBOfficer
-                                || user instanceof HDBManager)
-                        .toList());
-        this.projects.sort((a, b) -> a.getName().compareTo(b.getName()));
+        this.projects = projectManager.getProjects().values().stream()
+                .filter((project) -> project.isVisibleToPublic()
+                        || user instanceof HDBOfficer
+                        || user instanceof HDBManager)
+                .toList();
+        // We ASSUME filters cannot be applied UNTIL the user goes to the filters view
+        // and return which will call this.
+        //
+        // We just do it once here to avoid unnecessary filtering.
+        this.filteredProjects = filters.applyFilters(this.projects, user);
 
         return this.showOptions();
     }
 
     private void showProjects() {
+        List<BTOProject> projects = this.filteredProjects;
         final UserManager userManager = ctx.getBtoSystem().getUsers();
 
         int lastIndex = Math.min(page * PAGE_SIZE, projects.size());
+        int firstIndex = (page - 1) * PAGE_SIZE;
         // Render the projects in the page.
-        for (int i = (page - 1) * PAGE_SIZE; i < lastIndex; i++) {
+        for (int i = firstIndex; i < lastIndex; i++) {
             final BTOProject project = projects.get(i);
             final List<BTOProjectType> types = new ArrayList<>(project.getProjectTypes());
 
@@ -90,6 +97,7 @@ public class ApplicantProjectsView implements PaginatedView, AuthenticatedView {
                     }).get()
                     : "(None)";
 
+            System.out.println("Projects");
             System.out.println("Project: " + project.getName() + ", " + project.getNeighbourhood());
             System.out.println("ID: " + project.getId());
             System.out.println("Types (No. Units Available / Total No. Units / Price):");
@@ -112,6 +120,7 @@ public class ApplicantProjectsView implements PaginatedView, AuthenticatedView {
                 System.out.println("Visible to public: " + project.isVisibleToPublic());
             }
             System.out.println("");
+            System.out.println("Showing " + (lastIndex - firstIndex) + " of " + projects.size());
         }
     }
 

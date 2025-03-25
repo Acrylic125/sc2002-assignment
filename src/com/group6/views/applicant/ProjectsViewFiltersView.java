@@ -61,9 +61,7 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
             }
 
             String projectTypesValue = this.projectTypes.stream()
-                    .filter((filter) -> {
-                        return !filters.getExcludeProjectTypes().contains(filter);
-                    })
+                    .filter((filter) -> filters.getFilterAvailableProjectTypes().contains(filter))
                     .reduce("", (a, b) -> {
                         if (a.isEmpty()) {
                             return b;
@@ -82,7 +80,7 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
             System.out.println("ID | Filter | Value");
             System.out.println("1 | Search Term | " + searchTermValue);
             System.out.println("2 | Location | " + locationValue);
-            System.out.println("3 | Project Types | " + projectTypesValue);
+            System.out.println("3 | Project Types with Availability | " + projectTypesValue);
             System.out.println("4 | Name Sort Type | " + sortTypeValue);
             if (canFilterByManagedProjects) {
                 System.out.println("5 | Only Show Managed Projects | " + filters.isOnlyShowManagedProjects());
@@ -155,27 +153,30 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
 
         String projectTypesFilterRaw = "";
         while (true) {
-            System.out.println("Project Types");
+            System.out.println("Project Types with Availability");
             System.out.println("Project Type ID | Filtering");
             for (String projectType : projectTypes) {
-                System.out.println(projectType + " | " + !(filters.getExcludeProjectTypes().contains(projectType)));
+                System.out.println(projectType + " | " + (filters.getFilterAvailableProjectTypes().contains(projectType)));
             }
             System.out.println("");
             System.out.println("Type the flat type you want to filter, or leave empty ('') to not set one.");
-            System.out.println("* You may specify multiple by leaving a ',' between entries(e.g. \"2 Room, 3 Room\")");
+            System.out.println("* You may specify multiple by leaving a ',' between entries(e.g. \"2 Room, 3 Room\") which will filter for projects with EITHER 2 Room or 3 Room availability.");
 
             projectTypesFilterRaw = scanner.nextLine().trim();
+            if (projectTypesFilterRaw.isEmpty()) {
+                break;
+            }
             String[] projectTypesFilter = projectTypesFilterRaw.split(",");
 
             boolean areAllValid = true;
-            Set<String> excludeProjectTypes = new HashSet<>(this.projectTypes);
+            Set<String> excludeProjectTypes = new HashSet<>();
             for (String projectType : projectTypesFilter) {
                 projectType = projectType.trim();
                 if (!projectTypes.contains(projectType)) {
                     areAllValid = false;
                     System.out.println("Invalid project type: " + projectType);
                 } else {
-                    excludeProjectTypes.remove(projectType);
+                    excludeProjectTypes.add(projectType);
                 }
             }
             if (!areAllValid) {
@@ -183,11 +184,11 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
                 scanner.nextLine();
                 continue;
             }
-            filters.setExcludeProjectTypes(excludeProjectTypes);
+            filters.setFilterAvailableProjectTypes(excludeProjectTypes);
             break;
         }
 
-        System.out.println("Project Types set to: " + projectTypesFilterRaw);
+        System.out.println("Project Types set to: " + (projectTypesFilterRaw.isEmpty() ? "(Empty)" : projectTypesFilterRaw));
         System.out.println("Type anything to continue.");
         scanner.nextLine();
     }

@@ -5,10 +5,8 @@ import com.group6.btoproject.BTOProjectManager;
 import com.group6.btoproject.BTOProjectType;
 import com.group6.btoproject.HDBOfficerRegistrationStatus;
 import com.group6.users.*;
-import com.group6.views.ExampleView;
 import com.group6.views.ViewContext;
 import com.group6.views.applicant.ApplicantHomeView;
-import com.group6.views.applicant.ApplicantProjectsView;
 
 import java.time.LocalDate;
 import java.time.ZoneId;

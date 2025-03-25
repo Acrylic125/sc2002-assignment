@@ -1,11 +1,11 @@
 package com.group6.views.applicant;
 
+import com.group6.btoproject.BTOProject;
+import com.group6.btoproject.BTOProjectType;
+import com.group6.users.User;
 import com.group6.views.ViewSortType;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Project view filters.
@@ -18,10 +18,12 @@ public class ProjectsViewFilters {
     private String searchTerm = "";
     private String location = "";
     private ViewSortType sortByName = ViewSortType.ASC;
-    // Although we assume only 2 project types, we cannot guarantee this.
-    // We go by exclusion since we may not know all the project types.
-    private Set<String> excludeProjectTypes = new HashSet<>();
-    private boolean onlyShowManagedProjects;
+    // Filters only the projects with AT LEAST 1 SLOT AVAILABLE
+    // for booking.
+    private Set<String> filterAvailableProjectTypes = new HashSet<>();
+    // Only meant to be used by HDBOfficers. It is toggled off by default, no point
+    // creating a whole new filter object just for this 1 use case.
+    private boolean onlyShowManagedProjects = false;
 
     /**
      * Search term getter.
@@ -80,38 +82,23 @@ public class ProjectsViewFilters {
 
     /**
      * Exclude project types getter.
+     * Empty implies that there is no need to filter.
+     * If there are multiple, it means that the project will be shown AS LONG AS
+     * AT LEAST 1 project type filtered is available for booking.
      *
-     * @return {@link #excludeProjectTypes}
+     * @return {@link #filterAvailableProjectTypes}
      */
-    public Set<String> getExcludeProjectTypes() {
-        return Collections.unmodifiableSet(excludeProjectTypes);
+    public Set<String> getFilterAvailableProjectTypes() {
+        return Collections.unmodifiableSet(filterAvailableProjectTypes);
     }
 
     /**
-     * Exclude project types setter.
+     * Only include projects with available slots for project type, setter.
      *
-     * @param excludeProjectTypes exclude project types
+     * @param filterAvailableProjectTypes project types
      */
-    public void setExcludeProjectTypes(Set<String> excludeProjectTypes) {
-        this.excludeProjectTypes = excludeProjectTypes;
-    }
-
-    /**
-     * Adds a project type to the filters.
-     *
-     * @param projectType project type id.
-     */
-    public void addProjectTypeFilter(String projectType) {
-        this.excludeProjectTypes.add(projectType);
-    }
-
-    /**
-     * Removes a project type from the filters.
-     *
-     * @param projectType project type id.
-     */
-    public void removeProjectTypeFilter(String projectType) {
-        this.excludeProjectTypes.remove(projectType);
+    public void setFilterAvailableProjectTypes(Set<String> filterAvailableProjectTypes) {
+        this.filterAvailableProjectTypes = filterAvailableProjectTypes;
     }
 
     /**
@@ -130,6 +117,61 @@ public class ProjectsViewFilters {
      */
     public void setOnlyShowManagedProjects(boolean onlyShowManagedProjects) {
         this.onlyShowManagedProjects = onlyShowManagedProjects;
+    }
+
+    public List<BTOProject> applyFilters(List<BTOProject> projects, User user) {
+        final String searchTerm = getSearchTerm().toLowerCase();
+        final String location = getLocation();
+        List<BTOProject> filteredProjects = projects.stream()
+                .filter((project) -> {
+                    // Filter by search term.
+                    if (!searchTerm.isEmpty() && !project.getName().toLowerCase().contains(searchTerm)) {
+                        return false;
+                    }
+
+                    // Filter by location.
+                    if (!location.isEmpty()
+                            && !project.getNeighbourhood().equals(location)) {
+                        return false;
+                    }
+
+                    // Filter by project types with availability.
+                    Set<String> availableProjectTypesFilter = getFilterAvailableProjectTypes();
+                    if (!availableProjectTypesFilter.isEmpty()) {
+                        if (availableProjectTypesFilter.stream().noneMatch((projectTypeId) -> {
+                            Optional<BTOProjectType> projectTypeOpt = project.getProjectTypes().stream()
+                                    .filter((_projectType) -> _projectType.getId().equals(projectTypeId))
+                                    .findFirst();
+                            if (projectTypeOpt.isEmpty()) {
+                                return false;
+                            }
+                            try {
+                                return project.getBookedCountForType(projectTypeId) < projectTypeOpt.get().getMaxQuantity();
+                            } catch (RuntimeException ex) {
+                                return false;
+                            }
+                        })) {
+                            return false;
+                        }
+                    }
+
+                    // Filter by managing project.
+                    return !isOnlyShowManagedProjects() || (project.getManagerUserId().equals(user.getId())
+                            || project.getManagingOfficerRegistrations().stream()
+                            .anyMatch((reg) -> reg.getOfficerUserId().equals(user.getId())));
+                })
+                .toList();
+        ViewSortType sortByName = getSortByName();
+        if (sortByName == ViewSortType.NONE) {
+            return filteredProjects;
+        }
+        filteredProjects = new ArrayList<>(filteredProjects);
+        if (sortByName == ViewSortType.ASC) {
+            filteredProjects.sort((a, b) -> a.getName().compareTo(b.getName()));
+        } else {
+            filteredProjects.sort((a, b) -> b.getName().compareTo(a.getName()));
+        }
+        return filteredProjects;
     }
 
 }

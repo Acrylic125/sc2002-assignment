@@ -2,6 +2,8 @@ package com.group6.views;
 
 import com.group6.BTOSystem;
 import com.group6.users.User;
+import com.group6.views.applicant.ApplicantViewMyApplicationFilters;
+import com.group6.views.applicant.ProjectsViewFilters;
 
 import java.util.Optional;
 import java.util.Scanner;
@@ -16,6 +18,8 @@ public final class ViewContext {
     private final Scanner scanner;
     private final Stack<View> viewStack = new Stack<>();
     private User user;
+    private final ProjectsViewFilters viewAllProjectsFilters = new ProjectsViewFilters();
+    private final ApplicantViewMyApplicationFilters viewMyApplicationFilters = new ApplicantViewMyApplicationFilters();
 
     /**
      *
@@ -60,11 +64,14 @@ public final class ViewContext {
 
     /**
      * Start from a view.
-     * Within a view, you can navigate to other views by returning in {@link View#render(ViewContext)}.
+     * Within a view, you can navigate to other views by returning in
+     * {@link View#render(ViewContext)}.
      * Return null to go back (i.e. cancel).
      * Return a new view instance to go to that view.
      * Return the view (i.e. this) to stay within the view.
-     * See {@link com.group6.views.applicant.ApplicantProjectsView} and {@link com.group6.views.applicant.ApplicantProjectEnquiryView} for an example.
+     * See {@link com.group6.views.applicant.ApplicantProjectsView} and
+     * {@link com.group6.views.applicant.ApplicantProjectEnquiryView} for an
+     * example.
      * 
      * @param view root view.
      */
@@ -105,6 +112,24 @@ public final class ViewContext {
      */
     public void setUser(User user) {
         this.user = user;
+    }
+
+    /**
+     * Projects view filters getter.
+     *
+     * @return {@link #viewAllProjectsFilters}
+     */
+    public ProjectsViewFilters getViewAllProjectsFilters() {
+        return viewAllProjectsFilters;
+    }
+
+    /**
+     * Application view filters getter.
+     *
+     * @return {@link #viewMyApplicationFilters}
+     */
+    public ApplicantViewMyApplicationFilters getViewApplicationFilters() {
+        return viewMyApplicationFilters;
     }
 
 }

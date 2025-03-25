@@ -237,6 +237,10 @@ public class BTOProject {
      *                          - is BOOKED and has the same applicantUserId.
      */
     public void requestApply(String applicantUserId, String typeId) throws RuntimeException {
+        if (!isApplicationWindowOpen()) {
+            throw new RuntimeException("Application window is closed.");
+        }
+
         getActiveApplication(applicantUserId)
                 .ifPresent(application -> {
                     final BTOApplicationStatus status = application.getStatus();
@@ -524,11 +528,11 @@ public class BTOProject {
         if (withdrawalOpt.isEmpty()) {
             throw new RuntimeException("There is no pending withdrawal request.");
         }
-        if (withdrawalOpt.get().getStatus() != BTOApplicationWithdrawalStatus.PENDING) {
+        final BTOApplicationWithdrawal withdrawal = withdrawalOpt.get();
+        if (withdrawal.getStatus() != BTOApplicationWithdrawalStatus.PENDING) {
             throw new RuntimeException("There is no pending withdrawal request.");
         }
 
-        final BTOApplicationWithdrawal withdrawal = withdrawalOpt.get();
         if (status == BTOApplicationWithdrawalStatus.SUCCESSFUL) {
             withdrawal.setStatus(BTOApplicationWithdrawalStatus.SUCCESSFUL);
             application.setStatus(BTOApplicationStatus.UNSUCCESSFUL);
@@ -571,6 +575,16 @@ public class BTOProject {
         }
         this.applicationOpenTimestamp = applicationOpenDate.getTime();
         this.applicationCloseTimestamp = applicationCloseDate.getTime();
+    }
+
+    /**
+     * Check if the application window is open.
+     *
+     * @return true if the application window is open.
+     */
+    public boolean isApplicationWindowOpen() {
+        final long currentTime = System.currentTimeMillis();
+        return currentTime >= applicationOpenTimestamp && currentTime <= applicationCloseTimestamp;
     }
 
     /**

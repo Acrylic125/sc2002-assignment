@@ -5,9 +5,8 @@ import com.group6.btoproject.BTOProjectManager;
 import com.group6.btoproject.BTOProjectType;
 import com.group6.btoproject.HDBOfficerRegistrationStatus;
 import com.group6.users.*;
-import com.group6.views.ExampleView;
 import com.group6.views.ViewContext;
-import com.group6.views.applicant.ApplicantProjectsView;
+import com.group6.views.applicant.ApplicantHomeView;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -30,7 +29,7 @@ public class Main {
         final ViewContext ctx = new ViewContext(btoSystem, new Scanner(System.in));
         ctx.setUser(
                 btoSystem.getUsers().getUsers().values().stream().findFirst().orElseThrow());
-        ctx.startFromView(new ApplicantProjectsView());
+        ctx.startFromView(new ApplicantHomeView());
         System.out.println("App closed!");
     }
 
@@ -127,7 +126,19 @@ public class Main {
         acaciaBreezeYishun.transitionOfficerRegistrationStatus(daniel.getId(), HDBOfficerRegistrationStatus.SUCCESSFUL);
         acaciaBreezeYishun.transitionOfficerRegistrationStatus(emily.getId(), HDBOfficerRegistrationStatus.SUCCESSFUL);
 
+        BTOProject someBtoProject = new BTOProject(UUID.randomUUID().toString(), jessica.getId());
+        someBtoProject.setName("Some BTO Project");
+        someBtoProject.setNeighbourhood("Palau NTU");
+        someBtoProject.addProjectType(new BTOProjectType("2 Room", 350_000, 2));
+        someBtoProject.addProjectType(new BTOProjectType("3 Room", 450_000, 2));
+
+        someBtoProject.setApplicationWindow(
+                Date.from(LocalDate.of(2025, 2, 15).atStartOfDay(ZoneId.systemDefault()).toInstant()),
+                Date.from(LocalDate.of(2025, 4, 20).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        someBtoProject.setOfficerLimit(3);
+
         btoSystem.getProjects().addProject(acaciaBreezeYishun);
+        btoSystem.getProjects().addProject(someBtoProject);
     }
 
     // public static List<User> parseUserCSV(String filePath) {

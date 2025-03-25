@@ -1,5 +1,7 @@
 package com.group6.utils;
 
+import java.util.Optional;
+
 /**
  *
  * @param <T> data type
@@ -14,7 +16,7 @@ public final class TryCatchResult<T, E extends Throwable> {
      * Constructor for TryCatchResult.
      *
      * @param data data
-     * @param err error
+     * @param err  error
      */
     public TryCatchResult(T data, E err) {
         this.data = data;
@@ -26,8 +28,8 @@ public final class TryCatchResult<T, E extends Throwable> {
      *
      * @return {@link #data}
      */
-    public T getData() {
-        return data;
+    public Optional<T> getData() {
+        return Optional.ofNullable(data);
     }
 
     /**
@@ -35,7 +37,7 @@ public final class TryCatchResult<T, E extends Throwable> {
      *
      * @return {@link #err}
      */
-    public E getErr() {
-        return err;
+    public Optional<E> getErr() {
+        return Optional.ofNullable(err);
     }
 }

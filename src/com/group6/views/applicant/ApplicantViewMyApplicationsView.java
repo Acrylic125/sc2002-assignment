@@ -5,11 +5,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
+import com.group6.btoproject.BTOApplication;
+import com.group6.btoproject.BTOApplicationWithdrawal;
 import com.group6.btoproject.BTOProject;
 import com.group6.btoproject.BTOProjectManager;
 import com.group6.btoproject.BTOProjectType;
-import com.group6.users.HDBManager;
-import com.group6.users.HDBOfficer;
+import com.group6.btoproject.BTOProjectManager.BTOFullApplication;
 import com.group6.users.User;
 import com.group6.users.UserManager;
 import com.group6.utils.Utils;
@@ -18,19 +19,17 @@ import com.group6.views.PaginatedView;
 import com.group6.views.View;
 import com.group6.views.ViewContext;
 
-public class ApplicantProjectsView implements PaginatedView, AuthenticatedView {
-
+public class ApplicantViewMyApplicationsView implements PaginatedView, AuthenticatedView {
     private static final int PAGE_SIZE = 3;
 
     private ViewContext ctx;
-    private User user;
     private int page = 1;
-    private List<BTOProject> projects = new ArrayList<>();
-    private List<BTOProject> filteredProjects = new ArrayList<>();
+    private List<BTOFullApplication> applications = new ArrayList<>();
+    private List<BTOFullApplication> filteredApplications = new ArrayList<>();
 
     @Override
     public int getLastPage() {
-        int size = filteredProjects.size();
+        int size = applications.size();
         if (size % PAGE_SIZE == 0) {
             return size / PAGE_SIZE;
         }
@@ -49,41 +48,34 @@ public class ApplicantProjectsView implements PaginatedView, AuthenticatedView {
 
     @Override
     public View render(ViewContext ctx, User user) {
-        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
-        final ProjectsViewFilters filters = ctx.getViewAllProjectsFilters();
-
         this.ctx = ctx;
-        this.user = user;
-        this.projects = projectManager.getProjects().values().stream()
-                .filter((project) -> project.isVisibleToPublic()
-                        || user instanceof HDBOfficer
-                        || user instanceof HDBManager)
-                .toList();
-        // We ASSUME filters cannot be applied UNTIL the user goes to the filters view
-        // and return which will call this.
-        //
-        // We just do it once here to avoid unnecessary filtering.
-        this.filteredProjects = filters.applyFilters(this.projects, user);
 
-        return this.showOptions();
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+        this.applications = new ArrayList<>(
+                projectManager.getAllApplicationsForUser(user.getId()));
+        this.filteredApplications = ctx.getViewApplicationFilters().applyFilters(this.applications, user);
+
+        return showOptions();
     }
 
-    private void showProjects() {
-        List<BTOProject> projects = this.filteredProjects;
-        System.out.println("Projects");
-        if (projects.isEmpty()) {
-            System.out.println("(No Projects Found)");
+    private void showApplications() {
+        final List<BTOFullApplication> applications = this.filteredApplications;
+        System.out.println("Applied Projects");
+        if (applications.isEmpty()) {
+            System.out.println("(No Projects Applied/Found)");
             System.out.println("");
             return;
         }
-
         final UserManager userManager = ctx.getBtoSystem().getUsers();
 
-        final int lastIndex = Math.min(page * PAGE_SIZE, projects.size());
         final int firstIndex = (page - 1) * PAGE_SIZE;
+        final int lastIndex = Math.min(page * PAGE_SIZE, applications.size());
         // Render the projects in the page.
         for (int i = firstIndex; i < lastIndex; i++) {
-            final BTOProject project = projects.get(i);
+            final BTOFullApplication fullApplication = applications.get(i);
+            final BTOProject project = fullApplication.getProject();
+            final BTOApplication application = fullApplication.getApplication();
+            final Optional<BTOApplicationWithdrawal> withdrawalOpt = fullApplication.getWithdrawal();
             final List<BTOProjectType> types = new ArrayList<>(project.getProjectTypes());
 
             Optional<User> managerOpt = userManager.getUser(project.getManagerUserId());
@@ -106,46 +98,54 @@ public class ApplicantProjectsView implements PaginatedView, AuthenticatedView {
 
             System.out.println("Project: " + project.getName() + ", " + project.getNeighbourhood());
             System.out.println("ID: " + project.getId());
-            System.out.println("Types (No. Units Available / Total No. Units / Price):");
-            if (types.size() <= 0) {
-                System.out.println("  (No types available)");
-            } else {
-                types.sort((a, b) -> a.getId().compareTo(b.getId()));
+            System.out.println("Status: " + fullApplication.getApplication().getStatus());
 
-                for (BTOProjectType type : types) {
-                    System.out.println(
-                            "  " + type.getId() + " " +
-                                    project.getBookedCountForType(type.getId()) + " / " + type.getMaxQuantity()
-                                    + " / $" + Utils.formatMoney(type.getPrice()));
-                }
+            Optional<BTOProjectType> typeOpt = types.stream()
+                    .filter(t -> t.getId().equals(application.getTypeId()))
+                    .findFirst();
+
+            if (typeOpt.isEmpty()) {
+                System.out.println(
+                        "No. of Units: (Unknown)");
+                System.out.println("  Type " + typeOpt.get().getId() + " does not exist in project.");
+                System.out.println("Price: (Unknown)");
+                System.out.println("  Type " + typeOpt.get().getId() + " does not exist in project.");
+            } else {
+                BTOProjectType type = typeOpt.get();
+                System.out.println(
+                        "No. of Units: " + project.getBookedCountForType(type.getId()) + " / " + type.getMaxQuantity());
+                System.out.println("Price: $" + Utils.formatMoney(type.getPrice()));
             }
+
             System.out.println("Application period: " + Utils.formatToDDMMYYYY(project.getApplicationOpenDate())
                     + " to " + Utils.formatToDDMMYYYY(project.getApplicationCloseDate()));
             System.out.println("Manager / Officers: " + managerName + " / " + officerNames);
-            if (user instanceof HDBOfficer || user instanceof HDBManager) {
-                System.out.println("Visible to public: " + project.isVisibleToPublic());
+            if (withdrawalOpt.isPresent()) {
+                System.out.println("Withdrawal Status: " + withdrawalOpt.get().getStatus());
+            } else {
+                System.out.println("Withdrawal Status: N/A");
             }
             System.out.println("");
         }
-        System.out.println("Showing " + (lastIndex - firstIndex) + " of " + projects.size());
+        System.out.println("Showing " + (lastIndex - firstIndex) + " of " + applications.size());
     }
 
     private View showOptions() {
         final Scanner scanner = ctx.getScanner();
 
         while (true) {
-            showProjects();
+            showApplications();
             System.out.println("Page " + page + " / " + getLastPage() +
                     " - Type 'e' to enquire, 'a' to apply, 'f' to filter, 'n' to go to next page, 'p' to go to previous page, 'page' to go to a specific page,  or leave empty ('') to go back:");
 
             String option = scanner.nextLine().trim();
             switch (option) {
-                case "a":
-                    return new ApplicantApplyProjectView();
                 case "e":
                     return new ApplicantProjectEnquiryView();
+                case "w":
+                    return new ApplicantApplicationWithdrawalView();
                 case "f":
-                    return new ProjectsViewFiltersView();
+                    return new ApplicantViewMyApplicationsFilterView();
                 case "n":
                     if (!this.nextPage()) {
                         System.out.println("You are already on the last page.");

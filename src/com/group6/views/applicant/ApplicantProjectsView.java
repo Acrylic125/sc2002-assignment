@@ -70,10 +70,17 @@ public class ApplicantProjectsView implements PaginatedView, AuthenticatedView {
 
     private void showProjects() {
         List<BTOProject> projects = this.filteredProjects;
+        System.out.println("Projects");
+        if (projects.isEmpty()) {
+            System.out.println("(No Projects Found)");
+            System.out.println("");
+            return;
+        }
+
         final UserManager userManager = ctx.getBtoSystem().getUsers();
 
-        int lastIndex = Math.min(page * PAGE_SIZE, projects.size());
-        int firstIndex = (page - 1) * PAGE_SIZE;
+        final int lastIndex = Math.min(page * PAGE_SIZE, projects.size());
+        final int firstIndex = (page - 1) * PAGE_SIZE;
         // Render the projects in the page.
         for (int i = firstIndex; i < lastIndex; i++) {
             final BTOProject project = projects.get(i);
@@ -97,7 +104,6 @@ public class ApplicantProjectsView implements PaginatedView, AuthenticatedView {
                     }).get()
                     : "(None)";
 
-            System.out.println("Projects");
             System.out.println("Project: " + project.getName() + ", " + project.getNeighbourhood());
             System.out.println("ID: " + project.getId());
             System.out.println("Types (No. Units Available / Total No. Units / Price):");
@@ -120,8 +126,8 @@ public class ApplicantProjectsView implements PaginatedView, AuthenticatedView {
                 System.out.println("Visible to public: " + project.isVisibleToPublic());
             }
             System.out.println("");
-            System.out.println("Showing " + (lastIndex - firstIndex) + " of " + projects.size());
         }
+        System.out.println("Showing " + (lastIndex - firstIndex) + " of " + projects.size());
     }
 
     private View showOptions() {

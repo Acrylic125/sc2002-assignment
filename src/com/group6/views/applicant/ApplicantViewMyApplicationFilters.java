@@ -1,11 +1,10 @@
 package com.group6.views.applicant;
 
-import com.group6.btoproject.BTOApplicationStatus;
-import com.group6.btoproject.BTOApplicationWithdrawalStatus;
+import com.group6.btoproject.*;
+import com.group6.users.User;
+import com.group6.views.ViewSortType;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * See {@link ApplicantViewMyApplicationsView}
@@ -13,8 +12,6 @@ import java.util.Set;
 public class ApplicantViewMyApplicationFilters {
 
     private Set<BTOApplicationStatus> applicationStatusesFilter = new HashSet<>();
-    private Set<BTOApplicationWithdrawalStatus> withdrawalStatusesFilter = new HashSet<>();
-    private boolean shouldIncludeNAWithdrawals = true;
     private ProjectsViewFilters projectsViewFilters = new ProjectsViewFilters();
 
     /**
@@ -36,42 +33,6 @@ public class ApplicantViewMyApplicationFilters {
     }
 
     /**
-     * Withdrawal statuses filters getter.
-     *
-     * @return {{@link #withdrawalStatusesFilter}}
-     */
-    public Set<BTOApplicationWithdrawalStatus> getWithdrawalStatusesFilter() {
-        return withdrawalStatusesFilter;
-    }
-
-    /**
-     * Filter project withdrawal statuses.
-     *
-     * @param withdrawalStatusesFilter filter withdrawal statuses.
-     */
-    public void setWithdrawalStatusesFilter(Set<BTOApplicationWithdrawalStatus> withdrawalStatusesFilter) {
-        this.withdrawalStatusesFilter = withdrawalStatusesFilter;
-    }
-
-    /**
-     * Should include N/A withdrawals getter.
-     *
-     * @return {@link #shouldIncludeNAWithdrawals}
-     */
-    public boolean isShouldIncludeNAWithdrawals() {
-        return shouldIncludeNAWithdrawals;
-    }
-
-    /**
-     * Should include N/A withdrawals setter.
-     *
-     * @param shouldIncludeNAWithdrawals filter applications without withdrawals.
-     */
-    public void setShouldIncludeNAWithdrawals(boolean shouldIncludeNAWithdrawals) {
-        this.shouldIncludeNAWithdrawals = shouldIncludeNAWithdrawals;
-    }
-
-    /**
      * Project view filters getter.
      *
      * @return {{@link #projectsViewFilters}}
@@ -87,6 +48,51 @@ public class ApplicantViewMyApplicationFilters {
      */
     public void setProjectsViewFilters(ProjectsViewFilters projectsViewFilters) {
         this.projectsViewFilters = projectsViewFilters;
+    }
+
+    /**
+     * Checks if an application, given the user filtering, can pass.
+     *
+     * @param application the application being filtered.
+     * @param user the user filtering.
+     * @return true if application passes the filters.
+     */
+    public boolean canFilterApplication(BTOProjectManager.BTOFullApplication application, User user) {
+        if (!this.projectsViewFilters.canFilterProject(application.getProject(), user)) {
+            return false;
+        }
+
+        // Filter by application status.
+        if (!applicationStatusesFilter.isEmpty()) {
+            return applicationStatusesFilter.contains(application.getApplication().getStatus());
+        }
+
+        return true;
+    }
+
+    /**
+     * Applies the filters INCLUDING SORTING, to a list of applications, given the user.
+     *
+     * @param applications the list of applications.
+     * @param user the user doing the filtering.
+     * @return a list of application filtered and sorted.
+     */
+    public List<BTOProjectManager.BTOFullApplication> applyFilters(List<BTOProjectManager.BTOFullApplication> applications, User user) {
+        List<BTOProjectManager.BTOFullApplication> filteredProjects = applications.stream()
+                .filter((project) -> canFilterApplication(project, user))
+                .toList();
+        ViewSortType sortByName = this.getProjectsViewFilters().getSortByName();
+        if (sortByName == ViewSortType.NONE) {
+            return filteredProjects;
+        }
+        filteredProjects = new ArrayList<>(filteredProjects);
+        if (sortByName == ViewSortType.ASC) {
+            filteredProjects.sort(Comparator.comparing(a -> a.getProject().getName()));
+        } else {
+            filteredProjects.sort((a, b) ->
+                    b.getProject().getName().compareTo(a.getProject().getName()));
+        }
+        return filteredProjects;
     }
 
 }

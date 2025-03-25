@@ -25,6 +25,7 @@ public class ApplicantViewMyApplicationsView implements PaginatedView, Authentic
     private ViewContext ctx;
     private int page = 1;
     private List<BTOFullApplication> applications = new ArrayList<>();
+    private List<BTOFullApplication> filteredApplications = new ArrayList<>();
 
     @Override
     public int getLastPage() {
@@ -52,23 +53,25 @@ public class ApplicantViewMyApplicationsView implements PaginatedView, Authentic
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
         this.applications = new ArrayList<>(
                 projectManager.getAllApplicationsForUser(user.getId()));
-        applications.sort((a, b) -> a.getProject().getName().compareTo(b.getProject().getName()));
+        this.filteredApplications = ctx.getViewApplicationFilters().applyFilters(this.applications, user);
 
         return showOptions();
     }
 
     private void showApplications() {
+        final List<BTOFullApplication> applications = this.filteredApplications;
         System.out.println("Applied Projects");
         if (applications.isEmpty()) {
-            System.out.println("(No Projects Applied)");
+            System.out.println("(No Projects Applied/Found)");
             System.out.println("");
             return;
         }
         final UserManager userManager = ctx.getBtoSystem().getUsers();
 
-        int lastIndex = Math.min(page * PAGE_SIZE, applications.size());
+        final int firstIndex = (page - 1) * PAGE_SIZE;
+        final int lastIndex = Math.min(page * PAGE_SIZE, applications.size());
         // Render the projects in the page.
-        for (int i = (page - 1) * PAGE_SIZE; i < lastIndex; i++) {
+        for (int i = firstIndex; i < lastIndex; i++) {
             final BTOFullApplication fullApplication = applications.get(i);
             final BTOProject project = fullApplication.getProject();
             final BTOApplication application = fullApplication.getApplication();
@@ -124,6 +127,7 @@ public class ApplicantViewMyApplicationsView implements PaginatedView, Authentic
             }
             System.out.println("");
         }
+        System.out.println("Showing " + (lastIndex - firstIndex) + " of " + applications.size());
     }
 
     private View showOptions() {

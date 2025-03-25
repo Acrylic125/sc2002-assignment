@@ -10,6 +10,7 @@ import com.group6.btoproject.BTOProjectManager;
 import com.group6.btoproject.BTOProjectType;
 import com.group6.btoproject.HDBOfficerRegistration;
 import com.group6.btoproject.HDBOfficerRegistrationStatus;
+import com.group6.users.Applicant;
 import com.group6.users.HDBManager;
 import com.group6.users.HDBOfficer;
 import com.group6.users.User;
@@ -24,7 +25,7 @@ public class ApplicantApplyProjectView implements AuthenticatedView {
 
     @Override
     public boolean isAuthorized(User user) {
-        return user instanceof HDBManager;
+        return user instanceof Applicant;
     }
 
     @Override

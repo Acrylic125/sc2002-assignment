@@ -5,6 +5,7 @@ import com.group6.btoproject.BTOProjectManager;
 import com.group6.users.HDBManager;
 import com.group6.users.HDBOfficer;
 import com.group6.users.User;
+import com.group6.views.AuthenticatedView;
 import com.group6.views.PaginatedView;
 import com.group6.views.View;
 import com.group6.views.ViewContext;
@@ -14,11 +15,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
-public class ApplicantViewMyEnquiriesView implements PaginatedView {
+public class ApplicantViewMyEnquiriesView implements PaginatedView, AuthenticatedView {
     private static final int PAGE_SIZE = 3;
 
     private ViewContext ctx;
-    private User user;
     private int page = 1;
     private List<BTOProject> projects = new ArrayList<>();
 
@@ -42,19 +42,10 @@ public class ApplicantViewMyEnquiriesView implements PaginatedView {
     }
 
     @Override
-    public View render(ViewContext ctx) {
-        final Scanner scanner = ctx.getScanner();
-        final Optional<User> userOpt = ctx.getUser();
-        if (userOpt.isEmpty()) {
-            System.out.println("You are not logged in. Please sign in.");
-            System.out.println("Type anything to continue.");
-            scanner.nextLine();
-            return null;
-        }
+    public View render(ViewContext ctx, User user) {
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
 
         this.ctx = ctx;
-        this.user = userOpt.get();
         this.projects = new ArrayList<>(
                 projectManager.getProjects().values().stream()
                         .filter((project) -> {

@@ -13,11 +13,12 @@ import com.group6.users.HDBOfficer;
 import com.group6.users.User;
 import com.group6.users.UserManager;
 import com.group6.utils.Utils;
+import com.group6.views.AuthenticatedView;
 import com.group6.views.PaginatedView;
 import com.group6.views.View;
 import com.group6.views.ViewContext;
 
-public class ApplicantProjectsView implements PaginatedView {
+public class ApplicantProjectsView implements PaginatedView, AuthenticatedView {
 
     private static final int PAGE_SIZE = 3;
 
@@ -46,16 +47,11 @@ public class ApplicantProjectsView implements PaginatedView {
     }
 
     @Override
-    public View render(ViewContext ctx) {
-        final Optional<User> userOpt = ctx.getUser();
-        if (userOpt.isEmpty()) {
-            System.out.println("You are not logged in. Please sign in.");
-            return null;
-        }
+    public View render(ViewContext ctx, User user) {
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
 
         this.ctx = ctx;
-        this.user = userOpt.get();
+        this.user = user;
         this.projects = new ArrayList<>(
                 projectManager.getProjects().values().stream()
                         .filter((project) -> project.isVisibleToPublic()

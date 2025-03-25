@@ -8,28 +8,21 @@ import java.util.Scanner;
 import com.group6.btoproject.*;
 import com.group6.users.User;
 import com.group6.utils.Utils;
+import com.group6.views.AuthenticatedView;
 import com.group6.views.View;
 import com.group6.views.ViewContext;
 
-public class ApplicantApplicationWithdrawalView implements View {
+public class ApplicantApplicationWithdrawalView implements AuthenticatedView {
 
     private ViewContext ctx;
     private User user;
 
     @Override
-    public View render(ViewContext ctx) {
-        final Optional<User> userOpt = ctx.getUser();
-        final Scanner scanner = ctx.getScanner();
-        if (userOpt.isEmpty()) {
-            System.out.println("You are not logged in. Please sign in.");
-            System.out.println("Type anything to continue.");
-            scanner.nextLine();
-            return null;
-        }
+    public View render(ViewContext ctx, User user) {
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
 
         this.ctx = ctx;
-        this.user = userOpt.get();
+        this.user = user;
 
         List<BTOProjectManager.BTOFullApplication> applications = new ArrayList<>(
                 projectManager.getAllApplicationsForUser(user.getId()));

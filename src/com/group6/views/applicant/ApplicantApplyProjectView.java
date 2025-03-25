@@ -14,32 +14,25 @@ import com.group6.users.HDBManager;
 import com.group6.users.HDBOfficer;
 import com.group6.users.User;
 import com.group6.utils.Utils;
+import com.group6.views.AuthenticatedView;
 import com.group6.views.View;
 import com.group6.views.ViewContext;
 
-public class ApplicantApplyProjectView implements View {
+public class ApplicantApplyProjectView implements AuthenticatedView {
     private ViewContext ctx;
     private User user;
 
     @Override
-    public View render(ViewContext ctx) {
-        final Scanner scanner = ctx.getScanner();
-        final Optional<User> userOpt = ctx.getUser();
-        if (userOpt.isEmpty()) {
-            System.out.println("You are not logged in. Please sign in.");
-            System.out.println("Type anything to continue.");
-            scanner.nextLine();
-            return null;
-        }
-        this.ctx = ctx;
-        this.user = userOpt.get();
+    public boolean isAuthorized(User user) {
+        return user instanceof HDBManager;
+    }
 
-        if (user instanceof HDBManager) {
-            System.out.println("HDB Managers cannot apply for projects.");
-            System.out.println("Type anything to continue.");
-            scanner.nextLine();
-            return null;
-        }
+    @Override
+    public View render(ViewContext ctx, User user) {
+        this.ctx = ctx;
+        this.user = user;
+
+        final Scanner scanner = ctx.getScanner();
 
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
         List<BTOProject> activeProjects = projectManager.getActiveProjectsForUser(user.getId());

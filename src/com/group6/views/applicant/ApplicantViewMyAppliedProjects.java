@@ -14,15 +14,15 @@ import com.group6.btoproject.BTOProjectManager.BTOFullApplication;
 import com.group6.users.User;
 import com.group6.users.UserManager;
 import com.group6.utils.Utils;
+import com.group6.views.AuthenticatedView;
 import com.group6.views.PaginatedView;
 import com.group6.views.View;
 import com.group6.views.ViewContext;
 
-public class ApplicantViewMyAppliedProjects implements PaginatedView {
+public class ApplicantViewMyAppliedProjects implements PaginatedView, AuthenticatedView {
     private static final int PAGE_SIZE = 3;
 
     private ViewContext ctx;
-    private User user;
     private int page = 1;
     private List<BTOFullApplication> applications = new ArrayList<>();
 
@@ -46,20 +46,10 @@ public class ApplicantViewMyAppliedProjects implements PaginatedView {
     }
 
     @Override
-    public View render(ViewContext ctx) {
-        final Optional<User> userOpt = ctx.getUser();
-        final Scanner scanner = ctx.getScanner();
-        if (userOpt.isEmpty()) {
-            System.out.println("You are not logged in. Please sign in.");
-            System.out.println("Type anything to continue.");
-            scanner.nextLine();
-            return null;
-        }
-        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
-
+    public View render(ViewContext ctx, User user) {
         this.ctx = ctx;
-        this.user = userOpt.get();
 
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
         this.applications = new ArrayList<>(
                 projectManager.getAllApplicationsForUser(user.getId()));
         applications.sort((a, b) -> a.getProject().getName().compareTo(b.getProject().getName()));

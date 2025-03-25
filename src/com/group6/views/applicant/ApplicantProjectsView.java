@@ -129,6 +129,8 @@ public class ApplicantProjectsView implements PaginatedView, AuthenticatedView {
                     return new ApplicantApplyProjectView();
                 case "e":
                     return new ApplicantProjectEnquiryView();
+                case "f":
+                    return new ProjectsViewFiltersView();
                 case "n":
                     if (!this.nextPage()) {
                         System.out.println("You are already on the last page.");

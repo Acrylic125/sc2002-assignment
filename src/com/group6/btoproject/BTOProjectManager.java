@@ -1,10 +1,13 @@
 package com.group6.btoproject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Represents a central point to manage/access projects of a
@@ -107,6 +110,16 @@ public class BTOProjectManager {
             });
         });
         return result;
+    }
+
+    public List<String> getAllProjectTypes() {
+        Set<String> projectTypes = new HashSet<>();
+        projects.values().forEach(project -> {
+            project.getProjectTypes().forEach(type -> {
+                projectTypes.add(type.getId());
+            });
+        });
+        return new ArrayList<>(projectTypes);
     }
 
 }

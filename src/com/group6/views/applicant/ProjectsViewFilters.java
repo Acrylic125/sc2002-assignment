@@ -1,11 +1,10 @@
 package com.group6.views.applicant;
 
-import com.group6.btoproject.BTOApplicationStatus;
 import com.group6.views.ViewSortType;
 
-import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -16,19 +15,22 @@ import java.util.Set;
  */
 public class ProjectsViewFilters {
 
-    private String searchTerm;
-    private String location;
+    private String searchTerm = "";
+    private String location = "";
     private ViewSortType sortByName = ViewSortType.ASC;
-    private Set<String> filterProjectTypes;
+    // Although we assume only 2 project types, we cannot guarantee this.
+    // We go by exclusion since we may not know all the project types.
+    private Set<String> excludeProjectTypes = new HashSet<>();
     private boolean onlyShowManagedProjects;
 
     /**
      * Search term getter.
+     * Empty string implies any search.
      *
      * @return {@link #searchTerm}
      */
     public String getSearchTerm() {
-        return searchTerm;
+        return searchTerm == null ? "" : searchTerm;
     }
 
     /**
@@ -46,7 +48,7 @@ public class ProjectsViewFilters {
      * @return {@link #location}
      */
     public String getLocation() {
-        return location;
+        return location == null ? "" : location;
     }
 
     /**
@@ -77,21 +79,21 @@ public class ProjectsViewFilters {
     }
 
     /**
-     * Filter project types getter.
+     * Exclude project types getter.
      *
-     * @return {@link #filterProjectTypes}
+     * @return {@link #excludeProjectTypes}
      */
-    public Set<String> getFilterProjectTypes() {
-        return Collections.unmodifiableSet(filterProjectTypes);
+    public Set<String> getExcludeProjectTypes() {
+        return Collections.unmodifiableSet(excludeProjectTypes);
     }
 
     /**
-     * Filter project types setter.
+     * Exclude project types setter.
      *
-     * @param filterProjectTypes filter project types
+     * @param excludeProjectTypes exclude project types
      */
-    public void setFilterProjectTypes(Set<String> filterProjectTypes) {
-        this.filterProjectTypes = filterProjectTypes;
+    public void setExcludeProjectTypes(Set<String> excludeProjectTypes) {
+        this.excludeProjectTypes = excludeProjectTypes;
     }
 
     /**
@@ -100,7 +102,7 @@ public class ProjectsViewFilters {
      * @param projectType project type id.
      */
     public void addProjectTypeFilter(String projectType) {
-        this.filterProjectTypes.add(projectType);
+        this.excludeProjectTypes.add(projectType);
     }
 
     /**
@@ -109,7 +111,7 @@ public class ProjectsViewFilters {
      * @param projectType project type id.
      */
     public void removeProjectTypeFilter(String projectType) {
-        this.filterProjectTypes.remove(projectType);
+        this.excludeProjectTypes.remove(projectType);
     }
 
     /**

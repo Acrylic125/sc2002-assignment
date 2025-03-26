@@ -1,0 +1,65 @@
+// Sequence diagram on Eraser.
+Applicant [icon: user]
+HDB Officer [icon: user]
+ViewContext [color: blue]
+ApplicantProjectsView [color: blue]
+ApplicantApplyProjectView [color: blue]
+ProjectManager [color: blue]
+BTOProject [color: blue]
+
+Applicant > ViewContext: startFromView(ApplicantProjectsView)
+
+activate ViewContext
+  ViewContext > ApplicantProjectsView: render(ViewContext)
+
+  activate ApplicantProjectsView
+   ApplicantProjectsView > ProjectManager: getProjects()
+   ApplicantProjectsView <-- ProjectManager: return List<BTOProject>
+  Applicant <-- ApplicantProjectsView: Show projects
+
+  Applicant > ApplicantProjectsView: Chooses to apply to project
+  ViewContext <-- ApplicantProjectsView: return ApplicantApplyProjectView
+  deactivate ApplicantProjectsView
+
+  ViewContext > ApplicantApplyProjectView: render(ViewContext)
+  activate ApplicantApplyProjectView 
+    loop [label: until existing project with project id, color: green] {
+     Applicant <-- ApplicantApplyProjectView: Request project id to apply to
+
+     Applicant > ApplicantApplyProjectView: Specify project id
+
+      ApplicantApplyProjectView > ProjectManager: getProject(String projectId)
+
+      ApplicantApplyProjectView <-- ProjectManager: return Optional<BTOProject>
+
+      ApplicantApplyProjectView >
+      ApplicantApplyProjectView: Check if project exists
+    }
+
+    loop [label: until valid project type with availability, color: green] {
+     Applicant <-- ApplicantApplyProjectView: Request project type to apply to
+
+     Applicant > ApplicantApplyProjectView: Specify project type
+
+     ApplicantApplyProjectView > BTOProject: getProjectTypes()
+
+     ApplicantApplyProjectView <-- BTOProject: return List<BTOProjectType>
+
+     ApplicantApplyProjectView >
+      ApplicantApplyProjectView: Check if project type exist and has availability
+    }
+    
+    ApplicantApplyProjectView > BTOProject: requestApply(String userId)
+
+    ApplicantApplyProjectView <-- BTOProject: return Void
+
+    Applicant <-- ApplicantApplyProjectView: Successfully applied!
+  deactivate ApplicantApplyProjectView
+
+deactivate ViewContext
+
+
+
+// Server - Service: Data processing
+// Server --> Client: Data response
+// deactivate Server

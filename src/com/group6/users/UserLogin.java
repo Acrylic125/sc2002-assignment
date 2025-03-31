@@ -13,6 +13,11 @@ public class UserLogin {
         while (attempts < MAX_ATTEMPTS){
             System.out.print("Enter NRIC: ");
             String nric = in.nextLine().toUpperCase();
+            if (!validateNRIC.isValidNRIC(nric)){
+                System.out.println("Invalid NRIC format! Try again.");
+                attempts++;
+                continue;
+            }
 
             System.out.print("Enter password: ");
             String password = in.nextLine();

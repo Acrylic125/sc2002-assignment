@@ -1,17 +1,10 @@
-package com.group6.users;
+public class HDBManager extends User{
+    public HDBManager(String name, String nric, int age, String maritalStatus, String password) {
+        super(name, nric, age, maritalStatus, password);
+    }
 
-/**
- * A HDBManager is a {@link User}, but neither is it an {@link Applicant} NOR is it {@link HDBOfficer}.
- */
-public class HDBManager extends User {
-    /**
-     * Constructor for HDBManager.
-     *
-     * @param id id.
-     * @param nric nric.
-     * @param password password.
-     */
-    public HDBManager(String id, String nric, String password) {
-        super(id, nric, password);
+    @Override
+    public String getRole() {
+        return "Officer";
     }
 }

@@ -2,6 +2,7 @@ package com.group6.views.applicant;
 
 import com.group6.users.Applicant;
 import com.group6.users.User;
+import com.group6.utils.BashColors;
 import com.group6.views.AuthenticatedView;
 import com.group6.views.View;
 import com.group6.views.ViewContext;
@@ -28,12 +29,12 @@ public class ApplicantHomeView implements AuthenticatedView {
         final Scanner scanner = ctx.getScanner();
 
         while (true) {
-            System.out.println("Applicant Home Menu");
+            System.out.println(BashColors.format("Applicant Home Menu", BashColors.BOLD));
             System.out.println("1. View All Projects");
             System.out.println("2. View My Applied Projects");
             System.out.println("3. View My Enquiries");
             System.out.println("");
-            System.out.println("Type the number of the option you want to select or leave empty ('') to cancel.");
+            System.out.println(BashColors.format("Type the number of the option you want to select or leave empty ('') to cancel.", BashColors.LIGHT_GRAY));
 
             String option = scanner.nextLine().trim();
             switch (option) {

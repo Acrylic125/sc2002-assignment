@@ -61,7 +61,7 @@ public class ApplicantApplyProjectView implements AuthenticatedView {
         }
 
         Utils.tryCatch(() -> {
-            project.requestApply(user.getId(), typeOpt.get());
+            projectManager.requestApply(project.getId(), user.getId(), typeOpt.get());
         }).getErr().ifPresentOrElse((err) -> {
             System.out.println("Failed to apply for project: ");
             System.out.println(err.getMessage());

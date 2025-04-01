@@ -103,6 +103,15 @@ public class BTOProject {
     }
 
     /**
+     * Get a ProjectType based on it's id.
+     *
+     * @return {@link BTOProjectType}
+     */
+    public Optional<BTOProjectType> getProjectType(String projectTypeId) {
+        return Optional.ofNullable(projectTypes.get(projectTypeId));
+    }
+
+    /**
      * Enquiries getter.
      * Create copy to avoid direct mutations.
      * 
@@ -122,6 +131,17 @@ public class BTOProject {
      */
     public List<BTOApplication> getApplications() {
         return applications.stream().toList();
+    }
+
+    /**
+     * Do not expose this method outside of this package to avoid
+     * undefined states.
+     * Add an application to the project.
+     *
+     * @param application application to add.
+     */
+    protected void addApplication(BTOApplication application) {
+        applications.add(application);
     }
 
     /**
@@ -201,8 +221,23 @@ public class BTOProject {
         enquiries.removeIf(enquiry -> enquiry.getId().equals(enquiryId));
     }
 
+    /**
+     * Get an application based on it's id.
+     *
+     * @param applicationId application id. enquiry id.
+     * @return the bto application tied to the application id..
+     */
     public Optional<BTOApplication> getApplication(String applicationId) {
         return applications.stream().filter((application) -> application.getId().equals(applicationId)).findFirst();
+    }
+
+    /**
+     * Add an officer registration to the project.
+     *
+     * @param registration officer registration to add.
+     */
+    protected void addHDBOfficerRegistration(HDBOfficerRegistration registration) {
+        hdbOfficerRegistrations.add(registration);
     }
 
     /**
@@ -227,108 +262,6 @@ public class BTOProject {
     }
 
     /**
-     * Add an application to the project.
-     *
-     * @param applicantUserId application to add.
-     * @param typeId          type id of the application.
-     * @throws RuntimeException If there exists an application that:
-     *                          - is PENDING and has the same applicantUserId.
-     *                          - is SUCCESSFUL and has the same applicantUserId.
-     *                          - is BOOKED and has the same applicantUserId.
-     */
-    public void requestApply(String applicantUserId, String typeId) throws RuntimeException {
-        if (!isApplicationWindowOpen()) {
-            throw new RuntimeException("Application window is closed.");
-        }
-
-        getActiveApplication(applicantUserId)
-                .ifPresent(application -> {
-                    final BTOApplicationStatus status = application.getStatus();
-                    if (status == BTOApplicationStatus.PENDING) {
-                        throw new RuntimeException("There is already an Application pending.");
-                    } else if (status == BTOApplicationStatus.SUCCESSFUL) {
-                        throw new RuntimeException("There is already a successful Application.");
-                    } else {
-                        throw new RuntimeException("There is already a booked Application.");
-                    }
-                });
-
-        final BTOProjectType projectType = projectTypes.get(typeId);
-        if (projectType == null) {
-            throw new RuntimeException("Project type, " + typeId + " does not exist.");
-        }
-        if (projectType.getMaxQuantity() <= 0) {
-            throw new RuntimeException("Project type, " + typeId + " has no availability.");
-        }
-
-        if (isManagingOfficer(applicantUserId)) {
-            throw new RuntimeException("Project registered officers cannot apply for this project.");
-        }
-
-        final BTOApplication application = new BTOApplication(
-                UUID.randomUUID().toString(),
-                applicantUserId,
-                typeId,
-                BTOApplicationStatus.PENDING);
-        applications.add(application);
-    }
-
-    /**
-     * Transition the status of an application.
-     *
-     * @param applicationId application id.
-     * @param status        new status.
-     * @throws RuntimeException If the application:
-     *                          - Is not found.
-     *                          - Is PENDING and the new status is not
-     *                          SUCCESSFUL/UNSUCCESSFUL.
-     *                          - Is SUCCESSFUL and the new status is not
-     *                          BOOKED/UNSUCCESSFUL.
-     *                          - Is BOOKED and the new status is not UNSUCCESSFUL.
-     */
-    public void transitionApplicationStatus(String applicationId, BTOApplicationStatus status) throws RuntimeException {
-        final Optional<BTOApplication> applicationOpt = getApplication(applicationId);
-        if (applicationOpt.isEmpty()) {
-            throw new RuntimeException("Application not found.");
-        }
-        final BTOApplication application = applicationOpt.get();
-
-        final BTOApplicationStatus currentStatus = application.getStatus();
-        if (currentStatus == BTOApplicationStatus.PENDING) {
-            if (!(status == BTOApplicationStatus.SUCCESSFUL
-                    || status == BTOApplicationStatus.UNSUCCESSFUL)) {
-                throw new RuntimeException("Invalid transition from PENDING.");
-            }
-        } else if (currentStatus == BTOApplicationStatus.SUCCESSFUL) {
-            if (!(status == BTOApplicationStatus.BOOKED
-                    || status == BTOApplicationStatus.UNSUCCESSFUL)) {
-                throw new RuntimeException("Invalid transition from SUCCESSFUL.");
-            }
-        } else if (currentStatus == BTOApplicationStatus.BOOKED) {
-            if (status != BTOApplicationStatus.UNSUCCESSFUL) {
-                throw new RuntimeException("Invalid transition from BOOKED.");
-            }
-        }
-
-        if (status == BTOApplicationStatus.BOOKED || status == BTOApplicationStatus.SUCCESSFUL) {
-            final BTOProjectType projectType = projectTypes.get(application.getTypeId());
-            if (projectType == null) {
-                throw new RuntimeException("Project type, " + application.getTypeId() + " does not exist.");
-            }
-            int bookedCountForType = getBookedCountForType(application.getTypeId());
-            if (bookedCountForType >= projectType.getMaxQuantity()) {
-                throw new RuntimeException("Project type, " + application.getTypeId() + " has no availability.");
-            }
-
-            if (isManagingOfficer(application.getApplicantUserId())) {
-                throw new RuntimeException("Project registered officers cannot apply for this project.");
-            }
-        }
-
-        application.setStatus(status);
-    }
-
-    /**
      * Get the user's active officer registration.
      * An active officer registration is one that is either successful or pending.
      *
@@ -346,78 +279,6 @@ public class BTOProject {
                     return false;
                 })
                 .findFirst();
-    }
-
-    /**
-     * Add an HDB officer registration to the project.
-     *
-     * @param userId HDB officer registration to add.
-     * @throws RuntimeException If there exists an officer registration that:
-     *                          - is SUCCESSFUL and has the same officerUserId (i.e.
-     *                          already managing this project).
-     *                          - is PENDING and has the same officerUserId.
-     */
-    public void requestRegisterOfficer(String userId) throws RuntimeException {
-        getActiveOfficerRegistration(userId)
-                .ifPresent(registration -> {
-                    final HDBOfficerRegistrationStatus status = registration.getStatus();
-                    if (status == HDBOfficerRegistrationStatus.SUCCESSFUL) {
-                        throw new RuntimeException("Officer is already managing this project.");
-                    } else {
-                        throw new RuntimeException("Officer registration is pending.");
-                    }
-                });
-
-        if (isApplicantBooked(userId)) {
-            throw new RuntimeException(
-                    "Project Applicants with approved bookings may not register to manage this project.");
-        }
-
-        final HDBOfficerRegistration registration = new HDBOfficerRegistration(
-                UUID.randomUUID().toString(),
-                userId,
-                HDBOfficerRegistrationStatus.PENDING);
-        hdbOfficerRegistrations.add(registration);
-    }
-
-    /**
-     * Transition the status of an officer registration.
-     *
-     * @param userId user id.
-     * @param status new status.
-     * @throws RuntimeException If the registration:
-     *                          - Is not found.
-     *                          - Does NOT follow transition from PENDING TO
-     *                          SUCCESSFUL/UNSUCCESSFUL.
-     */
-    public void transitionOfficerRegistrationStatus(String userId, HDBOfficerRegistrationStatus status)
-            throws RuntimeException {
-        final Optional<HDBOfficerRegistration> registrationOpt = getActiveOfficerRegistration(userId);
-        if (registrationOpt.isEmpty()) {
-            throw new RuntimeException("Registration not found.");
-        }
-
-        final HDBOfficerRegistration registration = registrationOpt.get();
-        if (registration.getStatus() == HDBOfficerRegistrationStatus.PENDING) {
-            if (!(status == HDBOfficerRegistrationStatus.SUCCESSFUL
-                    || status == HDBOfficerRegistrationStatus.UNSUCCESSFUL)) {
-                throw new RuntimeException("Invalid transition from PENDING.");
-            }
-        } else {
-            throw new RuntimeException("Invalid transition from " + registration.getStatus() + " to " + status + ".");
-        }
-
-        if (status == HDBOfficerRegistrationStatus.SUCCESSFUL) {
-            if (getManagingOfficerRegistrations().size() >= officerLimit) {
-                throw new RuntimeException("Officer limit of " + officerLimit + " for this project has been reached.");
-            }
-            if (isApplicantBooked(userId)) {
-                throw new RuntimeException(
-                        "Project Applicants with approved bookings may not register to manage this project.");
-            }
-        }
-
-        registration.setStatus(status);
     }
 
     /**
@@ -462,85 +323,12 @@ public class BTOProject {
     }
 
     /**
-     * Add an application withdrawal to the project.
+     * Add a withdrawal to the project.
      *
-     * @param applicationId applicant id.
-     * @throws RuntimeException If the application is not found.
+     * @param withdrawal withdrawal to add.
      */
-    public void requestWithdrawApplication(String applicationId) throws RuntimeException {
-        final Optional<BTOApplication> applicationOpt = getApplication(applicationId);
-        if (applicationOpt.isEmpty()) {
-            throw new RuntimeException("Application not found.");
-        }
-        final BTOApplication application = applicationOpt.get();
-
-        // Check if the application is active.
-        final Optional<BTOApplication> activeApplicationOpt = getActiveApplication(application.getApplicantUserId());
-        if (activeApplicationOpt.isEmpty()) {
-            throw new RuntimeException(
-                    "You do not have any active applications. You can only withdraw your current application.");
-        }
-        final BTOApplication activeApplication = activeApplicationOpt.get();
-        if (!activeApplication.getId().equals(applicationId)) {
-            throw new RuntimeException("You can only withdraw your current application.");
-        }
-
-        final Optional<BTOApplicationWithdrawal> withdrawalOpt = getActiveWithdrawal(applicationId);
-        if (withdrawalOpt.isPresent()) {
-            throw new RuntimeException("There is already a pending withdrawal request.");
-        }
-
-        final BTOApplicationWithdrawal withdrawal = new BTOApplicationWithdrawal(
-                UUID.randomUUID().toString(),
-                applicationOpt.get().getId(),
-                BTOApplicationWithdrawalStatus.PENDING);
+    protected void addWithdrawal(BTOApplicationWithdrawal withdrawal) {
         withdrawals.add(withdrawal);
-    }
-
-    /**
-     * Transition an application withdrawal status.
-     *
-     * @param applicationId application id.
-     * @param status        new status.
-     * @throws RuntimeException If the application
-     *                          - Is not found.
-     *                          - There is no pending withdrawal request.
-     */
-    public void transitionWithdrawApplicationStatus(String applicationId, BTOApplicationWithdrawalStatus status)
-            throws RuntimeException {
-        final Optional<BTOApplication> applicationOpt = getApplication(applicationId);
-        if (applicationOpt.isEmpty()) {
-            throw new RuntimeException("Application not found.");
-        }
-        final BTOApplication application = applicationOpt.get();
-
-        // Check if the application is active.
-        final Optional<BTOApplication> activeApplicationOpt = getActiveApplication(application.getApplicantUserId());
-        if (activeApplicationOpt.isEmpty()) {
-            throw new RuntimeException("No active applications.");
-        }
-        final BTOApplication activeApplication = activeApplicationOpt.get();
-        if (!activeApplication.getId().equals(applicationId)) {
-            throw new RuntimeException("No active applications.");
-        }
-
-        final Optional<BTOApplicationWithdrawal> withdrawalOpt = getActiveWithdrawal(applicationId);
-        if (withdrawalOpt.isEmpty()) {
-            throw new RuntimeException("There is no pending withdrawal request.");
-        }
-        final BTOApplicationWithdrawal withdrawal = withdrawalOpt.get();
-        if (withdrawal.getStatus() != BTOApplicationWithdrawalStatus.PENDING) {
-            throw new RuntimeException("There is no pending withdrawal request.");
-        }
-
-        if (status == BTOApplicationWithdrawalStatus.SUCCESSFUL) {
-            withdrawal.setStatus(BTOApplicationWithdrawalStatus.SUCCESSFUL);
-            application.setStatus(BTOApplicationStatus.UNSUCCESSFUL);
-        } else if (status == BTOApplicationWithdrawalStatus.UNSUCCESSFUL) {
-            withdrawal.setStatus(BTOApplicationWithdrawalStatus.UNSUCCESSFUL);
-        } else {
-            throw new RuntimeException("Invalid status.");
-        }
     }
 
     /**

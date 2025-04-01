@@ -121,10 +121,11 @@ public class Main {
                 Date.from(start.atStartOfDay(ZoneId.systemDefault()).toInstant()),
                 Date.from(end.atStartOfDay(ZoneId.systemDefault()).toInstant()));
         acaciaBreezeYishun.setOfficerLimit(3);
-        acaciaBreezeYishun.requestRegisterOfficer(daniel.getId());
-        acaciaBreezeYishun.requestRegisterOfficer(emily.getId());
-        acaciaBreezeYishun.transitionOfficerRegistrationStatus(daniel.getId(), HDBOfficerRegistrationStatus.SUCCESSFUL);
-        acaciaBreezeYishun.transitionOfficerRegistrationStatus(emily.getId(), HDBOfficerRegistrationStatus.SUCCESSFUL);
+        btoProjectManager.addProject(acaciaBreezeYishun);
+        btoProjectManager.requestRegisterOfficer(acaciaBreezeYishun.getId(), daniel.getId());
+        btoProjectManager.requestRegisterOfficer(acaciaBreezeYishun.getId(), emily.getId());
+        btoProjectManager.transitionOfficerRegistrationStatus(acaciaBreezeYishun.getId(), daniel.getId(), HDBOfficerRegistrationStatus.SUCCESSFUL);
+        btoProjectManager.transitionOfficerRegistrationStatus(acaciaBreezeYishun.getId(), emily.getId(), HDBOfficerRegistrationStatus.SUCCESSFUL);
 
         BTOProject someBtoProject = new BTOProject(UUID.randomUUID().toString(), jessica.getId());
         someBtoProject.setName("Some BTO Project");
@@ -137,8 +138,7 @@ public class Main {
                 Date.from(LocalDate.of(2025, 4, 20).atStartOfDay(ZoneId.systemDefault()).toInstant()));
         someBtoProject.setOfficerLimit(3);
 
-        btoSystem.getProjects().addProject(acaciaBreezeYishun);
-        btoSystem.getProjects().addProject(someBtoProject);
+        btoProjectManager.addProject(someBtoProject);
     }
 
     // public static List<User> parseUserCSV(String filePath) {

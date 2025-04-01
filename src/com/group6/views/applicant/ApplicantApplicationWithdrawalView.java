@@ -32,6 +32,7 @@ public class ApplicantApplicationWithdrawalView implements AuthenticatedView {
 
     private void showRequestWithdrawal(List<BTOProjectManager.BTOFullApplication> fullApplications) {
         final Scanner scanner = ctx.getScanner();
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
         if (fullApplications.isEmpty()) {
             System.out.println("You do not have any active applications to withdraw from.");
             System.out.println("Type anything to continue.");
@@ -97,7 +98,7 @@ public class ApplicantApplicationWithdrawalView implements AuthenticatedView {
         String option = scanner.nextLine().trim();
         if (option.equals("y")) {
             Utils.tryCatch(() -> {
-                project.requestWithdrawApplication(fullApplication.getApplication().getId());
+                projectManager.requestWithdrawApplication(project.getId(), fullApplication.getApplication().getId());
             }).getErr().ifPresentOrElse((err) -> {
                 System.out.println("Failed to withdraw from the project: ");
                 System.out.println(err.getMessage());

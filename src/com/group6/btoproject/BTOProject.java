@@ -118,7 +118,7 @@ public class BTOProject {
      * @return {@link #enquiries}
      */
     public List<BTOEnquiry> getEnquiries() {
-        return enquiries.stream().toList();
+        return Collections.unmodifiableList(enquiries);
     }
 
     /**
@@ -130,7 +130,7 @@ public class BTOProject {
      * @return {@link #applications}
      */
     public List<BTOApplication> getApplications() {
-        return applications.stream().toList();
+        return Collections.unmodifiableList(applications);
     }
 
     /**
@@ -152,7 +152,7 @@ public class BTOProject {
      * @return {@link #hdbOfficerRegistrations}
      */
     public List<HDBOfficerRegistration> getHdbOfficerRegistrations() {
-        return hdbOfficerRegistrations.stream().toList();
+        return Collections.unmodifiableList(hdbOfficerRegistrations);
     }
 
     /**
@@ -163,7 +163,7 @@ public class BTOProject {
      * @return {@link #withdrawals}
      */
     public List<BTOApplicationWithdrawal> getWithdrawals() {
-        return withdrawals.stream().toList();
+        return Collections.unmodifiableList(withdrawals);
     }
 
     /**

@@ -1,9 +1,6 @@
 package com.group6;
 
-import com.group6.btoproject.BTOProject;
-import com.group6.btoproject.BTOProjectManager;
-import com.group6.btoproject.BTOProjectType;
-import com.group6.btoproject.HDBOfficerRegistrationStatus;
+import com.group6.btoproject.*;
 import com.group6.users.*;
 import com.group6.views.ViewContext;
 import com.group6.views.applicant.ApplicantHomeView;
@@ -27,9 +24,19 @@ public class Main {
         loadDefaults(btoSystem);
 
         final ViewContext ctx = new ViewContext(btoSystem, new Scanner(System.in));
-        ctx.setUser(
-                btoSystem.getUsers().getUsers().values().stream().findFirst().orElseThrow());
+        User user = btoSystem.getUsers().getUser("abc123").get();
+        BTOProject project = btoSystem.getProjects().getProject("hello world").get();
+        BTOEnquiry enquiry = BTOEnquiry.create(
+                new BTOEnquiryMessage(user.getId(), "Hello world!"),
+                new BTOEnquiryMessage(user.getId(), "Responded!")
+        );
+        project.addEnquiry(
+                enquiry
+        );
+
+        ctx.setUser(user);
         ctx.startFromView(new ApplicantHomeView());
+
         System.out.println("App closed!");
     }
 
@@ -39,7 +46,7 @@ public class Main {
         final BTOProjectManager btoProjectManager = btoSystem.getProjects();
 
         // Adding John
-        Applicant john = new Applicant(UUID.randomUUID().toString(), "S1234567A", "password");
+        Applicant john = new Applicant("abc123", "S1234567A", "password");
         john.setName("John");
         john.setAge(35);
         john.setMartialStatus(UserMartialStatus.SINGLE);
@@ -109,7 +116,7 @@ public class Main {
         userManager.addUser(jessica);
 
         // Adding Project 1
-        BTOProject acaciaBreezeYishun = new BTOProject(UUID.randomUUID().toString(), jessica.getId());
+        BTOProject acaciaBreezeYishun = new BTOProject("hello world", jessica.getId());
         acaciaBreezeYishun.setName("Acacia Breeze");
         acaciaBreezeYishun.setNeighbourhood("Yishun");
         acaciaBreezeYishun.addProjectType(new BTOProjectType("2 Room", 350_000, 2));

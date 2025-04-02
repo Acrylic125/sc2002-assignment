@@ -248,6 +248,13 @@ public class ApplicantProjectEnquiryView implements PaginatedView, Authenticated
                 System.out.println("You are not the sender of this enquiry. Please type in a valid id.");
                 continue;
             }
+
+            if (enquiry.getResponseMessage().isPresent()) {
+                System.out.println("This enquiry has already been responded to. You may not edit it.");
+                System.out.println("Type anything to continue.");
+                scanner.nextLine();
+                continue;
+            }
             break;
         }
 
@@ -295,6 +302,13 @@ public class ApplicantProjectEnquiryView implements PaginatedView, Authenticated
             enquiry = enquiryOpt.get();
             if (!enquiry.getSenderMessage().getSenderUserId().equals(user.getId())) {
                 System.out.println("You are not the sender of this enquiry. Please type in a valid id.");
+                continue;
+            }
+
+            if (enquiry.getResponseMessage().isPresent()) {
+                System.out.println("This enquiry has already been responded to. You may not delete it.");
+                System.out.println("Type anything to continue.");
+                scanner.nextLine();
                 continue;
             }
             break;

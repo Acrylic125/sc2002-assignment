@@ -1,4 +1,6 @@
 import java.util.Scanner;
+import com.group6.views.View;
+import com.group6.utils.validateNRIC;
 
 public class LoginView implements View {
     private static final int MAX_ATTEMPTS = 3;

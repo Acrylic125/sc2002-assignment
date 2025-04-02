@@ -1,38 +1,35 @@
 import java.util.Map;
-import java.util.Scanner;
+import java.util.Optional;
 
-/**
- * User manager to manage/access users for the {@link com.group6.BTOSystem}
- *
- * See {@link User}.
- * See {@link com.group6.BTOSystem}.
- */
 public class UserManager {
-    // Map<User Id, User>
     private Map<String, User> users;
 
-     /**
-     * Constructor for UserManager.
-     */
-    public UserManager(){
+    public UserManager() {
         this.users = UserStorage.loadUsers();
     }
 
-    /**
-     * Users getter.
-     *
-     * @return {@link #users}
-     */
-    public Map<String, User> getUsers(){ return users;}
+    public Map<String, User> getUsers() {
+        return users;
+    }
 
     /**
-     * Add a user to the manager.
-     *
-     * @param user user to be added.
+     * Finds a user by NRIC.
+     * @param nric The NRIC to look up.
+     * @return Optional<User> if found, empty otherwise.
      */
-    public void addUser(User user){
-        users.put(user.getNric(), user);
-        UserStorage.saveUser(user);
-        System.out.println("User added successfully.");
+    public Optional<User> getUserByNRIC(String nric) {
+        return Optional.ofNullable(users.get(nric));
+    }
+
+    /**
+     * Validates if the given NRIC and password match a user.
+     * @param nric The NRIC entered.
+     * @param password The password entered.
+     * @return true if login is valid, false otherwise.
+     */
+    public boolean isValidLogin(String nric, String password) {
+        return getUserByNRIC(nric)
+                .map(user -> user.getPassword().equals(password))
+                .orElse(false);
     }
 }

@@ -136,7 +136,7 @@ public class ApplicantViewMyApplicationsView implements PaginatedView, Authentic
         while (true) {
             showApplications();
             System.out.println("Page " + page + " / " + getLastPage() +
-                    " - Type 'e' to enquire, 'a' to apply, 'f' to filter, 'n' to go to next page, 'p' to go to previous page, 'page' to go to a specific page,  or leave empty ('') to go back:");
+                    " - Type 'e' to enquire, 'f' to filter, 'n' to go to next page, 'p' to go to previous page, 'page' to go to a specific page,  or leave empty ('') to go back:");
 
             String option = scanner.nextLine().trim();
             switch (option) {

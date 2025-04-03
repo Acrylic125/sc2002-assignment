@@ -6,7 +6,7 @@ package com.group6.btoproject;
  */
 public final class BTOProjectType {
 
-    private final String id;
+    private final BTOProjectTypeID id;
     private final double price;
     private final int maxQuantity;
 
@@ -17,7 +17,7 @@ public final class BTOProjectType {
      * @param price    price of the project type.
      * @param maxQuantity quantity of the project type.
      */
-    public BTOProjectType(String id, double price, int maxQuantity) {
+    public BTOProjectType(BTOProjectTypeID id, double price, int maxQuantity) {
         this.id = id;
         this.price = price;
         this.maxQuantity = maxQuantity;
@@ -28,7 +28,7 @@ public final class BTOProjectType {
      *
      * @return {@link #id}
      */
-    public String getId() {
+    public BTOProjectTypeID getId() {
         return id;
     }
 

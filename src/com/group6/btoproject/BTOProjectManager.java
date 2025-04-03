@@ -1,5 +1,8 @@
 package com.group6.btoproject;
 
+import com.group6.users.Applicant;
+import com.group6.users.User;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -117,8 +120,8 @@ public class BTOProjectManager {
         return result;
     }
 
-    public List<String> getAllProjectTypes() {
-        Set<String> projectTypes = new HashSet<>();
+    public List<BTOProjectTypeID> getAllProjectTypes() {
+        Set<BTOProjectTypeID> projectTypes = new HashSet<>();
         projects.values().forEach(project -> {
             project.getProjectTypes().forEach(type -> {
                 projectTypes.add(type.getId());
@@ -138,7 +141,7 @@ public class BTOProjectManager {
      *                          - is SUCCESSFUL and has the same applicantUserId.
      *                          - is BOOKED and has the same applicantUserId.
      */
-    public void requestApply(String projectId, String applicantUserId, String typeId) throws RuntimeException {
+    public void requestApply(String projectId, String applicantUserId, BTOProjectTypeID typeId) throws RuntimeException {
         BTOProject project = projects.get(projectId);
         if (project == null) {
             throw new RuntimeException("Project not found.");
@@ -162,11 +165,11 @@ public class BTOProjectManager {
 
         final Optional<BTOProjectType> projectTypeOpt = project.getProjectType(typeId);
         if (projectTypeOpt.isEmpty()) {
-            throw new RuntimeException("Project type, " + typeId + " does not exist.");
+            throw new RuntimeException("Project type, " + typeId.getName() + " does not exist.");
         }
         final BTOProjectType projectType = projectTypeOpt.get();
         if (projectType.getMaxQuantity() <= 0) {
-            throw new RuntimeException("Project type, " + typeId + " has no availability.");
+            throw new RuntimeException("Project type, " + typeId.getName() + " has no availability.");
         }
 
         if (project.isManagingOfficer(applicantUserId)) {

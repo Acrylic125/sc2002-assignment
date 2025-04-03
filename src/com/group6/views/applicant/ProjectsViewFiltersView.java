@@ -1,11 +1,15 @@
 package com.group6.views.applicant;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import com.group6.BTOSystem;
+import com.group6.btoproject.BTOProjectType;
+import com.group6.btoproject.BTOProjectTypeID;
 import com.group6.users.HDBManager;
 import com.group6.users.HDBOfficer;
 import com.group6.users.User;
+import com.group6.utils.BashColors;
 import com.group6.views.AuthenticatedView;
 import com.group6.views.View;
 import com.group6.views.ViewContext;
@@ -16,7 +20,7 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
     protected ViewContext ctx;
     protected User user;
 
-    protected List<String> projectTypes = new ArrayList<>();
+    protected List<BTOProjectTypeID> projectTypes = new ArrayList<>();
 
     protected ProjectsViewFilters getProjectFilters() {
         return ctx.getViewAllProjectsFilters();
@@ -47,9 +51,10 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
         return location;
     }
 
-    protected String stringifyProjectTypesAvailability(Collection<String> projectTypes) {
+    protected String stringifyProjectTypesAvailability(Collection<BTOProjectTypeID> projectTypes) {
         String value = this.projectTypes.stream()
                 .filter(projectTypes::contains)
+                .map(BTOProjectTypeID::getName)
                 .reduce("", (a, b) -> {
                     if (a.isEmpty()) {
                         return b;
@@ -69,7 +74,7 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
 
         final BTOSystem btoSystem = ctx.getBtoSystem();
         this.projectTypes = btoSystem.getProjects().getAllProjectTypes();
-        this.projectTypes.sort(String::compareTo);
+        this.projectTypes.sort(Comparator.comparing(BTOProjectTypeID::getName));
         showOptions();
         return null;
     }
@@ -165,8 +170,8 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
             System.out.println("Project Types with Availability");
             System.out.println("Currently filtering by: " + currentProjectTypesFilterValue);
             System.out.println("Project Type ID:");
-            for (String projectType : projectTypes) {
-                System.out.println("  " + projectType);
+            for (BTOProjectTypeID projectType : projectTypes) {
+                System.out.println("  " + projectType.getName());
             }
             System.out.println("");
             System.out.println("Type the project type you want to filter, or leave empty ('') to not set one.");
@@ -179,12 +184,19 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
             String[] projectTypesFilter = projectTypesFilterRaw.split(",");
 
             boolean areAllValid = true;
-            Set<String> newProjectTypeFilters = new HashSet<>();
-            for (String projectType : projectTypesFilter) {
-                projectType = projectType.trim();
-                if (!this.projectTypes.contains(projectType)) {
+            Set<BTOProjectTypeID> newProjectTypeFilters = new HashSet<>();
+            final Map<String, BTOProjectTypeID> projectNameToTypeIDMap = new HashMap<>(this.projectTypes.size());
+            for (BTOProjectTypeID projectType : this.projectTypes) {
+                projectNameToTypeIDMap.put(projectType.getName().toLowerCase(), projectType);
+            }
+
+            for (String _projectType : projectTypesFilter) {
+                _projectType = _projectType.trim().toLowerCase();
+                BTOProjectTypeID projectType = projectNameToTypeIDMap.get(_projectType);
+
+                if (projectType == null) {
                     areAllValid = false;
-                    System.out.println("Invalid project type: " + projectType);
+                    System.out.println(BashColors.format("Invalid project type: " + _projectType, BashColors.RED));
                 } else {
                     newProjectTypeFilters.add(projectType);
                 }

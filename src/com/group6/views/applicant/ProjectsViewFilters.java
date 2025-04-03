@@ -2,6 +2,7 @@ package com.group6.views.applicant;
 
 import com.group6.btoproject.BTOProject;
 import com.group6.btoproject.BTOProjectType;
+import com.group6.btoproject.BTOProjectTypeID;
 import com.group6.users.User;
 import com.group6.views.ViewSortType;
 
@@ -20,7 +21,7 @@ public class ProjectsViewFilters {
     private ViewSortType sortByName = ViewSortType.ASC;
     // Filters only the projects with AT LEAST 1 SLOT AVAILABLE
     // for booking.
-    private Set<String> filterAvailableProjectTypes = new HashSet<>();
+    private Set<BTOProjectTypeID> filterAvailableProjectTypes = new HashSet<>();
     // Only meant to be used by HDBOfficers. It is toggled off by default, no point
     // creating a whole new filter object just for this 1 use case.
     private boolean onlyShowManagedProjects = false;
@@ -88,7 +89,7 @@ public class ProjectsViewFilters {
      *
      * @return {@link #filterAvailableProjectTypes}
      */
-    public Set<String> getFilterAvailableProjectTypes() {
+    public Set<BTOProjectTypeID> getFilterAvailableProjectTypes() {
         return Collections.unmodifiableSet(filterAvailableProjectTypes);
     }
 
@@ -97,7 +98,7 @@ public class ProjectsViewFilters {
      *
      * @param filterAvailableProjectTypes project types
      */
-    public void setFilterAvailableProjectTypes(Set<String> filterAvailableProjectTypes) {
+    public void setFilterAvailableProjectTypes(Set<BTOProjectTypeID> filterAvailableProjectTypes) {
         this.filterAvailableProjectTypes = filterAvailableProjectTypes;
     }
 
@@ -142,7 +143,7 @@ public class ProjectsViewFilters {
         }
 
         // Filter by project types with availability.
-        Set<String> availableProjectTypesFilter = getFilterAvailableProjectTypes();
+        Set<BTOProjectTypeID> availableProjectTypesFilter = getFilterAvailableProjectTypes();
         if (!availableProjectTypesFilter.isEmpty()) {
             if (availableProjectTypesFilter.stream().noneMatch((projectTypeId) -> {
                 Optional<BTOProjectType> projectTypeOpt = project.getProjectTypes().stream()

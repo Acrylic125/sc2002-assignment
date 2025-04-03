@@ -16,8 +16,8 @@ public class BTOProjectTests {
     public static void main(String[] args) {
         BTOProjectManager projectManager = new BTOProjectManager();
         BTOProject project = new BTOProject(UUID.randomUUID().toString(), UUID.randomUUID().toString());
-        project.addProjectType(new BTOProjectType("2 Room", 15_000, 2));
-        project.addProjectType(new BTOProjectType("3 Room", 40_000, 1));
+        project.addProjectType(new BTOProjectType(BTOProjectTypeID.S_2_ROOM, 15_000, 2));
+        project.addProjectType(new BTOProjectType(BTOProjectTypeID.S_3_ROOM, 40_000, 1));
         project.setOfficerLimit(1);
 
         Date today = new Date(System.currentTimeMillis());
@@ -38,23 +38,23 @@ public class BTOProjectTests {
         };
 
         System.out.println("Checking if can apply:");
-        projectManager.requestApply(project.getId(), userIds[0], "2 Room");
-        projectManager.requestApply(project.getId(), userIds[1], "2 Room");
-        projectManager.requestApply(project.getId(), userIds[2], "3 Room");
-        projectManager.requestApply(project.getId(), userIds[3], "2 Room");
+        projectManager.requestApply(project.getId(), userIds[0], BTOProjectTypeID.S_2_ROOM);
+        projectManager.requestApply(project.getId(), userIds[1], BTOProjectTypeID.S_2_ROOM);
+        projectManager.requestApply(project.getId(), userIds[2], BTOProjectTypeID.S_3_ROOM);
+        projectManager.requestApply(project.getId(), userIds[3], BTOProjectTypeID.S_2_ROOM);
         project.getApplications()
                 .forEach((app) -> System.out.println("  " + app.getApplicantUserId() + ": " + app.getStatus()));
         System.out.println("  Done!");
 
         System.out.println("Checking if applicant can apply while already having an application (Should error):");
         System.out.println("  Err: " + Utils.tryCatch(() -> {
-            projectManager.requestApply(project.getId(), userIds[0], "2 Room");
+            projectManager.requestApply(project.getId(), userIds[0], BTOProjectTypeID.S_2_ROOM);
         }).getErr().get().getMessage());
         System.out.println("  Err: " + Utils.tryCatch(() -> {
-            projectManager.requestApply(project.getId(), userIds[1], "2 Room");
+            projectManager.requestApply(project.getId(), userIds[1], BTOProjectTypeID.S_2_ROOM);
         }).getErr().get().getMessage());
         System.out.println("  Err: " + Utils.tryCatch(() -> {
-            projectManager.requestApply(project.getId(), userIds[2], "2 Room");
+            projectManager.requestApply(project.getId(), userIds[2], BTOProjectTypeID.S_2_ROOM);
         }).getErr().get().getMessage());
         System.out.println("  Done!");
 
@@ -148,7 +148,7 @@ public class BTOProjectTests {
         projectManager.transitionApplicationStatus(project.getId(), applicationIds[3], BTOApplicationStatus.UNSUCCESSFUL);
         System.out.println("  Modified to Unsuccessful - Should not have active applications: "
                 + project.getActiveApplication(userIds[3]).isEmpty());
-        projectManager.requestApply(project.getId(), userIds[3], "3 Room");
+        projectManager.requestApply(project.getId(), userIds[3], BTOProjectTypeID.S_3_ROOM);
         System.out.println("  Reapplied - Should have active applications: "
                 + project.getActiveApplication(userIds[3]).isPresent());
         applicationIds[3] = project.getActiveApplication(userIds[3]).get().getId();

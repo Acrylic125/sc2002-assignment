@@ -46,7 +46,7 @@ public class Main {
         final BTOProjectManager btoProjectManager = btoSystem.getProjects();
 
         // Adding John
-        Applicant john = new Applicant("abc123", "S1234567A", "password");
+        Applicant john = new Applicant(UUID.randomUUID().toString(), "S1234567A", "password");
         john.setName("John");
         john.setAge(35);
         john.setMartialStatus(UserMartialStatus.SINGLE);
@@ -81,7 +81,7 @@ public class Main {
         userManager.addUser(rachel);
 
         // Adding Daniel
-        HDBOfficer daniel = new HDBOfficer(UUID.randomUUID().toString(), "T2109876H", "password");
+        HDBOfficer daniel = new HDBOfficer("abc123", "T2109876H", "password");
         daniel.setName("Daniel");
         daniel.setAge(36);
         daniel.setMartialStatus(UserMartialStatus.SINGLE);
@@ -119,8 +119,8 @@ public class Main {
         BTOProject acaciaBreezeYishun = new BTOProject("hello world", jessica.getId());
         acaciaBreezeYishun.setName("Acacia Breeze");
         acaciaBreezeYishun.setNeighbourhood("Yishun");
-        acaciaBreezeYishun.addProjectType(new BTOProjectType("2 Room", 350_000, 2));
-        acaciaBreezeYishun.addProjectType(new BTOProjectType("3 Room", 450_000, 3));
+        acaciaBreezeYishun.addProjectType(new BTOProjectType(BTOProjectTypeID.S_2_ROOM, 350_000, 2));
+        acaciaBreezeYishun.addProjectType(new BTOProjectType(BTOProjectTypeID.S_3_ROOM, 450_000, 3));
         LocalDate start = LocalDate.of(2025, 2, 15);
         LocalDate end = LocalDate.of(2025, 3, 20);
 
@@ -137,8 +137,8 @@ public class Main {
         BTOProject someBtoProject = new BTOProject(UUID.randomUUID().toString(), jessica.getId());
         someBtoProject.setName("Some BTO Project");
         someBtoProject.setNeighbourhood("Palau NTU");
-        someBtoProject.addProjectType(new BTOProjectType("2 Room", 350_000, 2));
-        someBtoProject.addProjectType(new BTOProjectType("3 Room", 450_000, 2));
+        someBtoProject.addProjectType(new BTOProjectType(BTOProjectTypeID.S_2_ROOM, 350_000, 2));
+        someBtoProject.addProjectType(new BTOProjectType(BTOProjectTypeID.S_3_ROOM, 450_000, 2));
 
         someBtoProject.setApplicationWindow(
                 Date.from(LocalDate.of(2025, 2, 15).atStartOfDay(ZoneId.systemDefault()).toInstant()),

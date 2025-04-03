@@ -1,5 +1,8 @@
 package com.group6.btoproject;
 
+import com.group6.users.Applicant;
+import com.group6.users.UserMartialStatus;
+
 import java.util.*;
 
 /**
@@ -16,7 +19,7 @@ public class BTOProject {
     private String name;
     private String neighbourhood;
     // Map: <Project Type Id, Project Type>
-    private final Map<String, BTOProjectType> projectTypes = new HashMap<>();
+    private final Map<BTOProjectTypeID, BTOProjectType> projectTypes = new HashMap<>();
     private final List<BTOEnquiry> enquiries = new LinkedList<>();
     private final List<BTOApplication> applications = new LinkedList<>();
     private final String managerUserId;
@@ -107,7 +110,7 @@ public class BTOProject {
      *
      * @return {@link BTOProjectType}
      */
-    public Optional<BTOProjectType> getProjectType(String projectTypeId) {
+    public Optional<BTOProjectType> getProjectType(BTOProjectTypeID projectTypeId) {
         return Optional.ofNullable(projectTypes.get(projectTypeId));
     }
 
@@ -192,7 +195,7 @@ public class BTOProject {
      * @return count of booked applications (Count of occupied)
      * @throws RuntimeException if the project type does not exist.
      */
-    public int getBookedCountForType(String typeId) throws RuntimeException {
+    public int getBookedCountForType(BTOProjectTypeID typeId) throws RuntimeException {
         final BTOProjectType projectType = projectTypes.get(typeId);
         if (projectType == null) {
             throw new RuntimeException("Project type, " + typeId + " does not exist.");
@@ -412,4 +415,33 @@ public class BTOProject {
     public void setVisibleToPublic(boolean visibleToPublic) {
         isVisibleToPublic = visibleToPublic;
     }
+
+    /**
+     * Check the eligibility of the user applying.
+     *
+     * Able to apply for a project – cannot apply for multiple projects.
+     * - Singles, 35 years old and above, can ONLY apply for 2-Room
+     * - Married, 21 years old and above, can apply for any flat types (2-
+     * Room or 3-Room)
+     *
+     * @param user the applicant
+     * @return error message if the user cannot apply for a project type.
+     */
+    public Optional<String> verifyEligibilityToApply(Applicant user, BTOProjectTypeID typeId) {
+        if (user.getMartialStatus().equals(UserMartialStatus.SINGLE)) {
+            if (user.getAge() < 35) {
+                return Optional.of("Single applicants can only apply for 2 Room BTO Project after turning 35.");
+            }
+            if (typeId.equals(BTOProjectTypeID.S_3_ROOM)) {
+                return Optional.of("Single applicants can only apply for 2 Room flats.");
+            }
+        }
+
+        // Hitting this point means married.
+        if (user.getAge() < 21) {
+            return Optional.of("Married applicants can only apply for any BTO Project after turning 21.");
+        }
+        return Optional.empty();
+    }
+
 }

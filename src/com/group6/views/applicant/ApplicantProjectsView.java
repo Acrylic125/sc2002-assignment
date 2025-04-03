@@ -12,6 +12,7 @@ import com.group6.users.HDBManager;
 import com.group6.users.HDBOfficer;
 import com.group6.users.User;
 import com.group6.users.UserManager;
+import com.group6.utils.BashColors;
 import com.group6.utils.Utils;
 import com.group6.views.AuthenticatedView;
 import com.group6.views.PaginatedView;
@@ -55,7 +56,8 @@ public class ApplicantProjectsView implements PaginatedView, AuthenticatedView {
         this.ctx = ctx;
         this.user = user;
         this.projects = projectManager.getProjects().values().stream()
-                .filter((project) -> project.isVisibleToPublic()
+                .filter((project) -> ((project.isApplicationWindowOpen() || project.isApplicantBooked(user.getId()))
+                        && project.isVisibleToPublic())
                         || user instanceof HDBOfficer
                         || user instanceof HDBManager)
                 .toList();
@@ -70,9 +72,9 @@ public class ApplicantProjectsView implements PaginatedView, AuthenticatedView {
 
     private void showProjects() {
         List<BTOProject> projects = this.filteredProjects;
-        System.out.println("Projects");
+        System.out.println(BashColors.format("Projects", BashColors.BOLD));
         if (projects.isEmpty()) {
-            System.out.println("(No Projects Found)");
+            System.out.println(BashColors.format("(No Projects Found)", BashColors.LIGHT_GRAY));
             System.out.println("");
             return;
         }
@@ -119,11 +121,17 @@ public class ApplicantProjectsView implements PaginatedView, AuthenticatedView {
                                     + " / $" + Utils.formatMoney(type.getPrice()));
                 }
             }
-            System.out.println("Application period: " + Utils.formatToDDMMYYYY(project.getApplicationOpenDate())
-                    + " to " + Utils.formatToDDMMYYYY(project.getApplicationCloseDate()));
+            boolean isWindowOpen = project.isApplicationWindowOpen();
+            String projectOpenWindowStr = Utils.formatToDDMMYYYY(project.getApplicationOpenDate())
+                    + " to " + Utils.formatToDDMMYYYY(project.getApplicationCloseDate());
+            System.out.println("Application period: " + BashColors.format(projectOpenWindowStr, isWindowOpen
+                    ? BashColors.GREEN
+                    : BashColors.RED));
             System.out.println("Manager / Officers: " + managerName + " / " + officerNames);
             if (user instanceof HDBOfficer || user instanceof HDBManager) {
-                System.out.println("Visible to public: " + project.isVisibleToPublic());
+                boolean isVisibleToPublic = project.isVisibleToPublic();
+                System.out.println("Visible to public: " + BashColors.format(isVisibleToPublic ? "YES" : "NO",
+                        isVisibleToPublic ? BashColors.GREEN : BashColors.RED));
             }
             System.out.println("");
         }
@@ -148,14 +156,14 @@ public class ApplicantProjectsView implements PaginatedView, AuthenticatedView {
                     return new ProjectsViewFiltersView();
                 case "n":
                     if (!this.nextPage()) {
-                        System.out.println("You are already on the last page.");
+                        System.out.println(BashColors.format("You are already on the last page.", BashColors.RED));
                         System.out.println("Type anything to continue.");
                         scanner.nextLine();
                     }
                     break;
                 case "p":
                     if (!this.prevPage()) {
-                        System.out.println("You are already on the first page.");
+                        System.out.println(BashColors.format("You are already on the first page.", BashColors.RED));
                         System.out.println("Type anything to continue.");
                         scanner.nextLine();
                     }
@@ -166,7 +174,7 @@ public class ApplicantProjectsView implements PaginatedView, AuthenticatedView {
                         break;
                     }
                     if (!this.page(pageOpt.get())) {
-                        System.out.println("Invalid page number.");
+                        System.out.println(BashColors.format("Invalid page number.", BashColors.RED));
                         System.out.println("Type anything to continue.");
                         scanner.nextLine();
                     }
@@ -174,7 +182,7 @@ public class ApplicantProjectsView implements PaginatedView, AuthenticatedView {
                 case "":
                     return null;
                 default:
-                    System.out.println("Invalid option.");
+                    System.out.println(BashColors.format("Invalid option.", BashColors.RED));
                     System.out.println("Type anything to continue.");
                     scanner.nextLine();
             }

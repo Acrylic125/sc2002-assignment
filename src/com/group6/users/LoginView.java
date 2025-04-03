@@ -1,15 +1,25 @@
 import java.util.Scanner;
-import com.group6.views.View;
-import com.group6.utils.validateNRIC;
 
+/**
+ * Represents the login view where users can enter their NRIC and password to authenticate.
+ * This view handles user authentication and redirects to the appropriate home view
+ * based on the user's role.
+ */
 public class LoginView implements View {
-    private static final int MAX_ATTEMPTS = 3;
-    private UserAuthenticator authenticator;
+    private static final int MAX_ATTEMPTS = 3; // maximum allowed login attempts
+    private UserAuthenticator authenticator; // handles user authentication
 
     public LoginView(UserAuthenticator authenticator) {
         this.authenticator = authenticator;
     }
 
+
+    /**
+     * Renders the login interface, allowing users to enter their credentials.
+     *
+     * @param ctx The view context containing necessary dependencies (e.g., scanner for input).
+     * @return The next view based on the login result (user's home view or main menu).
+     */
     @Override
     public View render(ViewContext ctx) {
         Scanner scanner = ctx.getScanner();
@@ -43,14 +53,21 @@ public class LoginView implements View {
         return new MainMenuView();
     }
 
+    /**
+     * Determines the appropriate home view based on the logged-in user's role.
+     *
+     * @param user The authenticated user.
+     * @return The home view corresponding to the user's role.
+     */
     private View getHomeView(User user) {
-        if (user instanceof Applicant) {
-            return new ApplicantHomeView();
-        } else if (user instanceof HDBOfficer) {
-            return new OfficerHomeView();
-        } else if (user instanceof HDBManager) {
-            return new ManagerHomeView();
+        private View getHomeView(User user) {
+            return switch (user.getRole()) {
+                case "Applicant" -> new ApplicantHomeView();
+                case "Officer" -> new OfficerHomeView();
+                case "Manager" -> new ManagerHomeView();
+                default -> new MainMenuView();
+            };
         }
-        return new MainMenuView();
+
     }
 }

@@ -1,6 +1,16 @@
 public class HDBOfficer extends User{
+    /**
+     * Constructor for Applicant.
+     *
+     * @param id id.
+     * @param nric nric.
+     * @param age age
+     * @param maritalStatus marital Status
+     * @param password password.
+     */
     public HDBOfficer(String id, String nric, int age, String maritalStatus, String password){
         super(id, nric, age, maritalStatus, password);
     }
-    public String getRole(){ return "Officer";}
+
+    public UserRole getRole(){ return UserRole.OFFICER;}
 }

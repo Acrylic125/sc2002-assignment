@@ -1,4 +1,6 @@
 import java.util.Scanner;
+import com.group6.views.*;
+import com.group6.utils.ValidateNRIC;
 
 /**
  * Represents the login view where users can enter their NRIC and password to authenticate.

@@ -29,7 +29,7 @@ public class Main {
         final ViewContext ctx = new ViewContext(btoSystem, new Scanner(System.in));
         ctx.setUser(
                 btoSystem.getUsers().getUsers().values().stream().findFirst().orElseThrow());
-        ctx.startFromView(new ApplicantHomeView());
+        ctx.startFromView(new ApplicantHomeView()); //
         System.out.println("App closed!");
     }
 

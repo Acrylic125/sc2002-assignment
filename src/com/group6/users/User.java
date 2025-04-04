@@ -12,7 +12,7 @@ public abstract class User {
     private String password;
     private String name;
     private int age;
-    private UserMartialStatus martialStatus = UserMartialStatus.SINGLE;
+    private UserMartialStatus martialStatus = UserMartialStatus.SINGLE; // sets default to SINGLE
 
     /**
      * Constructor for User.

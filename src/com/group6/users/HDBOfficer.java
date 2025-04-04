@@ -12,5 +12,10 @@ public class HDBOfficer extends User{
         super(id, nric, age, maritalStatus, password);
     }
 
+    /**
+ * Returns the role of the user.
+ *
+ * @return A string representing the role, which is "Officer".
+ */
     public UserRole getRole(){ return UserRole.OFFICER;}
 }

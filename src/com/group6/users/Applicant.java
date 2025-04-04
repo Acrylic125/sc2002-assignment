@@ -10,7 +10,7 @@ public class Applicant extends User {
      * @param maritalStatus marital Status
      * @param password password.
      */
-    public Applicant(String id, String nric, int age, String maritalStatus, String password) {
+    public Applicant(String id, String nric, int age, UsermaritalStatus maritalStatus, String password) {
         super(id, nric, age, maritalStatus, password);
     }
 

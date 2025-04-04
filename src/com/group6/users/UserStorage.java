@@ -50,12 +50,26 @@ public class UserStorage {
     private void loadUsersFromFile(Map<String, User> users, String filename, UserRole role) {
         try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
             String line;
+            int lineNumber = 1;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",");
-                if (parts.length == 5) {
+                if (parts.length != 5) {
+                    System.out.printf("Warning: Skipping malformed line %d (expected 5 parts): %s%n", lineNumber, parts.length, line);
+                    lineNumber++;
+                    continue;
+                }
+
+                try {
                     User user = createUserByRole(parts, role);
                     users.put(user.getNric(), user);
+                } catch (NumberFormatException e) {
+                    System.out.printf("Warning: Skipping line %d in %s due to invalid number format: %s%n",
+                        lineNumber, filename, line);
+                } catch (Exception e) {
+                    System.out.printf("Warning: Skipping line %d in %s due to unexpected error: %s%n",
+                        lineNumber, filename, e.getMessage());
                 }
+                lineNumber++;
             }
         } catch (IOException e) {
             System.out.println("Error reading from file: " + filename);

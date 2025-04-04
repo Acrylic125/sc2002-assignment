@@ -8,7 +8,7 @@ public class HDBManager extends User{
      * @param maritalStatus marital Status
      * @param password password.
      */
-    public HDBManager(String id, String nric, int age, String maritalStatus, String password) {
+    public HDBManager(String id, String nric, int age, UserMaritalStatus maritalStatus, String password) {
         super(id, nric, age, maritalStatus, password);
     }
 

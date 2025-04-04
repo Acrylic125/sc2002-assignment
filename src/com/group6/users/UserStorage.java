@@ -50,26 +50,16 @@ public class UserStorage {
     private void loadUsersFromFile(Map<String, User> users, String filename, UserRole role) {
         try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
             String line;
-            int lineNumber = 1;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",");
-                if (parts.length != 5) {
-                    System.out.printf("Warning: Skipping malformed line %d (expected 5 parts): %s%n", lineNumber, parts.length, line);
-                    lineNumber++;
-                    continue;
-                }
-
-                try {
+                if (parts.length == 5) {
                     User user = createUserByRole(parts, role);
-                    users.put(user.getNric(), user);
-                } catch (NumberFormatException e) {
-                    System.out.printf("Warning: Skipping line %d in %s due to invalid number format: %s%n",
-                        lineNumber, filename, line);
-                } catch (Exception e) {
-                    System.out.printf("Warning: Skipping line %d in %s due to unexpected error: %s%n",
-                        lineNumber, filename, e.getMessage());
+                    if (user != null) {
+                        users.put(user.getNric(), user);
+                    }
+                } else {
+                    System.out.println("Skipping invalid line in: ");
                 }
-                lineNumber++;
             }
         } catch (IOException e) {
             System.out.println("Error reading from file: " + filename);
@@ -84,11 +74,27 @@ public class UserStorage {
      * @return A new User object corresponding to the provided role.
      */
     private static User createUserByRole(String[] parts, UserRole role) {
-        return switch (role) {
-            case APPLICANT -> new Applicant(parts[0], parts[1], Integer.parseInt(parts[2]), parts[3], parts[4]);
-            case OFFICER -> new HDBOfficer(parts[0], parts[1], Integer.parseInt(parts[2]), parts[3], parts[4]);
-            case MANAGER -> new HDBManager(parts[0], parts[1], Integer.parseInt(parts[2]), parts[3], parts[4]);
-        };
+        try {
+            String name = parts[0].trim();
+            String nric = parts[1].trim();
+            int age = Integer.parseInt(parts[2].trim());
+            UserMaritalStatus status = UserMaritalStatus.fromString(parts[3].trim());
+            String password = parts[4].trim();
+
+            if (status == null) {
+                System.out.println("Invalid marital status for user " + nric + ". Skipping.");
+                return null;
+            }
+
+            return switch (role) {
+                case APPLICANT -> new Applicant(name, nric, age, status, password);
+                case OFFICER -> new HDBOfficer(name, nric, age, status, password);
+                case MANAGER -> new HDBManager(name, nric, age, status, password);
+            };
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid number format in user record: " + String.join(",", parts));
+            return null;
+        }
     }
 
     /**

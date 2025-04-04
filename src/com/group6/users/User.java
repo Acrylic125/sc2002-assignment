@@ -10,7 +10,7 @@ public abstract class User {
     private String name;
     private String nric;
     private int age;
-    private String maritalStatus;
+    private UserMaritalStatus maritalStatus;
     private String password;
 
     /**
@@ -22,7 +22,7 @@ public abstract class User {
      * @param maritalStatus maritalStatus.
      * @param password password.
      */
-    public User(String name, String nric, int age, String maritalStatus, String password){
+    public User(String name, String nric, int age, UserMaritalStatus maritalStatus, String password){
         this.name = name;
         this.nric = nric;
         this.age = age;
@@ -61,7 +61,7 @@ public abstract class User {
      *
      * @return {@link #martialStatus}
      */
-    public String getMaritalStatus(){return maritalStatus;}
+    public UserMaritalStatus getMaritalStatus(){return maritalStatus;}
 
     /**
      * Password getter.

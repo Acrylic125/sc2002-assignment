@@ -58,7 +58,7 @@ public class UserStorage {
                         users.put(user.getNric(), user);
                     }
                 } else {
-                    System.out.println("Skipping invalid line in: ");
+                    System.out.println("Skipping invalid line: " + line);
                 }
             }
         } catch (IOException e) {

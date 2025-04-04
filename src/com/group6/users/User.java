@@ -83,7 +83,7 @@ public abstract class User {
     * @return {@link #name, nric, age, maritalStatus, password}
     */
     public String tofileString(){
-        return name + ", " + nric + ", " + age + ", " + maritalStatus + ", " + password;
+        return name + ", " + nric + ", " + age + ", " + maritalStatus.toString() + ", " + password;
     }
 
 }

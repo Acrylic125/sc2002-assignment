@@ -30,7 +30,7 @@ public class LoginView implements View {
             System.out.print("Enter NRIC: ");
             String nric = scanner.nextLine().toUpperCase();
 
-            if (!ValidateNRIC.isValidNRIC(nric)) {
+            if (!ValidateUtils.isValidNRIC(nric)) {
                 System.out.println("Invalid NRIC format! Try again.");
                 attempts++;
                 continue;

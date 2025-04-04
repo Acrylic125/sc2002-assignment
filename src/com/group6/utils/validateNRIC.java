@@ -3,11 +3,11 @@ package com.group6.utils;
 import java.util.regex.Pattern;
 
 /**
-* utility class to validate NRIC for {@link com.group6.users.UserManager}
+* utility class to validate NRIC for {@link com.group6.views.LoginView}
 *
 * See {@link com.group6.users.UserManager}.
 */
-public class validateNRIC {
+public class ValidateUtils {
 
     /**
      * Method to define the parameters for nric.

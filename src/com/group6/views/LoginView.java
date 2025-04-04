@@ -50,7 +50,7 @@ public class LoginView implements View {
         }
 
         System.out.println("Too many failed attempts. Returning to main menu.");
-        return new MainMenuView();
+        return null;
     }
 
     /**

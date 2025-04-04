@@ -12,6 +12,11 @@ public class HDBManager extends User{
         super(id, nric, age, maritalStatus, password);
     }
 
+    /**
+    * Return the role of the user.
+    *
+    * @return A string representing a role, which is "Manager".
+    */
     @Override
     public UserRole getRole() {
         return UserRole.MANAGER;

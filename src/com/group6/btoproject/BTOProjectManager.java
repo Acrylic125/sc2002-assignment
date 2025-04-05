@@ -1,6 +1,7 @@
 package com.group6.btoproject;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -276,6 +277,23 @@ public class BTOProjectManager {
         if (project.isApplicantBooked(userId)) {
             throw new RuntimeException(
                     "Project Applicants with approved bookings may not register to manage this project.");
+        }
+
+        Date closedate = project.getApplicationCloseDate();
+        Date opendate = project.getApplicationOpenDate();
+        
+        List<BTOProject> managedByOfficer = projects.values().stream()
+        .filter(project_ -> project.isManagingOfficer(userId))
+        .toList();
+        
+        for (BTOProject managedProject : managedByOfficer) {
+            Date managedOpenDate = managedProject.getApplicationOpenDate();
+            Date managedCloseDate = managedProject.getApplicationCloseDate();
+    
+            // Check if the application periods overlap
+            if (!(closedate.before(managedOpenDate) || opendate.after(managedCloseDate))) {
+                throw new RuntimeException("Officer is already managing another project within the same application period.");
+            }
         }
 
         final HDBOfficerRegistration registration = new HDBOfficerRegistration(

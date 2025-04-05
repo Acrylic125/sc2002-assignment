@@ -37,7 +37,7 @@ public class HDBOfficerHomeView implements AuthenticatedView{
             String option = scanner.nextLine().trim();
             switch (option) {
                 case "1":
-                    return new ApplicantHomeView(); //call requestOfficer in BTO Project Manager from a BTOProjectManager object
+                    return new ApplicantHomeView();
                 case "2":
                     return new HDBOfficerManageView(); 
                 case "":

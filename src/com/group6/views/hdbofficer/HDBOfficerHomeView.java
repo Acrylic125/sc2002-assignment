@@ -39,7 +39,7 @@ public class HDBOfficerHomeView implements AuthenticatedView{
                 case "1":
                     return new ApplicantHomeView(); //call requestOfficer in BTO Project Manager from a BTOProjectManager object
                 case "2":
-                    return new ApplicantViewMyApplicationsView(); 
+                    return new HDBOfficerManageView(); 
                 case "":
                     return null;
                 default:

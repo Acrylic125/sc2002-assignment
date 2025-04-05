@@ -50,58 +50,57 @@ public class UserStorage {
     private void loadUsersFromFile(Map<String, User> users, String filename, UserRole role) {
         try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
             String line;
+            int lineNumber = 1;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",");
-                if (parts.length == 5) {
-                    User user = createUserByRole(parts, role);
-                    if (user != null) {
-                        users.put(user.getNric(), user);
-                    }
-                } else {
-                    System.out.println("Skipping invalid line: " + line);
+
+                if (parts.length != 5) {
+                    System.out.printf("⚠️ Skipping malformed line %d in %s: Incorrect number of fields%n", lineNumber, filename);
+                    lineNumber++;
+                    continue;
                 }
+
+                try {
+                    String name = parts[0].trim();
+                    String nric = parts[1].trim();
+                    int age = Integer.parseInt(parts[2].trim());
+                    UserMaritalStatus maritalStatus = UserMaritalStatus.valueOf(parts[3].trim().toUpperCase());
+                    String password = parts[4].trim();
+
+                    User user = createUserByRole(name, nric, age, maritalStatus, password, role);
+                    users.put(nric, user);
+                } catch (IllegalArgumentException e) {
+                    System.out.printf("⚠️ Skipping line %d in %s: Invalid data - %s%n", lineNumber, filename, e.getMessage());
+                }
+
+                lineNumber++;
             }
         } catch (IOException e) {
-            System.out.println("Error reading from file: " + filename);
+            System.out.println("❌ Error reading from file: " + filename);
         }
     }
 
     /**
-     * Creates a User object based on the given role and user data.
+     * Creates a User object based on the given role and attributes.
      *
-     * @param parts The array containing user attributes (name, NRIC, age, marital status, password).
-     * @param role  The role of the user (Applicant, Officer, or Manager).
-     * @return A new User object corresponding to the provided role.
+     * @param name          Name of the user.
+     * @param nric          NRIC of the user.
+     * @param age           Age of the user.
+     * @param maritalStatus Marital status as an enum.
+     * @param password      Password of the user.
+     * @param role          User role (APPLICANT, OFFICER, MANAGER).
+     * @return Corresponding User object.
      */
-    private static User createUserByRole(String[] parts, UserRole role) {
-        try {
-            String name = parts[0].trim();
-            String nric = parts[1].trim();
-            int age = Integer.parseInt(parts[2].trim());
-            UserMaritalStatus status = UserMaritalStatus.fromString(parts[3].trim());
-            String password = parts[4].trim();
-
-            if (status == null) {
-                System.out.println("Invalid marital status for user " + nric + ". Skipping.");
-                return null;
-            }
-
-            return switch (role) {
-                case APPLICANT -> new Applicant(name, nric, age, status, password);
-                case OFFICER -> new HDBOfficer(name, nric, age, status, password);
-                case MANAGER -> new HDBManager(name, nric, age, status, password);
-            };
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid number format in user record: " + String.join(",", parts));
-            return null;
-        }
+    private static User createUserByRole(String name, String nric, int age, UserMaritalStatus maritalStatus, String password, UserRole role) {
+        return switch (role) {
+            case APPLICANT -> new Applicant(name, nric, age, maritalStatus, password);
+            case OFFICER -> new HDBOfficer(name, nric, age, maritalStatus, password);
+            case MANAGER -> new HDBManager(name, nric, age, maritalStatus, password);
+        };
     }
 
     /**
      * Saves all users to their respective files.
-     * <p>
-     * This method overwrites the existing data files with the updated list of users.
-     * </p>
      *
      * @param users The map of users to be saved, keyed by NRIC.
      */
@@ -113,25 +112,41 @@ public class UserStorage {
 
     /**
      * Saves users to the specified file based on their role.
-     * <p>
-     * This method overwrites the file with the latest user data.
-     * </p>
      *
      * @param users    The map of users to be saved.
      * @param filename The file where the user data should be stored.
      * @param role     The role of the users being saved (Applicant, Officer, or Manager).
      */
     private void saveUsersToFile(Map<String, User> users, String filename, UserRole role) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename, false))) { // Overwrite
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename, false))) {
             for (User user : users.values()) {
-                if (user.getRole().equals(role.toString())) {
+                if (user.getRole().equals(role)) {
                     writer.write(user.toFileString());
                     writer.newLine();
                 }
             }
         } catch (IOException e) {
-            System.out.println("Error writing to file: " + filename);
+            System.out.println("❌ Error writing to file: " + filename);
         }
     }
 
+    /**
+     * Saves a single user to the appropriate role-specific file.
+     *
+     * @param user The user to save.
+     */
+    public void saveUser(User user) {
+        String filename = switch (user.getRole()) {
+            case APPLICANT -> applicantsFilepath;
+            case OFFICER -> officersFilepath;
+            case MANAGER -> managersFilepath;
+        };
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename, true))) {
+            writer.write(user.toFileString());
+            writer.newLine();
+        } catch (IOException e) {
+            System.out.println("❌ Error writing to file: " + filename);
+        }
+    }
 }

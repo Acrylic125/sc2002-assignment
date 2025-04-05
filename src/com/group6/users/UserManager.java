@@ -63,4 +63,20 @@ public class UserManager {
                 .map(user -> user.getPassword().equals(password))
                 .orElse(false);
     }
+
+    /**
+     * Registers a new user and saves it to storage.
+     *
+     * @param user The user to register.
+     * @return true if registration is successful, false if NRIC is already taken.
+     */
+    public boolean registerUser(User user) {
+        if (users.containsKey(user.getNric())) {
+            return false; // NRIC already exists
+        }
+        users.put(user.getNric(), user);
+        userStorage.saveUser(user);
+        return true;
+    }
+
 }

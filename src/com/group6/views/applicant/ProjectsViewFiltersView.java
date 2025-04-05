@@ -1,10 +1,8 @@
 package com.group6.views.applicant;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import com.group6.BTOSystem;
-import com.group6.btoproject.BTOProjectType;
 import com.group6.btoproject.BTOProjectTypeID;
 import com.group6.users.HDBManager;
 import com.group6.users.HDBOfficer;

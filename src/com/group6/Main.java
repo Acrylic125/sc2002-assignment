@@ -1,9 +1,6 @@
 package com.group6;
 
-import com.group6.btoproject.BTOProject;
-import com.group6.btoproject.BTOProjectManager;
-import com.group6.btoproject.BTOProjectType;
-import com.group6.btoproject.HDBOfficerRegistrationStatus;
+import com.group6.btoproject.*;
 import com.group6.users.*;
 import com.group6.views.ViewContext;
 import com.group6.views.applicant.ApplicantHomeView;
@@ -27,9 +24,19 @@ public class Main {
         loadDefaults(btoSystem);
 
         final ViewContext ctx = new ViewContext(btoSystem, new Scanner(System.in));
-        ctx.setUser(
-                btoSystem.getUsers().getUsers().values().stream().findFirst().orElseThrow());
+        User user = btoSystem.getUsers().getUser("abc123").get();
+        BTOProject project = btoSystem.getProjects().getProject("hello world").get();
+        BTOEnquiry enquiry = BTOEnquiry.create(
+                new BTOEnquiryMessage(user.getId(), "Hello world!"),
+                new BTOEnquiryMessage(user.getId(), "Responded!")
+        );
+        project.addEnquiry(
+                enquiry
+        );
+
+        ctx.setUser(user);
         ctx.startFromView(new ApplicantHomeView());
+
         System.out.println("App closed!");
     }
 
@@ -74,7 +81,7 @@ public class Main {
         userManager.addUser(rachel);
 
         // Adding Daniel
-        HDBOfficer daniel = new HDBOfficer(UUID.randomUUID().toString(), "T2109876H", "password");
+        HDBOfficer daniel = new HDBOfficer("abc123", "T2109876H", "password");
         daniel.setName("Daniel");
         daniel.setAge(36);
         daniel.setMartialStatus(UserMartialStatus.SINGLE);
@@ -109,11 +116,11 @@ public class Main {
         userManager.addUser(jessica);
 
         // Adding Project 1
-        BTOProject acaciaBreezeYishun = new BTOProject(UUID.randomUUID().toString(), jessica.getId());
+        BTOProject acaciaBreezeYishun = new BTOProject("hello world", jessica.getId());
         acaciaBreezeYishun.setName("Acacia Breeze");
         acaciaBreezeYishun.setNeighbourhood("Yishun");
-        acaciaBreezeYishun.addProjectType(new BTOProjectType("2 Room", 350_000, 2));
-        acaciaBreezeYishun.addProjectType(new BTOProjectType("3 Room", 450_000, 3));
+        acaciaBreezeYishun.addProjectType(new BTOProjectType(BTOProjectTypeID.S_2_ROOM, 350_000, 2));
+        acaciaBreezeYishun.addProjectType(new BTOProjectType(BTOProjectTypeID.S_3_ROOM, 450_000, 3));
         LocalDate start = LocalDate.of(2025, 2, 15);
         LocalDate end = LocalDate.of(2025, 3, 20);
 
@@ -130,8 +137,8 @@ public class Main {
         BTOProject someBtoProject = new BTOProject(UUID.randomUUID().toString(), jessica.getId());
         someBtoProject.setName("Some BTO Project");
         someBtoProject.setNeighbourhood("Palau NTU");
-        someBtoProject.addProjectType(new BTOProjectType("2 Room", 350_000, 2));
-        someBtoProject.addProjectType(new BTOProjectType("3 Room", 450_000, 2));
+        someBtoProject.addProjectType(new BTOProjectType(BTOProjectTypeID.S_2_ROOM, 350_000, 2));
+        someBtoProject.addProjectType(new BTOProjectType(BTOProjectTypeID.S_3_ROOM, 450_000, 2));
 
         someBtoProject.setApplicationWindow(
                 Date.from(LocalDate.of(2025, 2, 15).atStartOfDay(ZoneId.systemDefault()).toInstant()),

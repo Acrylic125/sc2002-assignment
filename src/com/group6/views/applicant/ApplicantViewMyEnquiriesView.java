@@ -5,6 +5,7 @@ import com.group6.btoproject.BTOProjectManager;
 import com.group6.users.HDBManager;
 import com.group6.users.HDBOfficer;
 import com.group6.users.User;
+import com.group6.utils.BashColors;
 import com.group6.views.AuthenticatedView;
 import com.group6.views.PaginatedView;
 import com.group6.views.View;
@@ -67,7 +68,7 @@ public class ApplicantViewMyEnquiriesView implements PaginatedView, Authenticate
 
     private void showProjects() {
         int lastIndex = Math.min(page * PAGE_SIZE, projects.size());
-        System.out.println("Your Eqnuiries:");
+        System.out.println(BashColors.format("Your Eqnuiries:", BashColors.BOLD));
         System.out.println("Project Id | Project Name");
         if (projects.isEmpty()) {
             System.out.println("(No projects with your enquiries found)");

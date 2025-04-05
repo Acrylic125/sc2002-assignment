@@ -1,19 +1,16 @@
 package com.group6.views.applicant;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
-import com.group6.btoproject.BTOProject;
-import com.group6.btoproject.BTOProjectManager;
-import com.group6.btoproject.BTOProjectType;
-import com.group6.btoproject.HDBOfficerRegistration;
-import com.group6.btoproject.HDBOfficerRegistrationStatus;
+import com.group6.btoproject.*;
 import com.group6.users.Applicant;
-import com.group6.users.HDBManager;
 import com.group6.users.HDBOfficer;
 import com.group6.users.User;
+import com.group6.utils.BashColors;
 import com.group6.utils.Utils;
 import com.group6.views.AuthenticatedView;
 import com.group6.views.View;
@@ -38,7 +35,9 @@ public class ApplicantApplyProjectView implements AuthenticatedView {
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
         List<BTOProject> activeProjects = projectManager.getActiveProjectsForUser(user.getId());
         if (!activeProjects.isEmpty()) {
-            System.out.println("You already applied for the following project(s):");
+            System.out.println(BashColors.format(
+                    "You have already applied for the following projects. You may not apply for another project.",
+                    BashColors.RED));
             activeProjects.forEach((project) -> {
                 System.out.println(" - " + project.getName());
             });
@@ -55,7 +54,7 @@ public class ApplicantApplyProjectView implements AuthenticatedView {
         }
         final BTOProject project = projectOpt.get();
 
-        final Optional<String> typeOpt = showRequestProjectType(project);
+        final Optional<BTOProjectTypeID> typeOpt = showRequestProjectType(project);
         if (typeOpt.isEmpty()) {
             return null;
         }
@@ -63,10 +62,10 @@ public class ApplicantApplyProjectView implements AuthenticatedView {
         Utils.tryCatch(() -> {
             projectManager.requestApply(project.getId(), user.getId(), typeOpt.get());
         }).getErr().ifPresentOrElse((err) -> {
-            System.out.println("Failed to apply for project: ");
+            System.out.println(BashColors.format("Failed to apply for project: ", BashColors.RED));
             System.out.println(err.getMessage());
         }, () -> {
-            System.out.println("Application submitted successfully.");
+            System.out.println(BashColors.format("Application submitted successfully.", BashColors.GREEN));
         });
         System.out.println("Type anything to continue.");
         scanner.nextLine();
@@ -79,7 +78,8 @@ public class ApplicantApplyProjectView implements AuthenticatedView {
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
 
         while (true) {
-            System.out.println("Type in the project id you want to apply for, or leave empty ('') to cancel:");
+            System.out.println(BashColors.format(
+                    "Type in the project id you want to apply for, or leave empty ('') to cancel:", BashColors.BOLD));
             final String projectId = scanner.nextLine().trim();
             if (projectId.isEmpty()) {
                 return Optional.empty();
@@ -87,13 +87,26 @@ public class ApplicantApplyProjectView implements AuthenticatedView {
 
             final Optional<BTOProject> projectOpt = projectManager.getProject(projectId);
             if (projectOpt.isEmpty()) {
-                System.out.println("Project not found, please type in a valid project id.");
+                System.out.println(
+                        BashColors.format("Project not found, please type in a valid project id.", BashColors.RED));
+                System.out.println("Type anything to continue.");
+                scanner.nextLine();
                 continue;
             }
 
             final BTOProject project = projectOpt.get();
             if (!project.isApplicationWindowOpen()) {
-                System.out.println("The application window for this project is closed. Please choose another project.");
+                System.out.println(BashColors.format(
+                        "The application window for this project is closed. Please choose another project.",
+                        BashColors.RED));
+                System.out.println("Type anything to continue.");
+                scanner.nextLine();
+                continue;
+            }
+            if (!project.isVisibleToPublic()) {
+                System.out.println(BashColors.format(
+                        "This project is not visible to the public, such projects cannot be applied to. Please choose another project.",
+                        BashColors.RED));
                 System.out.println("Type anything to continue.");
                 scanner.nextLine();
                 continue;
@@ -104,13 +117,16 @@ public class ApplicantApplyProjectView implements AuthenticatedView {
                 if (reg.isPresent()) {
                     HDBOfficerRegistration officerReg = reg.get();
                     if (officerReg.getStatus() == HDBOfficerRegistrationStatus.SUCCESSFUL) {
-                        System.out.println("You are a registered officer for this project. You may not apply for it.");
+                        System.out.println(BashColors.format(
+                                "You are a registered officer for this project. You may not apply for it.",
+                                BashColors.RED));
                         System.out.println("Type anything to continue.");
                         scanner.nextLine();
                         return Optional.empty();
                     } else {
-                        System.out.println(
-                                "WARNING: You are currently registering to be an officer for this project. You may still apply for this project but your officer registration cannot be accepted.");
+                        System.out.println(BashColors.format(
+                                "WARNING: You are currently registering to be an officer for this project. You may still apply for this project but your officer registration cannot be accepted.",
+                                BashColors.YELLOW));
                         System.out.println("Type 'y' to continue, or anything else to cancel:");
                         final String option = scanner.nextLine().trim();
                         if (!option.equals("y")) {
@@ -123,15 +139,21 @@ public class ApplicantApplyProjectView implements AuthenticatedView {
         }
     }
 
-    private Optional<String> showRequestProjectType(BTOProject project) {
+    private Optional<BTOProjectTypeID> showRequestProjectType(BTOProject project) {
         final Scanner scanner = ctx.getScanner();
+        if (!(this.user instanceof Applicant)) {
+            System.out.println("You are not an applicant.");
+            return Optional.empty();
+        }
+        Applicant user = (Applicant) this.user;
+
         while (true) {
             final List<BTOProjectType> types = new ArrayList<>(project.getProjectTypes());
 
-            System.out.println("What type would you like to apply for?");
+            System.out.println(BashColors.format("What type would you like to apply for?", BashColors.BOLD));
             System.out.println("Types (No. Units Available / Total No. Units / Price):");
             if (types.size() <= 0) {
-                System.out.println("  (No types available)");
+                System.out.println(BashColors.format("  (No types available)", BashColors.LIGHT_GRAY));
                 System.out.println("Type anything to continue.");
                 scanner.nextLine();
                 return Optional.empty();
@@ -141,37 +163,69 @@ public class ApplicantApplyProjectView implements AuthenticatedView {
                 int zeroSlotsLeftTypes = 0;
                 for (BTOProjectType type : types) {
                     int quantityBooked = project.getBookedCountForType(type.getId());
-                    System.out.println(
-                            "  " + type.getId() + " " +
-                                    quantityBooked + " / " + type.getMaxQuantity()
-                                    + " / $" + Utils.formatMoney(type.getPrice()));
+                    String typeStr = "  " + type.getId().getName() + " " +
+                            quantityBooked + " / " + type.getMaxQuantity()
+                            + " / $" + Utils.formatMoney(type.getPrice());
+
+                    final List<String> errs = new LinkedList<>();
+                    Optional<String> verifyEligibilityErrOpt = project.verifyEligibilityToApply(user, type.getId());
+                    if (verifyEligibilityErrOpt.isPresent()) {
+                        errs.add(verifyEligibilityErrOpt.get());
+                    }
                     if (quantityBooked >= type.getMaxQuantity()) {
+                        errs.add("Fully booked");
                         zeroSlotsLeftTypes++;
+                    }
+
+                    if (!errs.isEmpty()) {
+                        System.out.println(BashColors.format(typeStr, BashColors.RED));
+                        for (String err : errs) {
+                            System.out.println(BashColors.format("  - " + err, BashColors.RED));
+                        }
+                    } else {
+                        System.out.println(typeStr);
                     }
                 }
 
                 if (zeroSlotsLeftTypes == types.size()) {
-                    System.out.println("All types are fully booked. Please choose another project.");
+                    System.out.println(BashColors.format("All types are fully booked. Please choose another project.",
+                            BashColors.RED));
                     System.out.println("Type anything to continue.");
                     scanner.nextLine();
                     return Optional.empty();
                 }
 
                 System.out
-                        .println("Type the type (e.g. '" + types.get(0).getId() + "') or leave empty ('') to cancel:");
-                final String typeId = scanner.nextLine().trim();
+                        .println("Type the type (e.g. '" + types.get(0).getId().getName()
+                                + "') or leave empty ('') to cancel:");
+                final String typeId = scanner.nextLine().trim().toLowerCase();
                 if (typeId.isEmpty()) {
                     return Optional.empty();
                 }
 
                 final Optional<BTOProjectType> typeOpt = types.stream()
-                        .filter((type) -> type.getId().equals(typeId))
+                        .filter((type) -> type.getId().getName().toLowerCase().equals(typeId))
                         .findFirst();
                 if (typeOpt.isEmpty()) {
-                    System.out.println("Type not found. Please type in a valid type id.");
+                    System.out.println(
+                            BashColors.format("Type not found, please type in a valid type id.", BashColors.RED));
+                    System.out.println("Type anything to continue.");
+                    scanner.nextLine();
                     continue;
                 }
-                return Optional.of(typeId);
+
+                BTOProjectType type = typeOpt.get();
+                Optional<String> verifyEligibilityErrOpt = project.verifyEligibilityToApply(user, type.getId());
+                if (verifyEligibilityErrOpt.isPresent()) {
+                    System.out
+                            .println(BashColors.format("You are not eligible to apply for this type.", BashColors.RED));
+                    System.out.println(BashColors.format(verifyEligibilityErrOpt.get(), BashColors.RED));
+                    System.out.println("Type anything to continue.");
+                    scanner.nextLine();
+                    continue;
+                }
+
+                return Optional.of(type.getId());
             }
         }
     }

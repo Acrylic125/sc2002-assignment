@@ -4,6 +4,7 @@ import com.group6.btoproject.BTOApplicationStatus;
 
 import com.group6.users.HDBManager;
 import com.group6.users.HDBOfficer;
+import com.group6.utils.BashColors;
 
 import java.util.*;
 
@@ -44,9 +45,12 @@ public class ApplicantViewMyApplicationsFilterView extends ProjectsViewFiltersVi
         while (true) {
             String searchTermValue = stringifySearchTerm(projectFilters.getSearchTerm());
             String locationValue = stringifyLocation(projectFilters.getLocation());
-            String projectTypesValue = stringifyProjectTypesAvailability(projectFilters.getFilterAvailableProjectTypes());
+            String projectTypesValue = stringifyProjectTypesAvailability(
+                    projectFilters.getFilterAvailableProjectTypes());
             String sortTypeValue = stringifySortName(projectFilters.getSortByName());
-            String applicationStatusValue = stringifyApplicationStatuses(applicationFilters.getApplicationStatusesFilter());
+            String applicationStatusValue = stringifyApplicationStatuses(
+                    applicationFilters.getApplicationStatusesFilter());
+            String managedProjectsValue = stringifyShowOnlyManagedProjects(projectFilters.isOnlyShowManagedProjects());
 
             boolean canFilterByManagedProjects = user instanceof HDBOfficer || user instanceof HDBManager;
 
@@ -58,7 +62,7 @@ public class ApplicantViewMyApplicationsFilterView extends ProjectsViewFiltersVi
             System.out.println("4 | Name Sort Type | " + sortTypeValue);
             System.out.println("5 | Application Status | " + applicationStatusValue);
             if (canFilterByManagedProjects) {
-                System.out.println("6 | Only Show Managed Projects | " + projectFilters.isOnlyShowManagedProjects());
+                System.out.println("6 | Only Show Managed Projects | " + managedProjectsValue);
             }
             System.out.println("");
             System.out.println("Type the ID of the filter you want to change, or leave empty ('') to go back.");
@@ -89,7 +93,7 @@ public class ApplicantViewMyApplicationsFilterView extends ProjectsViewFiltersVi
                         break;
                     }
                 default:
-                    System.out.println("Invalid input.");
+                    System.out.println(BashColors.format("Invalid option.", BashColors.RED));
                     System.out.println("Type anything to continue.");
                     scanner.nextLine();
                     return;
@@ -104,15 +108,17 @@ public class ApplicantViewMyApplicationsFilterView extends ProjectsViewFiltersVi
         final BTOApplicationStatus[] statuses = BTOApplicationStatus.values();
         final String applicationStatusesValue = stringifyApplicationStatuses(filters.getApplicationStatusesFilter());
         while (true) {
-            System.out.println("Filter Application Statuses");
+            System.out.println(BashColors.format("Application Status Filter", BashColors.BOLD));
             System.out.println("Currently filtering: " + applicationStatusesValue);
             System.out.println("Application Statuses:");
             for (BTOApplicationStatus value : statuses) {
                 System.out.println("  " + value.toString().toUpperCase());
             }
             System.out.println("");
-            System.out.println("Type the application status type you want to filter, or leave empty ('') to not set one.");
-            System.out.println("* You may specify multiple by leaving a ',' between entries(e.g. \"PENDING, BOOKED\") which will filter for projects with EITHER pending or booked application statuses.");
+            System.out.println(
+                    "Type the application status type you want to filter, or leave empty ('') to not set one.");
+            System.out.println(
+                    "* You may specify multiple by leaving a ',' between entries(e.g. \"PENDING, BOOKED\") which will filter for projects with EITHER pending or booked application statuses.");
 
             String statusFilterRaw = scanner.nextLine().trim();
             if (statusFilterRaw.isEmpty()) {
@@ -129,7 +135,7 @@ public class ApplicantViewMyApplicationsFilterView extends ProjectsViewFiltersVi
                         .findFirst();
                 if (statusOpt.isEmpty()) {
                     areAllValid = false;
-                    System.out.println("Invalid application status: " + status);
+                    System.out.println(BashColors.format("Invalid application status: " + status, BashColors.RED));
                 } else {
                     newStatusFilters.add(statusOpt.get());
                 }
@@ -142,7 +148,8 @@ public class ApplicantViewMyApplicationsFilterView extends ProjectsViewFiltersVi
             filters.setApplicationStatusesFilter(newStatusFilters);
             break;
         }
-        System.out.println("Application Statuses set to: " + stringifyApplicationStatuses(filters.getApplicationStatusesFilter()));
+        System.out.println(
+                "Application Statuses set to: " + stringifyApplicationStatuses(filters.getApplicationStatusesFilter()));
         System.out.println("Type anything to continue.");
         scanner.nextLine();
     }

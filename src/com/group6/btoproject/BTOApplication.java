@@ -8,7 +8,7 @@ public class BTOApplication {
 
     private final String id;
     private final String applicantUserId;
-    private final String typeId;
+    private final BTOProjectTypeID typeId;
     private BTOApplicationStatus status;
 
     /**
@@ -19,7 +19,7 @@ public class BTOApplication {
      * @param typeId          type id of the application.
      * @param status          status of the application.
      */
-    protected BTOApplication(String id, String applicantUserId, String typeId, BTOApplicationStatus status) {
+    protected BTOApplication(String id, String applicantUserId, BTOProjectTypeID typeId, BTOApplicationStatus status) {
         this.id = id;
         this.applicantUserId = applicantUserId;
         this.typeId = typeId;
@@ -49,7 +49,7 @@ public class BTOApplication {
      *
      * @return {@link #typeId}
      */
-    public String getTypeId() {
+    public BTOProjectTypeID getTypeId() {
         return typeId;
     }
 

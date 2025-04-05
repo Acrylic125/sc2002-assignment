@@ -13,6 +13,7 @@ import com.group6.users.HDBManager;
 import com.group6.users.HDBOfficer;
 import com.group6.users.User;
 import com.group6.users.UserManager;
+import com.group6.utils.BashColors;
 import com.group6.views.AuthenticatedView;
 import com.group6.views.PaginatedView;
 import com.group6.views.View;
@@ -78,7 +79,8 @@ public class ApplicantProjectEnquiryView implements PaginatedView, Authenticated
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
 
         while (true) {
-            System.out.println("Type in the project id you want to enquire, or leave empty ('') to cancel:");
+            System.out.println(BashColors.format(
+                    "Type in the project id you want to enquire, or leave empty ('') to cancel:", BashColors.BOLD));
             final String projectId = scanner.nextLine().trim();
             if (projectId.isEmpty()) {
                 return Optional.empty();
@@ -86,7 +88,8 @@ public class ApplicantProjectEnquiryView implements PaginatedView, Authenticated
 
             final Optional<BTOProject> projectOpt = projectManager.getProject(projectId);
             if (projectOpt.isEmpty()) {
-                System.out.println("Project not found, please type in a valid project id.");
+                System.out.println(
+                        BashColors.format("Project not found, please type in a valid project id.", BashColors.BOLD));
                 System.out.println("Type anything to continue.");
                 scanner.nextLine();
                 continue;
@@ -96,7 +99,9 @@ public class ApplicantProjectEnquiryView implements PaginatedView, Authenticated
     }
 
     private void showEnquiries() {
-        System.out.println(project.getName() + ", " + project.getNeighbourhood() + " - Your Enquiries");
+        final Scanner scanner = ctx.getScanner();
+        System.out.println(BashColors
+                .format(project.getName() + ", " + project.getNeighbourhood() + " - Your Enquiries", BashColors.BOLD));
         System.out.println("Enquiry ID | Message | Response");
         List<BTOEnquiry> enquiries = project.getEnquiries().stream()
                 .filter((enquiry) -> {
@@ -107,7 +112,9 @@ public class ApplicantProjectEnquiryView implements PaginatedView, Authenticated
                 })
                 .toList();
         if (enquiries.isEmpty()) {
-            System.out.println("No enquiries found.");
+            System.out.println(BashColors.format("No enquiries found.", BashColors.RED));
+            System.out.println("Type anything to continue.");
+            scanner.nextLine();
             return;
         }
         int lastIndex = Math.min(page * PAGE_SIZE, enquiries.size());
@@ -119,10 +126,11 @@ public class ApplicantProjectEnquiryView implements PaginatedView, Authenticated
             if (response.isPresent()) {
                 System.out.println(enquiry.getId() + " | " + enquiry.getSenderMessage().getMessage() + " | "
                         + response.get().getMessage());
-                return;
+            } else {
+                System.out.println(
+                        enquiry.getId() + " | " + enquiry.getSenderMessage().getMessage() + " | "
+                                + BashColors.format("(No Response)", BashColors.LIGHT_GRAY));
             }
-            System.out.println(
-                    enquiry.getId() + " | " + enquiry.getSenderMessage().getMessage() + " | " + "(No Response)");
         }
     }
 
@@ -150,14 +158,14 @@ public class ApplicantProjectEnquiryView implements PaginatedView, Authenticated
                     break;
                 case "n":
                     if (!this.nextPage()) {
-                        System.out.println("You are already on the last page.");
+                        System.out.println(BashColors.format("You are already on the last page.", BashColors.RED));
                         System.out.println("Type anything to continue.");
                         scanner.nextLine();
                     }
                     break;
                 case "p":
                     if (!this.prevPage()) {
-                        System.out.println("You are already on the first page.");
+                        System.out.println(BashColors.format("You are already on the first page.", BashColors.RED));
                         System.out.println("Type anything to continue.");
                         scanner.nextLine();
                     }
@@ -168,7 +176,7 @@ public class ApplicantProjectEnquiryView implements PaginatedView, Authenticated
                         break;
                     }
                     if (!this.page(pageOpt.get())) {
-                        System.out.println("Invalid page number.");
+                        System.out.println(BashColors.format("Invalid page number.", BashColors.RED));
                         System.out.println("Type anything to continue.");
                         scanner.nextLine();
                     }
@@ -176,7 +184,9 @@ public class ApplicantProjectEnquiryView implements PaginatedView, Authenticated
                 case "":
                     return;
                 default:
-                    System.out.println("Invalid option.");
+                    System.out.println(BashColors.format("Invalid option.", BashColors.RED));
+                    System.out.println("Type anything to continue.");
+                    scanner.nextLine();
             }
         }
     }
@@ -187,7 +197,7 @@ public class ApplicantProjectEnquiryView implements PaginatedView, Authenticated
 
         BTOEnquiry enquiry;
         while (true) {
-            System.out.println("What would you like to view?");
+            System.out.println(BashColors.format("What would you like to view?", BashColors.BOLD));
             System.out.println("Type the enquiry id, or leave empty ('') to cancel:");
             String opt = scanner.nextLine().trim();
             if (opt.isEmpty()) {
@@ -197,14 +207,19 @@ public class ApplicantProjectEnquiryView implements PaginatedView, Authenticated
                     .filter((_enquiry) -> _enquiry.getId().equals(opt))
                     .findFirst();
             if (enquiryOpt.isEmpty()) {
-                System.out.println("Enquiry not found. Please type in a valid id.");
+                System.out.println(BashColors.format("Enquiry not found. Please type in a valid id.", BashColors.RED));
+                System.out.println("Type anything to continue.");
+                scanner.nextLine();
                 continue;
             }
             enquiry = enquiryOpt.get();
             if (!enquiry.getSenderMessage().getSenderUserId().equals(user.getId())
                     || !(!filterUserEnquiries && (user instanceof HDBOfficer || user instanceof HDBManager))) {
-                System.out.println(
-                        "You are not the sender of this enquiry, you may not view it. Please type in a valid id.");
+                System.out.println(BashColors.format(
+                        "You are not the sender of this enquiry, you may not view it. Please type in a valid id.",
+                        BashColors.RED));
+                System.out.println("Type anything to continue.");
+                scanner.nextLine();
                 continue;
             }
             break;
@@ -219,10 +234,10 @@ public class ApplicantProjectEnquiryView implements PaginatedView, Authenticated
             if (responderOpt.isPresent()) {
                 System.out.println("Responder: " + responderOpt.get().getName());
             } else {
-                System.out.println("Responder: (Unknown)");
+                System.out.println("Responder: " + BashColors.format("(Unknown)", BashColors.LIGHT_GRAY));
             }
         } else {
-            System.out.println("Response: (No Response)");
+            System.out.println("Response: " + BashColors.format("(No Response)", BashColors.LIGHT_GRAY));
         }
     }
 
@@ -230,7 +245,7 @@ public class ApplicantProjectEnquiryView implements PaginatedView, Authenticated
         final Scanner scanner = ctx.getScanner();
         BTOEnquiry enquiry;
         while (true) {
-            System.out.println("What would you like to edit?");
+            System.out.println(BashColors.format("What would you like to edit?", BashColors.BOLD));
             System.out.println("Type the enquiry id, or leave empty ('') to cancel:");
             String opt = scanner.nextLine().trim();
             if (opt.isEmpty()) {
@@ -240,31 +255,48 @@ public class ApplicantProjectEnquiryView implements PaginatedView, Authenticated
                     .filter((_enquiry) -> _enquiry.getId().equals(opt))
                     .findFirst();
             if (enquiryOpt.isEmpty()) {
-                System.out.println("Enquiry not found. Please type in a valid id.");
+                System.out.println(BashColors.format("Enquiry not found. Please type in a valid id.", BashColors.RED));
+                System.out.println("Type anything to continue.");
+                scanner.nextLine();
                 continue;
             }
             enquiry = enquiryOpt.get();
             if (!enquiry.getSenderMessage().getSenderUserId().equals(user.getId())) {
-                System.out.println("You are not the sender of this enquiry. Please type in a valid id.");
+                System.out.println(BashColors
+                        .format("You are not the sender of this enquiry. Please type in a valid id.", BashColors.RED));
+                System.out.println("Type anything to continue.");
+                scanner.nextLine();
+                continue;
+            }
+
+            if (enquiry.getResponseMessage().isPresent()) {
+                System.out.println(BashColors.format("This enquiry has already been responded to. You may not edit it.",
+                        BashColors.RED));
+                System.out.println("Type anything to continue.");
+                scanner.nextLine();
                 continue;
             }
             break;
         }
 
         // Then ask for the new message.
-        System.out.println("What would you like to change the message, \"" + enquiry.getSenderMessage().getMessage()
-                + "\" to? Leave empty ('') to cancel:");
+        System.out.println(BashColors
+                .format("What would you like to change the message, \"" + enquiry.getSenderMessage().getMessage()
+                        + "\" to? Leave empty ('') to cancel:", BashColors.BOLD));
         String newMessage = scanner.nextLine().trim();
         if (newMessage.isEmpty()) {
             return;
         }
         enquiry.setSenderMessage(new BTOEnquiryMessage(user.getId(), newMessage));
-        System.out.println("Message updated!");
+        System.out.println(BashColors.format("Message updated!", BashColors.GREEN));
+        System.out.println("Type anything to continue.");
+        scanner.nextLine();
     }
 
     private void showAddEnquiry() {
         final Scanner scanner = ctx.getScanner();
-        System.out.println("What would you like to enquire?: Leave empty ('') to cancel:");
+        System.out.println(
+                BashColors.format("What would you like to enquire?: Leave empty ('') to cancel:", BashColors.BOLD));
         String opt = scanner.nextLine().trim();
         if (opt.isEmpty()) {
             return;
@@ -272,14 +304,16 @@ public class ApplicantProjectEnquiryView implements PaginatedView, Authenticated
         project.addEnquiry(BTOEnquiry.create(
                 new BTOEnquiryMessage(user.getId(), opt),
                 null));
-        System.out.println("Message sent!");
+        System.out.println(BashColors.format("Message sent!", BashColors.GREEN));
+        System.out.println("Type anything to continue.");
+        scanner.nextLine();
     }
 
     private void showDeleteEnquiry() {
         final Scanner scanner = ctx.getScanner();
         BTOEnquiry enquiry;
         while (true) {
-            System.out.println("What would you like to delete?");
+            System.out.println(BashColors.format("What would you like to delete?", BashColors.BOLD));
             System.out.println("Type the enquiry id, or leave empty ('') to cancel:");
             String opt = scanner.nextLine().trim();
             if (opt.isEmpty()) {
@@ -289,19 +323,34 @@ public class ApplicantProjectEnquiryView implements PaginatedView, Authenticated
                     .filter((_enquiry) -> _enquiry.getId().equals(opt))
                     .findFirst();
             if (enquiryOpt.isEmpty()) {
-                System.out.println("Enquiry not found. Please type in a valid id.");
+                System.out.println(BashColors.format("Enquiry not found. Please type in a valid id.", BashColors.RED));
+                System.out.println("Type anything to continue.");
+                scanner.nextLine();
                 continue;
             }
             enquiry = enquiryOpt.get();
             if (!enquiry.getSenderMessage().getSenderUserId().equals(user.getId())) {
-                System.out.println("You are not the sender of this enquiry. Please type in a valid id.");
+                System.out.println(BashColors
+                        .format("You are not the sender of this enquiry. Please type in a valid id.", BashColors.RED));
+                System.out.println("Type anything to continue.");
+                scanner.nextLine();
+                continue;
+            }
+
+            if (enquiry.getResponseMessage().isPresent()) {
+                System.out.println(BashColors
+                        .format("This enquiry has already been responded to. You may not delete it.", BashColors.RED));
+                System.out.println("Type anything to continue.");
+                scanner.nextLine();
                 continue;
             }
             break;
         }
 
         project.deleteEnquiry(enquiry.getId());
-        System.out.println("Enquiry deleted!");
+        System.out.println(BashColors.format("Message deleted", BashColors.GREEN));
+        System.out.println("Type anything to continue.");
+        scanner.nextLine();
     }
 
 }

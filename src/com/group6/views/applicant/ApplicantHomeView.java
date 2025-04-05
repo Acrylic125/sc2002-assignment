@@ -1,5 +1,8 @@
 package com.group6.views.applicant;
 
+import com.group6.btoproject.BTOApplication;
+import com.group6.btoproject.BTOProject;
+import com.group6.btoproject.BTOProjectManager;
 import com.group6.users.Applicant;
 import com.group6.users.User;
 import com.group6.utils.BashColors;

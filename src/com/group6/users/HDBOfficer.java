@@ -1,19 +1,21 @@
-package com.group6.users;
-
-/**
- * A HDBOfficer is an {@link Applicant}..
- */
-public class HDBOfficer extends Applicant {
-
+public class HDBOfficer extends User{
     /**
-     * Constructor for HDBOfficer.
+     * Constructor for Applicant.
      *
      * @param id id.
-     * @param username username.
+     * @param nric nric.
+     * @param age age
+     * @param maritalStatus marital Status
      * @param password password.
      */
-    public HDBOfficer(String id, String username, String password) {
-        super(id, username, password);
+    public HDBOfficer(String id, String nric, int age, UserMaritalStatus maritalStatus, String password){
+        super(id, nric, age, maritalStatus, password);
     }
 
+    /**
+ * Returns the role of the user.
+ *
+ * @return A string representing the role, which is "Officer".
+ */
+    public UserRole getRole(){ return UserRole.OFFICER;}
 }

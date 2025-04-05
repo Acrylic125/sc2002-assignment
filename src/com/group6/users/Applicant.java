@@ -1,8 +1,4 @@
-package com.group6.users;
 
-/**
- * A HDBManager is a {@link User}.
- */
 public class Applicant extends User {
 
     /**
@@ -10,9 +6,13 @@ public class Applicant extends User {
      *
      * @param id id.
      * @param nric nric.
+     * @param age age
+     * @param maritalStatus marital Status
      * @param password password.
      */
-    public Applicant(String id, String nric, String password) {
-        super(id, nric, password);
+    public Applicant(String id, String nric, int age, UsermaritalStatus maritalStatus, String password) {
+        super(id, nric, age, maritalStatus, password);
     }
+
+    public UserRole getRole(){ return UserRole.APPLICANT;}
 }

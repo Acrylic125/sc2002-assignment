@@ -5,124 +5,85 @@ package com.group6.users;
  * See {@link HDBOfficer}.
  * See {@link HDBManager}.
  */
-public abstract class User {
 
-    private final String id;
-    private String nric;
-    private String password;
+public abstract class User {
     private String name;
+    private String nric;
     private int age;
-    private UserMartialStatus martialStatus = UserMartialStatus.SINGLE;
+    private UserMaritalStatus maritalStatus;
+    private String password;
 
     /**
      * Constructor for User.
      *
-     * @param id       id.
-     * @param nric     username.
+     * @param name       name.
+     * @param nric     nric.
+     * @param age        age.
+     * @param maritalStatus maritalStatus.
      * @param password password.
      */
-    public User(String id, String nric, String password) {
-        this.id = id;
+    public User(String name, String nric, int age, UserMaritalStatus maritalStatus, String password){
+        this.name = name;
         this.nric = nric;
+        this.age = age;
+        this.maritalStatus = maritalStatus;
         this.password = password;
     }
 
     /**
-     * Id getter
-     *
-     * @return {@link #id}
+     * UserRole getter
      */
-    public String getId() {
-        return id;
-    }
+    public abstract UserRole getRole();
+
+    /**
+     * Name getter
+     *
+     * @return {@link #name}
+     */
+    public String getName(){return name;}
 
     /**
      * Nric getter.
      *
      * @return {@link #nric}
      */
-    public String getNRIC() {
-        return nric;
-    }
-
-    /**
-     * Nric setter.
-     *
-     * @param nric nric.
-     */
-    public void setNric(String nric) {
-        this.nric = nric;
-    }
-
-    /**
-     * Password getter.
-     *
-     * @return {@link #password}
-     */
-    public String getPassword() {
-        return password;
-    }
-
-    /**
-     * Password setter.
-     *
-     * @param password password.
-     */
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    /**
-     * Name getter.
-     *
-     * @return {@link #name}
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     *
-     * @param name name.
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
+    public String getNric(){return nric;}
 
     /**
      * Age getter.
      *
      * @return age
      */
-    public int getAge() {
-        return age;
-    }
-
-    /**
-     * Age setter.
-     *
-     * @param age age.
-     */
-    public void setAge(int age) {
-        this.age = age;
-    }
+    public int getAge(){return age;}
 
     /**
      * Marital status getter.
      *
      * @return {@link #martialStatus}
      */
-    public UserMartialStatus getMartialStatus() {
-        return martialStatus;
-    }
+    public UserMaritalStatus getMaritalStatus(){return maritalStatus;}
 
     /**
-     * Marital status setter.
+     * Password getter.
      *
-     * @param martialStatus martialStatus.
+     * @return {@link #password}
      */
-    public void setMartialStatus(UserMartialStatus martialStatus) {
-        this.martialStatus = martialStatus;
+    public String getPassword(){return password;}
+
+    /**
+     * Password setter.
+     *
+     * @param password newPassword.
+     */
+    public void setPassword(String newPassword){this.password = newPassword;}
+
+    /**
+    * Save users to file.
+    * 
+    * @return {@link #name, nric, age, maritalStatus, password}
+    */
+    public String tofileString(){
+        return name + ", " + nric + ", " + age + ", " + maritalStatus.toString() + ", " + password;
     }
 
 }

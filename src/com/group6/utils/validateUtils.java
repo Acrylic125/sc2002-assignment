@@ -20,7 +20,7 @@ public class ValidateUtils {
     /**
      * Method to compile regex pattern for NRIC validation.
      */
-    private static final Pattern nric_pattern = Pattern.compile(nric);
+    private static final Pattern NRIC_PATTERN = Pattern.compile(nric);
 
     /**
     * Validates a given NRIC number.

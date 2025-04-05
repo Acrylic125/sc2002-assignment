@@ -1,17 +1,19 @@
 package com.group6.views.hdbofficer;
 
+import java.util.List;
 import java.util.Scanner;
 
+import com.group6.btoproject.BTOProject;
+import com.group6.btoproject.BTOProjectManager;
 import com.group6.users.Applicant;
 import com.group6.users.User;
 import com.group6.users.HDBOfficer;
-import com.group6.views.AuthenticatedView;
 import com.group6.views.*;
 import com.group6.views.applicant.*;
 
 public class HDBOfficerManageView implements AuthenticatedView{
     private ViewContext ctx;
-
+    private User user;
     @Override
     public boolean isAuthorized(User user) {
         return user instanceof HDBOfficer;
@@ -20,7 +22,7 @@ public class HDBOfficerManageView implements AuthenticatedView{
     @Override
     public View render(ViewContext ctx, User user) {
         this.ctx = ctx;
-
+        this.user = user;
         return showOptions();
     }
 
@@ -30,8 +32,9 @@ public class HDBOfficerManageView implements AuthenticatedView{
         while (true) {
             System.out.println("HDB Manage Home Menu");
             System.out.println("1. Register to Manage Project");
-            System.out.println("2. View Registrations");
-            System.out.println("3. Manage Approved Projects (Approve Applications, Answer Enqueries)");
+            System.out.println("2. View All Registrations");
+            System.out.println("3. View Successful Applications (My managed projects)");
+            System.out.println("4. Manage Approved Projects (Approve Applications, Answer Enqueries)");
             System.out.println("");
             System.out.println("Type the number of the option you want to select or leave empty ('') to cancel.");
 
@@ -40,7 +43,13 @@ public class HDBOfficerManageView implements AuthenticatedView{
                 case "1":
                     return new HDBOfficerProjectsView();
                 case "2":
-                    return new ApplicantViewMyApplicationsView(); 
+                    displayOfficerRegistrations();
+                    return null;
+                case "3":
+                    displayManagedProjects();
+                    return null;
+                case "4":
+
                 case "":
                     return null;
                 default:
@@ -51,4 +60,40 @@ public class HDBOfficerManageView implements AuthenticatedView{
         }
     }
 
+    private void displayOfficerRegistrations() {
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+
+        // Get all projects where the officer has applied to register
+        List<BTOProject> officerRegistrations = projectManager.getOfficerRegistrations(user.getId());
+
+        if (officerRegistrations.isEmpty()) {
+            System.out.println("You have not applied to register as a managing officer for any projects.");
+        } else {
+            System.out.println("Projects you have applied to register as a managing officer:");
+            for (BTOProject project : officerRegistrations) {
+                System.out.println("- Project Name: " + project.getName());
+                System.out.println("  Project ID: " + project.getId());
+                System.out.println("- Current status: " + project.getActiveOfficerRegistration(user.getId()).map(registration -> registration.getStatus().toString()));
+                System.out.println("--------------------------------");
+            }
+        }
+    }
+
+    private void displayManagedProjects(){
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+
+        // Get all projects that the officer is managing
+        List<BTOProject> managedProjects = projectManager.getManagedProjects(user.getId());
+
+        if (managedProjects.isEmpty()) {
+            System.out.println("You are not managing any projects.");
+        } else {
+            System.out.println("Projects you are managing:");
+            for (BTOProject project : managedProjects) {
+                System.out.println("- Project Name: " + project.getName());
+                System.out.println("  Project ID: " + project.getId());
+                System.out.println("--------------------------------");
+            }
+        }
+    }
 }

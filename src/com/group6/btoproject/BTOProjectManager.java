@@ -283,7 +283,7 @@ public class BTOProjectManager {
         Date opendate = project.getApplicationOpenDate();
         
         List<BTOProject> managedByOfficer = projects.values().stream()
-        .filter(project_ -> project.isManagingOfficer(userId))
+        .filter(managedProject -> managedProject.isManagingOfficer(userId))
         .toList();
         
         for (BTOProject managedProject : managedByOfficer) {
@@ -452,4 +452,17 @@ public class BTOProjectManager {
         }
     }
 
+    public List<BTOProject> getOfficerRegistrations(String officerUserId) {
+        return projects.values().stream()
+                .filter(project -> project.getActiveOfficerRegistration(officerUserId).isPresent())
+                .toList();
+    }
+
+    public List<BTOProject> getManagedProjects(String officerUserId) {
+        return projects.values().stream()
+                .filter(project -> project.isManagingOfficer(officerUserId))
+                .toList();
+    }
 }
+
+    

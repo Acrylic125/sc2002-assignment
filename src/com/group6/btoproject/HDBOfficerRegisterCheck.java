@@ -1,16 +1,9 @@
-package com.group6.views.hdbofficer;
+package com.group6.btoproject;
 
-import java.util.Optional;
 import java.util.Scanner;
-
-import com.group6.btoproject.BTOApplication;
-import com.group6.btoproject.BTOProject;
-import com.group6.btoproject.BTOProjectManager;
 import com.group6.users.HDBOfficer;
 import com.group6.users.User;
 import com.group6.views.*;
-import com.group6.views.applicant.ApplicantHomeView;
-import com.group6.views.applicant.ApplicantViewMyApplicationsView;
 
 public class HDBOfficerRegisterCheck implements AuthenticatedView {
     

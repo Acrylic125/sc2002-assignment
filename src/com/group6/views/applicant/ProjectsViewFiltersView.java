@@ -33,20 +33,20 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
             case DSC:
                 return "Z-A";
             default:
-                return "None";
+                return BashColors.format("None", BashColors.LIGHT_GRAY);
         }
     }
 
     protected String stringifySearchTerm(String searchTerm) {
         if (searchTerm.isEmpty()) {
-            return "(Empty)";
+            return BashColors.format("(Empty)", BashColors.LIGHT_GRAY);
         }
         return searchTerm;
     }
 
     protected String stringifyLocation(String location) {
         if (location.isEmpty()) {
-            return "(Empty)";
+            return BashColors.format("(Empty)", BashColors.LIGHT_GRAY);
         }
         return location;
     }
@@ -62,9 +62,16 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
                     return a + ", " + b;
                 });
         if (value.isEmpty()) {
-            return "(Empty)";
+            return BashColors.format("(Empty)", BashColors.LIGHT_GRAY);
         }
         return value;
+    }
+
+    protected String stringifyShowOnlyManagedProjects(boolean showOnlyManagedProjects) {
+        if (showOnlyManagedProjects) {
+            return BashColors.format("YES", BashColors.GREEN);
+        }
+        return BashColors.format("NO", BashColors.RED);
     }
 
     @Override
@@ -86,17 +93,18 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
             String locationValue = stringifyLocation(filters.getLocation());
             String projectTypesValue = stringifyProjectTypesAvailability(filters.getFilterAvailableProjectTypes());
             String sortTypeValue = stringifySortName(filters.getSortByName());
+            String showOnlyManagedProjectsValue = stringifyShowOnlyManagedProjects(filters.isOnlyShowManagedProjects());
 
             boolean canFilterByManagedProjects = user instanceof HDBOfficer || user instanceof HDBManager;
 
-            System.out.println("Filters");
+            System.out.println(BashColors.format("Filters", BashColors.BOLD));
             System.out.println("ID | Filter | Value");
             System.out.println("1 | Search Term | " + searchTermValue);
             System.out.println("2 | Location | " + locationValue);
             System.out.println("3 | Project Types with Availability | " + projectTypesValue);
             System.out.println("4 | Name Sort Type | " + sortTypeValue);
             if (canFilterByManagedProjects) {
-                System.out.println("5 | Only Show Managed Projects | " + filters.isOnlyShowManagedProjects());
+                System.out.println("5 | Only Show Managed Projects | " + showOnlyManagedProjectsValue);
             }
             System.out.println("");
             System.out.println("Type the ID of the filter you want to change, or leave empty ('') to go back.");
@@ -124,7 +132,7 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
                         break;
                     }
                 default:
-                    System.out.println("Invalid input.");
+                    System.out.println(BashColors.format("Invalid input.", BashColors.RED));
                     System.out.println("Type anything to continue.");
                     scanner.nextLine();
                     return;
@@ -135,7 +143,9 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
     protected void showFilterBySearchTerm() {
         final Scanner scanner = ctx.getScanner();
         final ProjectsViewFilters filters = this.getProjectFilters();
-        System.out.println("Type the search term you want to filter, or leave empty (i.e. '') to not set one.  ");
+        System.out.println(
+                BashColors.format("Type the search term you want to filter, or leave empty (i.e. '') to not set one.  ",
+                        BashColors.BOLD));
         String searchTerm = scanner.nextLine().trim();
         filters.setSearchTerm(searchTerm);
         System.out.println("Search term set to: " + stringifySearchTerm(searchTerm));
@@ -146,7 +156,8 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
     protected void showFilterByLocation() {
         final Scanner scanner = ctx.getScanner();
         final ProjectsViewFilters filters = this.getProjectFilters();
-        System.out.println("Type the location you want to filter, or leave empty (i.e. '') to not set one.  ");
+        System.out.println(BashColors.format(
+                "Type the location you want to filter, or leave empty (i.e. '') to not set one.  ", BashColors.BOLD));
         String location = scanner.nextLine().trim();
         filters.setLocation(location);
         System.out.println("Location set to: " + stringifyLocation(location));
@@ -158,16 +169,17 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
         final Scanner scanner = ctx.getScanner();
         final ProjectsViewFilters filters = this.getProjectFilters();
         if (projectTypes.isEmpty()) {
-            System.out.println("No project types available.");
+            System.out.println(BashColors.format("No project types available.", BashColors.RED));
             System.out.println("Type anything to continue.");
             scanner.nextLine();
             return;
         }
 
         String projectTypesFilterRaw = "";
-        final String currentProjectTypesFilterValue = stringifyProjectTypesAvailability(filters.getFilterAvailableProjectTypes());
+        final String currentProjectTypesFilterValue = stringifyProjectTypesAvailability(
+                filters.getFilterAvailableProjectTypes());
         while (true) {
-            System.out.println("Project Types with Availability");
+            System.out.println(BashColors.format("Project Types with Availability", BashColors.BOLD));
             System.out.println("Currently filtering by: " + currentProjectTypesFilterValue);
             System.out.println("Project Type ID:");
             for (BTOProjectTypeID projectType : projectTypes) {
@@ -175,7 +187,8 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
             }
             System.out.println("");
             System.out.println("Type the project type you want to filter, or leave empty ('') to not set one.");
-            System.out.println("* You may specify multiple by leaving a ',' between entries(e.g. \"2 Room, 3 Room\") which will filter for projects with EITHER 2 Room or 3 Room availability.");
+            System.out.println(
+                    "* You may specify multiple by leaving a ',' between entries(e.g. \"2 Room, 3 Room\") which will filter for projects with EITHER 2 Room or 3 Room availability.");
 
             projectTypesFilterRaw = scanner.nextLine().trim();
             if (projectTypesFilterRaw.isEmpty()) {
@@ -210,7 +223,8 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
             break;
         }
 
-        System.out.println("Project Types Availability set to: " + stringifyProjectTypesAvailability(filters.getFilterAvailableProjectTypes()));
+        System.out.println("Project Types Availability set to: "
+                + stringifyProjectTypesAvailability(filters.getFilterAvailableProjectTypes()));
         System.out.println("Type anything to continue.");
         scanner.nextLine();
     }
@@ -222,7 +236,7 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
         while (true) {
             String sortTypeValue = stringifySortName(filters.getSortByName());
 
-            System.out.println("Sort by name");
+            System.out.println(BashColors.format("Name Sort Type", BashColors.BOLD));
             System.out.println("Currently sorting by: " + sortTypeValue);
             System.out.println("Sort Types:");
             System.out.println("  A-Z");
@@ -243,7 +257,7 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
                     filters.setSortByName(ViewSortType.NONE);
                     break;
                 default:
-                    System.out.println("Invalid input.");
+                    System.out.println(BashColors.format("Invalid sort type: " + sort, BashColors.RED));
                     System.out.println("Type anything to continue.");
                     scanner.nextLine();
                     continue;
@@ -260,12 +274,13 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
         final ProjectsViewFilters filters = this.getProjectFilters();
 
         while (true) {
-            System.out.println("Only Show Managed Projects");
-            System.out.println("Currently only showing managed projects: " + filters.isOnlyShowManagedProjects());
+            System.out.println(BashColors.format("Only Show Managed Projects", BashColors.BOLD));
+            System.out.println("Currently only showing managed projects: "
+                    + stringifyShowOnlyManagedProjects(filters.isOnlyShowManagedProjects()));
             System.out.println("Type 'y' to only show managed projects, 'n' to show all projects.");
             String showManagedProjects = scanner.nextLine().trim();
             if (!showManagedProjects.equals("y") && !showManagedProjects.equals("n")) {
-                System.out.println("Invalid input.");
+                System.out.println(BashColors.format("Invalid input: " + showManagedProjects, BashColors.RED));
                 System.out.println("Type anything to continue.");
                 scanner.nextLine();
                 continue;

@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.Scanner;
 
 import com.group6.btoproject.BTOApplication;
+import com.group6.btoproject.BTOApplicationStatus;
 import com.group6.btoproject.BTOApplicationWithdrawal;
 import com.group6.btoproject.BTOProject;
 import com.group6.btoproject.BTOProjectManager;
@@ -13,6 +14,7 @@ import com.group6.btoproject.BTOProjectType;
 import com.group6.btoproject.BTOProjectManager.BTOFullApplication;
 import com.group6.users.User;
 import com.group6.users.UserManager;
+import com.group6.utils.BashColors;
 import com.group6.utils.Utils;
 import com.group6.views.AuthenticatedView;
 import com.group6.views.PaginatedView;
@@ -60,9 +62,9 @@ public class ApplicantViewMyApplicationsView implements PaginatedView, Authentic
 
     private void showApplications() {
         final List<BTOFullApplication> applications = this.filteredApplications;
-        System.out.println("Applied Projects");
+        System.out.println(BashColors.format("My Applications", BashColors.BOLD));
         if (applications.isEmpty()) {
-            System.out.println("(No Projects Applied/Found)");
+            System.out.println(BashColors.format("(No Projects Applied/Found)", BashColors.LIGHT_GRAY));
             System.out.println("");
             return;
         }
@@ -98,7 +100,27 @@ public class ApplicantViewMyApplicationsView implements PaginatedView, Authentic
 
             System.out.println("Project: " + project.getName() + ", " + project.getNeighbourhood());
             System.out.println("ID: " + project.getId());
-            System.out.println("Status: " + fullApplication.getApplication().getStatus());
+
+            BTOApplicationStatus status = application.getStatus();
+            String statusStr;
+            switch (status) {
+                case PENDING:
+                    statusStr = BashColors.format("Pending", BashColors.YELLOW);
+                    break;
+                case BOOKED:
+                    statusStr = BashColors.format("Booked", BashColors.BLUE);
+                    break;
+                case SUCCESSFUL:
+                    statusStr = BashColors.format("Successful", BashColors.GREEN);
+                    break;
+                case UNSUCCESSFUL:
+                    statusStr = BashColors.format("Unsuccessful", BashColors.RED);
+                    break;
+                default:
+                    statusStr = "Unknown";
+            }
+
+            System.out.println("Status: " + statusStr);
 
             Optional<BTOProjectType> typeOpt = types.stream()
                     .filter(t -> t.getId().equals(application.getTypeId()))

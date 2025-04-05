@@ -34,7 +34,6 @@ public class HDBOfficerManageView implements AuthenticatedView{
             System.out.println("1. Register to Manage Project");
             System.out.println("2. View All Registrations");
             System.out.println("3. View Successful Applications (My managed projects)");
-            System.out.println("4. Manage Approved Projects (Approve Applications, Answer Enqueries)");
             System.out.println("");
             System.out.println("Type the number of the option you want to select or leave empty ('') to cancel.");
 
@@ -46,12 +45,7 @@ public class HDBOfficerManageView implements AuthenticatedView{
                     displayOfficerRegistrations();
                     return null;
                 case "3":
-                    displayManagedProjects();
-                    return null;
-                case "4":
-
-                case "":
-                    return null;
+                    return new HDBOfficeRespondView();
                 default:
                     System.out.println("Invalid option.");
                     System.out.println("Type anything to continue.");
@@ -79,21 +73,31 @@ public class HDBOfficerManageView implements AuthenticatedView{
         }
     }
 
-    private void displayManagedProjects(){
-        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+    // private View displayManagedProjects(){
+    //     final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
 
-        // Get all projects that the officer is managing
-        List<BTOProject> managedProjects = projectManager.getManagedProjects(user.getId());
+    //     // Get all projects that the officer is managing
+    //     List<BTOProject> managedProjects = projectManager.getManagedProjects(user.getId());
 
-        if (managedProjects.isEmpty()) {
-            System.out.println("You are not managing any projects.");
-        } else {
-            System.out.println("Projects you are managing:");
-            for (BTOProject project : managedProjects) {
-                System.out.println("- Project Name: " + project.getName());
-                System.out.println("  Project ID: " + project.getId());
-                System.out.println("--------------------------------");
-            }
-        }
-    }
+    //     if (managedProjects.isEmpty()) {
+    //         System.out.println("You are not managing any projects.");
+    //         return null;
+    //     } else {
+    //         System.out.println("Projects you are managing:");
+    //         for (BTOProject project : managedProjects) {
+    //             System.out.println("- Project Name: " + project.getName());
+    //             System.out.println("  Project ID: " + project.getId());
+    //             System.out.println("--------------------------------");
+    //         }
+    //         System.out.println("Press 'r' to respond to enquiries on a specific project: ");
+    //         String respond = ctx.getScanner().nextLine();
+    //         switch(respond){
+    //             case "r":
+    //                 return new HDBOfficeRespondView();
+    //             default:
+    //                 System.out.println("Returning...");
+    //                 return null;
+    //         }
+    //     }
+    // }
 }

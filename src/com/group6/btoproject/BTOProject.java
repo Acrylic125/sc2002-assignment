@@ -329,6 +329,7 @@ public class BTOProject {
     }
 
     /**
+     * HDBMANAGER can use this.
      * Get the user's active officer registration.
      * An active officer registration is one that is either successful or pending.
      *

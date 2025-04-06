@@ -66,7 +66,7 @@ public class ApplicantViewMyEnquiriesView implements PaginatedView, Authenticate
         System.out.println(BashColors.format("Your Eqnuiries:", BashColors.BOLD));
         System.out.println("Project Id | Project Name");
         if (projects.isEmpty()) {
-            System.out.println("(No projects with your enquiries found)");
+            System.out.println(BashColors.format("(No projects with your enquiries found)", BashColors.LIGHT_GRAY));
             return;
         }
         // Render the projects in the page.

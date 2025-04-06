@@ -8,10 +8,9 @@ import java.util.Scanner;
 import com.group6.btoproject.BTOProject;
 import com.group6.btoproject.BTOProjectManager;
 import com.group6.btoproject.BTOProjectType;
-import com.group6.users.HDBManager;
-import com.group6.users.HDBOfficer;
 import com.group6.users.User;
 import com.group6.users.UserManager;
+import com.group6.users.UserPermissions;
 import com.group6.utils.BashColors;
 import com.group6.utils.Utils;
 import com.group6.views.AuthenticatedView;
@@ -56,10 +55,13 @@ public class ApplicantProjectsView implements PaginatedView, AuthenticatedView {
         this.ctx = ctx;
         this.user = user;
         this.projects = projectManager.getProjects().values().stream()
-                .filter((project) -> ((project.isApplicationWindowOpen() || project.isApplicantBooked(user.getId()))
-                        && project.isVisibleToPublic())
-                        || user instanceof HDBOfficer
-                        || user instanceof HDBManager)
+                .filter((project) -> {
+                    final UserPermissions permissions = user.getPermissions();
+                    if (!(project.isApplicationWindowOpen() || permissions.canViewClosedProjects())) {
+                        return false;
+                    }
+                    return project.isVisibleToPublic() || permissions.canViewNonVisibleProjects();
+                })
                 .toList();
         // We ASSUME filters cannot be applied UNTIL the user goes to the filters view
         // and return which will call this.
@@ -116,7 +118,7 @@ public class ApplicantProjectsView implements PaginatedView, AuthenticatedView {
 
                 for (BTOProjectType type : types) {
                     System.out.println(
-                            "  " + type.getId() + " " +
+                            "  " + type.getId().getName() + ": " +
                                     project.getBookedCountForType(type.getId()) + " / " + type.getMaxQuantity()
                                     + " / $" + Utils.formatMoney(type.getPrice()));
                 }
@@ -128,7 +130,7 @@ public class ApplicantProjectsView implements PaginatedView, AuthenticatedView {
                     ? BashColors.GREEN
                     : BashColors.RED));
             System.out.println("Manager / Officers: " + managerName + " / " + officerNames);
-            if (user instanceof HDBOfficer || user instanceof HDBManager) {
+            if (user.getPermissions().canViewNonVisibleProjects()) {
                 boolean isVisibleToPublic = project.isVisibleToPublic();
                 System.out.println("Visible to public: " + BashColors.format(isVisibleToPublic ? "YES" : "NO",
                         isVisibleToPublic ? BashColors.GREEN : BashColors.RED));

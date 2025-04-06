@@ -2,8 +2,6 @@ package com.group6.views.applicant;
 
 import com.group6.btoproject.BTOApplicationStatus;
 
-import com.group6.users.HDBManager;
-import com.group6.users.HDBOfficer;
 import com.group6.utils.BashColors;
 
 import java.util.*;
@@ -52,7 +50,7 @@ public class ApplicantViewMyApplicationsFilterView extends ProjectsViewFiltersVi
                     applicationFilters.getApplicationStatusesFilter());
             String managedProjectsValue = stringifyShowOnlyManagedProjects(projectFilters.isOnlyShowManagedProjects());
 
-            boolean canFilterByManagedProjects = user instanceof HDBOfficer || user instanceof HDBManager;
+            boolean canFilterByManagedProjects = user.getPermissions().canManageProjects();
 
             System.out.println("Filters");
             System.out.println("ID | Filter | Value");

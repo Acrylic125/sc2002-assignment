@@ -1,7 +1,7 @@
 package com.group6.btoproject;
 
-import com.group6.users.Applicant;
-import com.group6.users.UserMartialStatus;
+import com.group6.users.User;
+import com.group6.users.UserMaritalStatus;
 
 import java.util.*;
 
@@ -427,8 +427,8 @@ public class BTOProject {
      * @param user the applicant
      * @return error message if the user cannot apply for a project type.
      */
-    public Optional<String> verifyEligibilityToApply(Applicant user, BTOProjectTypeID typeId) {
-        if (user.getMartialStatus().equals(UserMartialStatus.SINGLE)) {
+    public Optional<String> verifyEligibilityToApply(User user, BTOProjectTypeID typeId) {
+        if (user.getMaritalStatus().equals(UserMaritalStatus.SINGLE)) {
             if (user.getAge() < 35) {
                 return Optional.of("Single applicants can only apply for 2 Room BTO Project after turning 35.");
             }

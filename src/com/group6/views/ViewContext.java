@@ -51,6 +51,13 @@ public final class ViewContext {
     }
 
     /**
+     * Clear view stack.
+     */
+    public void clearViewStack() {
+        viewStack.clear();
+    }
+
+    /**
      *
      * @return The top view.
      * @throws IllegalStateException If there are no more views.

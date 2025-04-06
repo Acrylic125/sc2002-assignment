@@ -2,15 +2,20 @@ package com.group6.views.applicant;
 
 import com.group6.users.User;
 import com.group6.utils.BashColors;
-import com.group6.views.AuthenticatedView;
-import com.group6.views.MenuView;
-import com.group6.views.View;
-import com.group6.views.ViewContext;
+import com.group6.views.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class ApplicantHomeView implements AuthenticatedView {
+    private final boolean isRootView;
+
     private ViewContext ctx;
+
+    public ApplicantHomeView(boolean isRootView) {
+        this.isRootView = isRootView;
+    }
 
     @Override
     public View render(ViewContext ctx, User user) {
@@ -22,33 +27,57 @@ public class ApplicantHomeView implements AuthenticatedView {
     private View showOptions() {
         final Scanner scanner = ctx.getScanner();
 
+        List<ViewOption> options = new ArrayList<>();
+        options.add(new ViewOption("View All Projects", ApplicantProjectsView::new));
+        options.add(new ViewOption("View My Applied Projects", ApplicantViewMyApplicationsView::new));
+        options.add(new ViewOption("View My Enquiries", ApplicantViewMyEnquiriesView::new));
+        if (this.isRootView) {
+            options.add(new ViewOption("Logout", () -> {
+                logout();
+                return new MenuView();
+            }));
+        }
+
         while (true) {
             System.out.println(BashColors.format("Applicant Home Menu", BashColors.BOLD));
-            System.out.println("1. View All Projects");
-            System.out.println("2. View My Applied Projects");
-            System.out.println("3. View My Enquiries");
-            System.out.println("4. Logout");
-            System.out.println("");
-            System.out.println("Type the option (e.g. 1, 2, 3) you want to select.");
-
-            String option = scanner.nextLine().trim();
-            switch (option) {
-                case "1":
-                    return new ApplicantProjectsView();
-                case "2":
-                    return new ApplicantViewMyApplicationsView();
-                case "3":
-                    return new ApplicantViewMyEnquiriesView();
-                case "4":
-                    System.out.println(BashColors.format("Logged out!", BashColors.GREEN));
-                    ctx.setUser(null);
-                    return new MenuView();
-                default:
-                    System.out.println("Invalid option.");
-                    System.out.println("Type anything to continue.");
-                    scanner.nextLine();
+            int i = 1;
+            for (ViewOption option : options) {
+                String[] str = option.getOption();
+                if (str.length > 0) {
+                    System.out.println(i++ + ". " + str[0]);
+                    for (int j = 1; j < str.length; j++) {
+                        System.out.println("   " + str[j]);
+                    }
+                }
             }
+            System.out.println("");
+            if (!isRootView) {
+                System.out.println("Type the option (e.g. 1, 2, 3) you want to select or leave empty ('') to cancel.");
+            } else {
+                System.out.println("Type the option (e.g. 1, 2, 3) you want to select.");
+            }
+
+            String _optionIndex = scanner.nextLine().trim();
+            if (!isRootView && _optionIndex.isEmpty()) {
+                return null;
+            }
+            try {
+                int optionIndex = Integer.parseInt(_optionIndex) - 1;
+                ViewOption option = options.get(optionIndex);
+                if (option != null) {
+                    return option.getCallback().get();
+                }
+            } catch (NumberFormatException _) {}
+            System.out.println(BashColors.format("Invalid option.", BashColors.RED));
+            System.out.println("Type anything to continue.");
+            scanner.nextLine();
         }
+    }
+
+    private void logout() {
+        ctx.clearViewStack();
+        ctx.setUser(null);
+        System.out.println(BashColors.format("Logged out!", BashColors.GREEN));
     }
 
 }

@@ -6,7 +6,6 @@ import com.group6.btoproject.BTOEnquiry;
 import com.group6.btoproject.BTOEnquiryMessage;
 import com.group6.btoproject.BTOProject;
 import com.group6.btoproject.BTOProjectManager;
-import com.group6.users.HDBOfficer;
 import com.group6.users.User;
 import com.group6.views.AuthenticatedView;
 import com.group6.views.ViewContext;
@@ -19,9 +18,10 @@ public class HDBOfficeRespondView implements AuthenticatedView{
 
     // Get all projects managed by the officer
     private List<BTOProject> managedProjects = projectManager.getManagedProjects(user.getId());
+
     @Override
     public boolean isAuthorized(User user) {
-        return user instanceof HDBOfficer;
+        return user.getPermissions().canRespondEnquiries();
     }
 
     @Override

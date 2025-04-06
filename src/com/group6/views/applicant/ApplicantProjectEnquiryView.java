@@ -155,29 +155,13 @@ public class ApplicantProjectEnquiryView implements PaginatedView, Authenticated
                     showEditEnquiry();
                     break;
                 case "n":
-                    if (!this.nextPage()) {
-                        System.out.println(BashColors.format("You are already on the last page.", BashColors.RED));
-                        System.out.println("Type anything to continue.");
-                        scanner.nextLine();
-                    }
+                    this.requestNextPage(scanner);
                     break;
                 case "p":
-                    if (!this.prevPage()) {
-                        System.out.println(BashColors.format("You are already on the first page.", BashColors.RED));
-                        System.out.println("Type anything to continue.");
-                        scanner.nextLine();
-                    }
+                    this.requestPrevPage(scanner);
                     break;
                 case "page":
-                    Optional<Integer> pageOpt = this.requestPage(scanner);
-                    if (pageOpt.isEmpty()) {
-                        break;
-                    }
-                    if (!this.page(pageOpt.get())) {
-                        System.out.println(BashColors.format("Invalid page number.", BashColors.RED));
-                        System.out.println("Type anything to continue.");
-                        scanner.nextLine();
-                    }
+                    this.requestPage(scanner);
                     break;
                 case "":
                     return;

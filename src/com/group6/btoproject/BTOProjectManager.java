@@ -139,7 +139,8 @@ public class BTOProjectManager {
      *                          - is SUCCESSFUL and has the same applicantUserId.
      *                          - is BOOKED and has the same applicantUserId.
      */
-    public void requestApply(String projectId, String applicantUserId, BTOProjectTypeID typeId) throws RuntimeException {
+    public void requestApply(String projectId, String applicantUserId, BTOProjectTypeID typeId)
+            throws RuntimeException {
         BTOProject project = projects.get(projectId);
         if (project == null) {
             throw new RuntimeException("Project not found.");
@@ -279,20 +280,11 @@ public class BTOProjectManager {
                     "Project Applicants with approved bookings may not register to manage this project.");
         }
 
-        Date closedate = project.getApplicationCloseDate();
-        Date opendate = project.getApplicationOpenDate();
-        
-        List<BTOProject> managedByOfficer = projects.values().stream()
-        .filter(managedProject -> managedProject.isManagingOfficer(userId))
-        .toList();
-        
+        final List<BTOProject> managedByOfficer = this.getManagedProjects(userId);
         for (BTOProject managedProject : managedByOfficer) {
-            Date managedOpenDate = managedProject.getApplicationOpenDate();
-            Date managedCloseDate = managedProject.getApplicationCloseDate();
-    
-            // Check if the application periods overlap
-            if (!(closedate.before(managedOpenDate) || opendate.after(managedCloseDate))) {
-                throw new RuntimeException("Officer is already managing another project within the same application period.");
+            if (managedProject.isApplicationWindowOpen()) {
+                throw new RuntimeException(
+                        "Officer is already managing another project that's currently open.");
             }
         }
 
@@ -346,6 +338,14 @@ public class BTOProjectManager {
             if (project.isApplicantBooked(userId)) {
                 throw new RuntimeException(
                         "Project Applicants with approved bookings may not register to manage this project.");
+            }
+        }
+
+        final List<BTOProject> managedByOfficer = this.getManagedProjects(userId);
+        for (BTOProject managedProject : managedByOfficer) {
+            if (managedProject.isApplicationWindowOpen()) {
+                throw new RuntimeException(
+                        "Officer is already managing another project that's currently open.");
             }
         }
 
@@ -464,5 +464,3 @@ public class BTOProjectManager {
                 .toList();
     }
 }
-
-    

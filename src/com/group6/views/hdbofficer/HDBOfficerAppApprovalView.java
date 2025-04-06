@@ -7,7 +7,6 @@ import com.group6.btoproject.BTOApplication;
 import com.group6.btoproject.BTOApplicationStatus;
 import com.group6.btoproject.BTOProject;
 import com.group6.btoproject.BTOProjectManager;
-import com.group6.users.HDBOfficer;
 import com.group6.users.User;
 import com.group6.views.AuthenticatedView;
 import com.group6.views.ViewContext;
@@ -15,17 +14,16 @@ import com.group6.views.View;
 
 public class HDBOfficerAppApprovalView implements AuthenticatedView{
     private ViewContext ctx;
-    private User user;
     private Scanner sc = ctx.getScanner();
+
     @Override
     public boolean isAuthorized(User user) {
-        return user instanceof HDBOfficer;
+        return user.getPermissions().canApproveApplications();
     }
 
     @Override
     public View render(ViewContext ctx, User user) {
         this.ctx = ctx;
-        this.user = user;
         return appApprovalView();
     }
 

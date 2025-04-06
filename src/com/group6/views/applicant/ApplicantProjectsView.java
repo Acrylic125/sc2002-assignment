@@ -129,7 +129,9 @@ public class ApplicantProjectsView implements PaginatedView, AuthenticatedView {
             System.out.println("Application period: " + BashColors.format(projectOpenWindowStr, isWindowOpen
                     ? BashColors.GREEN
                     : BashColors.RED));
-            System.out.println("Manager / Officers: " + managerName + " / " + officerNames);
+
+            String officerSlotsStr = officers.size() + " / " + project.getOfficerLimit();
+            System.out.println("Manager / Officers (" + officerSlotsStr + "): " + managerName + " / " + officerNames);
             if (user.getPermissions().canViewNonVisibleProjects()) {
                 boolean isVisibleToPublic = project.isVisibleToPublic();
                 System.out.println("Visible to public: " + BashColors.format(isVisibleToPublic ? "YES" : "NO",
@@ -157,29 +159,13 @@ public class ApplicantProjectsView implements PaginatedView, AuthenticatedView {
                 case "f":
                     return new ProjectsViewFiltersView();
                 case "n":
-                    if (!this.nextPage()) {
-                        System.out.println(BashColors.format("You are already on the last page.", BashColors.RED));
-                        System.out.println("Type anything to continue.");
-                        scanner.nextLine();
-                    }
+                    this.requestNextPage(scanner);
                     break;
                 case "p":
-                    if (!this.prevPage()) {
-                        System.out.println(BashColors.format("You are already on the first page.", BashColors.RED));
-                        System.out.println("Type anything to continue.");
-                        scanner.nextLine();
-                    }
+                    this.requestPrevPage(scanner);
                     break;
                 case "page":
-                    Optional<Integer> pageOpt = this.requestPage(scanner);
-                    if (pageOpt.isEmpty()) {
-                        break;
-                    }
-                    if (!this.page(pageOpt.get())) {
-                        System.out.println(BashColors.format("Invalid page number.", BashColors.RED));
-                        System.out.println("Type anything to continue.");
-                        scanner.nextLine();
-                    }
+                    this.requestPage(scanner);
                     break;
                 case "":
                     return null;

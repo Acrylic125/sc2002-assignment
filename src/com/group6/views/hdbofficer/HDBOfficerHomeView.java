@@ -2,9 +2,7 @@ package com.group6.views.hdbofficer;
 
 import java.util.Scanner;
 
-import com.group6.users.Applicant;
 import com.group6.users.User;
-import com.group6.users.HDBOfficer;
 import com.group6.views.AuthenticatedView;
 import com.group6.views.*;
 import com.group6.views.applicant.*;
@@ -14,7 +12,7 @@ public class HDBOfficerHomeView implements AuthenticatedView{
 
     @Override
     public boolean isAuthorized(User user) {
-        return user instanceof HDBOfficer;
+        return user.getPermissions().canManageProjects();
     }
 
     @Override

@@ -5,18 +5,16 @@ import java.util.Scanner;
 
 import com.group6.btoproject.BTOProject;
 import com.group6.btoproject.BTOProjectManager;
-import com.group6.users.Applicant;
 import com.group6.users.User;
-import com.group6.users.HDBOfficer;
 import com.group6.views.*;
-import com.group6.views.applicant.*;
 
 public class HDBOfficerManageView implements AuthenticatedView{
     private ViewContext ctx;
     private User user;
+
     @Override
     public boolean isAuthorized(User user) {
-        return user instanceof HDBOfficer;
+        return user.getPermissions().canManageProjects();
     }
 
     @Override
@@ -41,7 +39,7 @@ public class HDBOfficerManageView implements AuthenticatedView{
             String option = scanner.nextLine().trim();
             switch (option) {
                 case "1":
-                    return new HDBOfficerProjectsView();
+                    return new HDBOfficerRegisterProjectsView();
                 case "2":
                     displayOfficerRegistrations();
                     return null;

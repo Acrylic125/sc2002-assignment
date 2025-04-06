@@ -129,9 +129,8 @@ public class ApplicantViewMyApplicationsView implements PaginatedView, Authentic
             if (typeOpt.isEmpty()) {
                 System.out.println(
                         "No. of Units: (Unknown)");
-                System.out.println("  Type " + typeOpt.get().getId() + " does not exist in project.");
                 System.out.println("Price: (Unknown)");
-                System.out.println("  Type " + typeOpt.get().getId() + " does not exist in project.");
+                System.out.println(BashColors.format("  Type " + application.getTypeId().getName() + " does not exist in project.", BashColors.RED));
             } else {
                 BTOProjectType type = typeOpt.get();
                 System.out.println(
@@ -169,34 +168,18 @@ public class ApplicantViewMyApplicationsView implements PaginatedView, Authentic
                 case "f":
                     return new ApplicantViewMyApplicationsFilterView();
                 case "n":
-                    if (!this.nextPage()) {
-                        System.out.println("You are already on the last page.");
-                        System.out.println("Type anything to continue.");
-                        scanner.nextLine();
-                    }
+                    this.requestNextPage(scanner);
                     break;
                 case "p":
-                    if (!this.prevPage()) {
-                        System.out.println("You are already on the first page.");
-                        System.out.println("Type anything to continue.");
-                        scanner.nextLine();
-                    }
+                    this.requestPrevPage(scanner);
                     break;
                 case "page":
-                    Optional<Integer> pageOpt = this.requestPage(scanner);
-                    if (pageOpt.isEmpty()) {
-                        break;
-                    }
-                    if (!this.page(pageOpt.get())) {
-                        System.out.println("Invalid page number.");
-                        System.out.println("Type anything to continue.");
-                        scanner.nextLine();
-                    }
+                    this.requestPage(scanner);
                     break;
                 case "":
                     return null;
                 default:
-                    System.out.println("Invalid option.");
+                    System.out.println(BashColors.format("Invalid option.", BashColors.RED));
                     System.out.println("Type anything to continue.");
                     scanner.nextLine();
             }

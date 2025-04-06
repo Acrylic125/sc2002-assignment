@@ -11,7 +11,6 @@ import com.group6.views.ViewContext;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Scanner;
 
 public class ApplicantViewMyEnquiriesView implements PaginatedView, AuthenticatedView {
@@ -90,34 +89,18 @@ public class ApplicantViewMyEnquiriesView implements PaginatedView, Authenticate
                 case "e":
                     return new ApplicantProjectEnquiryView(true);
                 case "n":
-                    if (!this.nextPage()) {
-                        System.out.println("You are already on the last page.");
-                        System.out.println("Type anything to continue.");
-                        scanner.nextLine();
-                    }
+                    this.requestNextPage(scanner);
                     break;
                 case "p":
-                    if (!this.prevPage()) {
-                        System.out.println("You are already on the first page.");
-                        System.out.println("Type anything to continue.");
-                        scanner.nextLine();
-                    }
+                    this.requestPrevPage(scanner);
                     break;
                 case "page":
-                    Optional<Integer> pageOpt = this.requestPage(scanner);
-                    if (pageOpt.isEmpty()) {
-                        break;
-                    }
-                    if (!this.page(pageOpt.get())) {
-                        System.out.println("Invalid page number.");
-                        System.out.println("Type anything to continue.");
-                        scanner.nextLine();
-                    }
+                    this.requestPage(scanner);
                     break;
                 case "":
                     return null;
                 default:
-                    System.out.println("Invalid option.");
+                    System.out.println(BashColors.format("Invalid option.", BashColors.RED));
                     System.out.println("Type anything to continue.");
                     scanner.nextLine();
             }

@@ -3,8 +3,6 @@ package com.group6.tests;
 import com.group6.btoproject.*;
 import com.group6.utils.Utils;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.Date;
 import java.util.UUID;
 
@@ -244,11 +242,11 @@ public class BTOProjectTests {
                 "Checking if approved HDB officer registrants thats OUT OF THE APPLICATION WINDOW can have their other pending registrations approved (Successful):");
         projectManager.transitionOfficerRegistrationStatus(project2.getId(), userIds[2], HDBOfficerRegistrationStatus.SUCCESSFUL);
         System.out.println("  User 2 managed projects (Should show A and B):");
-        projectManager.getManagedProjects(userIds[2]).forEach((p) -> {
+        projectManager.getOfficerManagingProjects(userIds[2]).forEach((p) -> {
             System.out.println("    " + p.getName());
         });
         System.out.println("  User 4 managed projects (Should not show any):");
-        projectManager.getManagedProjects(userIds[4]).forEach((p) -> {
+        projectManager.getOfficerManagingProjects(userIds[4]).forEach((p) -> {
             System.out.println("    " + p.getName());
         });
         System.out.println("  Done!");

@@ -64,6 +64,11 @@ public class HDBOfficerHomeView implements AuthenticatedView{
                 }
             }
             System.out.println("");
+            if (!isRootView) {
+                System.out.println("Type the option (e.g. 1, 2, 3) you want to select or leave empty ('') to cancel.");
+            } else {
+                System.out.println("Type the option (e.g. 1, 2, 3) you want to select.");
+            }
 
             String _optionIndex = scanner.nextLine().trim();
             if (!isRootView && _optionIndex.isEmpty()) {

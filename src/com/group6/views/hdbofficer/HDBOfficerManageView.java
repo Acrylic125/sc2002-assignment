@@ -41,10 +41,7 @@ public class HDBOfficerManageView implements AuthenticatedView{
         if (userPermissions.canRegisterForProject()) {
             options.add(new ViewOption("Register to Manage Project", HDBOfficerRegisterProjectsView::new));
         }
-        options.add(new ViewOption("View All Registrations", () -> {
-            displayOfficerRegistrations();
-            return null;
-        }));
+        options.add(new ViewOption("View All Registrations", HDBOfficerViewRegistrationsView::new));
         options.add(new ViewOption("View Successful Applications (My managed projects) and Answer Enquiries", HDBOfficeRespondView::new));
         options.add(new ViewOption("Approve Applicant Applications", HDBOfficerAppApprovalView::new));
         if (isRootView) {
@@ -67,6 +64,11 @@ public class HDBOfficerManageView implements AuthenticatedView{
                 }
             }
             System.out.println("");
+            if (!isRootView) {
+                System.out.println("Type the option (e.g. 1, 2, 3) you want to select or leave empty ('') to cancel.");
+            } else {
+                System.out.println("Type the option (e.g. 1, 2, 3) you want to select.");
+            }
 
             String _optionIndex = scanner.nextLine().trim();
             if (!isRootView && _optionIndex.isEmpty()) {
@@ -82,25 +84,6 @@ public class HDBOfficerManageView implements AuthenticatedView{
             System.out.println(BashColors.format("Invalid option.", BashColors.RED));
             System.out.println("Type anything to continue.");
             scanner.nextLine();
-        }
-    }
-
-    private void displayOfficerRegistrations() {
-        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
-
-        // Get all projects where the officer has applied to register
-        List<BTOProject> officerRegistrations = projectManager.getOfficerRegistrations(user.getId());
-
-        if (officerRegistrations.isEmpty()) {
-            System.out.println("You have not applied to register as a managing officer for any projects.");
-        } else {
-            System.out.println("Projects you have applied to register as a managing officer:");
-            for (BTOProject project : officerRegistrations) {
-                System.out.println("- Project Name: " + project.getName());
-                System.out.println("  Project ID: " + project.getId());
-                System.out.println("- Current status: " + project.getActiveOfficerRegistration(user.getId()).map(registration -> registration.getStatus().toString()));
-                System.out.println("--------------------------------");
-            }
         }
     }
 

@@ -1,15 +1,6 @@
 package com.group6.btoproject;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Represents a central point to manage/access projects of a
@@ -280,7 +271,7 @@ public class BTOProjectManager {
                     "Project Applicants with approved bookings may not register to manage this project.");
         }
 
-        final List<BTOProject> managedByOfficer = this.getManagedProjects(userId);
+        final List<BTOProject> managedByOfficer = this.getOfficerManagingProjects(userId);
         for (BTOProject managedProject : managedByOfficer) {
             if (managedProject.isApplicationWindowOpen()) {
                 throw new RuntimeException(
@@ -341,7 +332,7 @@ public class BTOProjectManager {
             }
         }
 
-        final List<BTOProject> managedByOfficer = this.getManagedProjects(userId);
+        final List<BTOProject> managedByOfficer = this.getOfficerManagingProjects(userId);
         for (BTOProject managedProject : managedByOfficer) {
             if (managedProject.isApplicationWindowOpen()) {
                 throw new RuntimeException(
@@ -452,13 +443,35 @@ public class BTOProjectManager {
         }
     }
 
-    public List<BTOProject> getOfficerRegistrations(String officerUserId) {
+    public static class BTOFullOfficerRegistration {
+        private final BTOProject project;
+        private final HDBOfficerRegistration registration;
+
+        public BTOFullOfficerRegistration(BTOProject project, HDBOfficerRegistration registration) {
+            this.project = project;
+            this.registration = registration;
+        }
+
+        public BTOProject getProject() {
+            return project;
+        }
+
+        public HDBOfficerRegistration getRegistration() {
+            return registration;
+        }
+    }
+
+    public List<BTOFullOfficerRegistration> getAllOfficerRegistrations(String officerUserId) {
         return projects.values().stream()
-                .filter(project -> project.getActiveOfficerRegistration(officerUserId).isPresent())
+                .map(project -> {
+                    Optional<HDBOfficerRegistration> registrationOpt = project.getActiveOfficerRegistration(officerUserId);
+                    return registrationOpt.map(hdbOfficerRegistration -> new BTOFullOfficerRegistration(project, hdbOfficerRegistration)).orElse(null);
+                })
+                .filter(Objects::nonNull)
                 .toList();
     }
 
-    public List<BTOProject> getManagedProjects(String officerUserId) {
+    public List<BTOProject> getOfficerManagingProjects(String officerUserId) {
         return projects.values().stream()
                 .filter(project -> project.isManagingOfficer(officerUserId))
                 .toList();

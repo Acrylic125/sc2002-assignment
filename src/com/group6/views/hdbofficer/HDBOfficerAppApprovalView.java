@@ -12,7 +12,7 @@ import com.group6.views.AuthenticatedView;
 import com.group6.views.ViewContext;
 import com.group6.views.View;
 
-public class HDBOfficerAppApprovalView implements AuthenticatedView{
+public class HDBOfficerAppApprovalView implements AuthenticatedView {
     private ViewContext ctx;
     private Scanner sc = ctx.getScanner();
 

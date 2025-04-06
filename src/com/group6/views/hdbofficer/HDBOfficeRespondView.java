@@ -17,7 +17,7 @@ public class HDBOfficeRespondView implements AuthenticatedView{
     private final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
 
     // Get all projects managed by the officer
-    private List<BTOProject> managedProjects = projectManager.getManagedProjects(user.getId());
+    private List<BTOProject> managedProjects = projectManager.getOfficerManagingProjects(user.getId());
 
     @Override
     public boolean isAuthorized(User user) {
@@ -29,7 +29,6 @@ public class HDBOfficeRespondView implements AuthenticatedView{
         this.ctx = ctx;
         this.user = user;
 
-
         return respondView();
     }
 
@@ -37,7 +36,7 @@ public class HDBOfficeRespondView implements AuthenticatedView{
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
 
         // Get all projects managed by the officer
-        List<BTOProject> managedProjects = projectManager.getManagedProjects(user.getId());
+        List<BTOProject> managedProjects = projectManager.getOfficerManagingProjects(user.getId());
 
         if (managedProjects.isEmpty()) {
             System.out.println("You are not managing any projects.");
@@ -114,6 +113,6 @@ public class HDBOfficeRespondView implements AuthenticatedView{
             // Update the enquiry with the officer's response
             selectedEnquiry.setResponseMessage(responseMessage);
             System.out.println("Response submitted successfully!");
-                }
+        }
     }
 }

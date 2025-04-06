@@ -2,8 +2,9 @@ package com.group6;
 
 import com.group6.btoproject.*;
 import com.group6.users.*;
+import com.group6.utils.BashColors;
+import com.group6.views.MenuView;
 import com.group6.views.ViewContext;
-import com.group6.views.applicant.ApplicantHomeView;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -19,12 +20,26 @@ public class Main {
      * @param args CLI args
      */
     public static void main(String[] args) {
-        final BTOSystem btoSystem = new BTOSystem();
+        System.out.println("=========================");
+        System.out.println(
+                BashColors.format("IF YOU SEE LOADING ERRORS, MAKE SURE THE USER FILES EXIST WITHIN " + System.getProperty("user.dir"), BashColors.BOLD)
+        );
+        System.out.println("=========================");
+        System.out.println("");
+        final UserStorage userStorage = new UserStorage(
+                "applicants.txt",
+                "officers.txt",
+                "managers.txt"
+        );
+        final BTOProjectManager projectManager = new BTOProjectManager();
+        final UserManager userManager = new UserManager(userStorage);
+        userManager.setUsers(userStorage.loadAllUsers());
+        final BTOSystem btoSystem = new BTOSystem(projectManager, userManager);
 
         loadDefaults(btoSystem);
 
         final ViewContext ctx = new ViewContext(btoSystem, new Scanner(System.in));
-        User user = btoSystem.getUsers().getUser("abc123").get();
+        User user = btoSystem.getUsers().getUser("d608792e-9778-4708-a813-c1cf7127546d").get();
         BTOProject project = btoSystem.getProjects().getProject("hello world").get();
         BTOEnquiry enquiry = BTOEnquiry.create(
                 new BTOEnquiryMessage(user.getId(), "Hello world!"),
@@ -33,11 +48,10 @@ public class Main {
         project.addEnquiry(
                 enquiry
         );
+        ctx.startFromView(new MenuView());
 
-        ctx.setUser(user);
-        ctx.startFromView(new ApplicantHomeView());
-
-        System.out.println("App closed!");
+        // Save on close
+        userStorage.saveAllUsers(userManager.getUsers());
     }
 
     // TEMPORARY! We can conaider loading from file in the futuer.
@@ -45,75 +59,9 @@ public class Main {
         final UserManager userManager = btoSystem.getUsers();
         final BTOProjectManager btoProjectManager = btoSystem.getProjects();
 
-        // Adding John
-        Applicant john = new Applicant(UUID.randomUUID().toString(), "S1234567A", "password");
-        john.setName("John");
-        john.setAge(35);
-        john.setMartialStatus(UserMartialStatus.SINGLE);
-        userManager.addUser(john);
-
-        // Adding Sarah
-        Applicant sarah = new Applicant(UUID.randomUUID().toString(), "T7654321B", "password");
-        sarah.setName("Sarah");
-        sarah.setAge(40);
-        sarah.setMartialStatus(UserMartialStatus.MARRIED);
-        userManager.addUser(sarah);
-
-        // Adding Grace
-        Applicant grace = new Applicant(UUID.randomUUID().toString(), "S9876543C", "password");
-        grace.setName("Grace");
-        grace.setAge(37);
-        grace.setMartialStatus(UserMartialStatus.MARRIED);
-        userManager.addUser(grace);
-
-        // Adding James
-        Applicant james = new Applicant(UUID.randomUUID().toString(), "T2345678D", "password");
-        james.setName("James");
-        james.setAge(30);
-        james.setMartialStatus(UserMartialStatus.MARRIED);
-        userManager.addUser(james);
-
-        // Adding Rachel
-        Applicant rachel = new Applicant(UUID.randomUUID().toString(), "S3456789E", "password");
-        rachel.setName("Rachel");
-        rachel.setAge(25);
-        rachel.setMartialStatus(UserMartialStatus.SINGLE);
-        userManager.addUser(rachel);
-
-        // Adding Daniel
-        HDBOfficer daniel = new HDBOfficer("abc123", "T2109876H", "password");
-        daniel.setName("Daniel");
-        daniel.setAge(36);
-        daniel.setMartialStatus(UserMartialStatus.SINGLE);
-        userManager.addUser(daniel);
-
-        // Adding Emily
-        HDBOfficer emily = new HDBOfficer(UUID.randomUUID().toString(), "S6543210I", "password");
-        emily.setName("Emily");
-        emily.setAge(28);
-        emily.setMartialStatus(UserMartialStatus.SINGLE);
-        userManager.addUser(emily);
-
-        // Adding David
-        HDBOfficer david = new HDBOfficer(UUID.randomUUID().toString(), "T1234567J", "password");
-        david.setName("David");
-        david.setAge(29);
-        david.setMartialStatus(UserMartialStatus.MARRIED);
-        userManager.addUser(david);
-
-        // Adding Michael
-        HDBManager michael = new HDBManager(UUID.randomUUID().toString(), "T8765432F", "password");
-        michael.setName("Michael");
-        michael.setAge(36);
-        michael.setMartialStatus(UserMartialStatus.SINGLE);
-        userManager.addUser(michael);
-
-        // Adding Jessica
-        HDBManager jessica = new HDBManager(UUID.randomUUID().toString(), "S5678901G", "password");
-        jessica.setName("Jessica");
-        jessica.setAge(26);
-        jessica.setMartialStatus(UserMartialStatus.MARRIED);
-        userManager.addUser(jessica);
+        User jessica = userManager.getUser("73cc8ce3-60f0-4d0b-9d2e-a91fecf91ded").get();
+        User daniel = userManager.getUser("b4b3f882-2f6a-44d5-9472-2b8c21568524").get();
+        User emily = userManager.getUser("c72a0ad1-a32a-466a-b6c6-5c9fe535a8f3").get();
 
         // Adding Project 1
         BTOProject acaciaBreezeYishun = new BTOProject("hello world", jessica.getId());

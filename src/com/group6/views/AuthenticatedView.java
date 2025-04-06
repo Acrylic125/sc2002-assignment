@@ -1,6 +1,5 @@
 package com.group6.views;
 
-import com.group6.users.HDBManager;
 import com.group6.users.User;
 
 import java.util.Optional;

@@ -10,8 +10,13 @@ import com.group6.users.UserManager;
  */
 public class BTOSystem {
 
-    private final BTOProjectManager projects = new BTOProjectManager();
-    private final UserManager users = new UserManager();
+    private final BTOProjectManager projects;
+    private final UserManager users;
+
+    public BTOSystem(BTOProjectManager projects, UserManager users) {
+        this.projects = projects;
+        this.users = users;
+    }
 
     /**
      * Project manager getter.

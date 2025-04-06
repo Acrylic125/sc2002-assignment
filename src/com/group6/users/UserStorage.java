@@ -1,5 +1,11 @@
+package com.group6.users;
+
+import com.group6.utils.BashColors;
+
 import java.io.*;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 /**
@@ -54,49 +60,35 @@ public class UserStorage {
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",");
 
-                if (parts.length != 5) {
-                    System.out.printf("⚠️ Skipping malformed line %d in %s: Incorrect number of fields%n", lineNumber, filename);
+                if (parts.length != 6) {
+                    System.out.println(BashColors.format("⚠️ Skipping malformed line " + lineNumber + " in " + filename + ": Invalid data", BashColors.YELLOW));
                     lineNumber++;
                     continue;
                 }
 
                 try {
-                    String name = parts[0].trim();
-                    String nric = parts[1].trim();
-                    int age = Integer.parseInt(parts[2].trim());
-                    UserMaritalStatus maritalStatus = UserMaritalStatus.valueOf(parts[3].trim().toUpperCase());
-                    String password = parts[4].trim();
+                    String id = parts[0].trim();
+                    String name = parts[1].trim();
+                    String nric = parts[2].trim();
+                    int age = Integer.parseInt(parts[3].trim());
+                    UserMaritalStatus maritalStatus = UserMaritalStatus.valueOf(parts[4].trim().toUpperCase());
+                    String password = parts[5].trim();
 
-                    User user = createUserByRole(name, nric, age, maritalStatus, password, role);
-                    users.put(nric, user);
+                    User user = new RoleBasedUser(
+                            role, id, name, nric, age, maritalStatus, password
+                    );
+                    users.put(id, user);
                 } catch (IllegalArgumentException e) {
-                    System.out.printf("⚠️ Skipping line %d in %s: Invalid data - %s%n", lineNumber, filename, e.getMessage());
+                    System.out.println(BashColors.format("⚠️ Skipping line " + lineNumber + " in " + filename + ": Invalid data", BashColors.YELLOW));
+                    System.out.println(BashColors.format("  " + e.getMessage(), BashColors.YELLOW));
                 }
 
                 lineNumber++;
             }
         } catch (IOException e) {
-            System.out.println("❌ Error reading from file: " + filename);
+            System.out.println(BashColors.format("❌ Error reading from file: " + filename, BashColors.RED));
+            System.out.println(BashColors.format("  " + e.getMessage(), BashColors.RED));
         }
-    }
-
-    /**
-     * Creates a User object based on the given role and attributes.
-     *
-     * @param name          Name of the user.
-     * @param nric          NRIC of the user.
-     * @param age           Age of the user.
-     * @param maritalStatus Marital status as an enum.
-     * @param password      Password of the user.
-     * @param role          User role (APPLICANT, OFFICER, MANAGER).
-     * @return Corresponding User object.
-     */
-    private static User createUserByRole(String name, String nric, int age, UserMaritalStatus maritalStatus, String password, UserRole role) {
-        return switch (role) {
-            case APPLICANT -> new Applicant(name, nric, age, maritalStatus, password);
-            case OFFICER -> new HDBOfficer(name, nric, age, maritalStatus, password);
-            case MANAGER -> new HDBManager(name, nric, age, maritalStatus, password);
-        };
     }
 
     /**
@@ -105,9 +97,27 @@ public class UserStorage {
      * @param users The map of users to be saved, keyed by NRIC.
      */
     public void saveAllUsers(Map<String, User> users) {
-        saveUsersToFile(users, applicantsFilepath, UserRole.APPLICANT);
-        saveUsersToFile(users, officersFilepath, UserRole.OFFICER);
-        saveUsersToFile(users, managersFilepath, UserRole.MANAGER);
+        Map<UserRole, Collection<User>> userRoleUsersMap = new HashMap<>();
+        users.forEach(((_, _user) -> {
+            if (!(_user instanceof RoleBasedUser)) {
+                System.out.println(BashColors.format("⚠️ Skipping user, " + _user.getId() + ". Unhandled user type for saving.", BashColors.YELLOW));
+                return;
+            }
+            RoleBasedUser user = (RoleBasedUser) _user;
+            Collection<User> usersFromRole = userRoleUsersMap.computeIfAbsent(user.getRole(), k -> new LinkedList<>());
+            usersFromRole.add(user); // Add by reference, no need to add back to map.
+        }));
+
+        userRoleUsersMap.forEach(((userRole, _users) ->
+                saveUsersToFile(_users, getFilenameForROle(userRole))));
+    }
+
+    private String getFilenameForROle(UserRole userRole) {
+        return switch (userRole) {
+            case APPLICANT -> applicantsFilepath;
+            case OFFICER -> officersFilepath;
+            case MANAGER -> managersFilepath;
+        };
     }
 
     /**
@@ -115,38 +125,43 @@ public class UserStorage {
      *
      * @param users    The map of users to be saved.
      * @param filename The file where the user data should be stored.
-     * @param role     The role of the users being saved (Applicant, Officer, or Manager).
      */
-    private void saveUsersToFile(Map<String, User> users, String filename, UserRole role) {
+    private void saveUsersToFile(Collection<User> users, String filename) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename, false))) {
-            for (User user : users.values()) {
-                if (user.getRole().equals(role)) {
-                    writer.write(user.toFileString());
-                    writer.newLine();
-                }
+            for (User user : users) {
+                writer.write(toFileString(user));
+                writer.newLine();
             }
         } catch (IOException e) {
-            System.out.println("❌ Error writing to file: " + filename);
+            System.out.println(BashColors.format("❌ Error writing to file: " + filename, BashColors.RED));
         }
+    }
+
+    private String toFileString(User user) {
+        return user.getId() + "," + user.getName() + "," + user.getNric() + "," + user.getAge() + "," + user.getMaritalStatus().toString() + "," + user.getPassword();
     }
 
     /**
      * Saves a single user to the appropriate role-specific file.
      *
-     * @param user The user to save.
+     * @param _user The user to save.
      */
-    public void saveUser(User user) {
-        String filename = switch (user.getRole()) {
-            case APPLICANT -> applicantsFilepath;
-            case OFFICER -> officersFilepath;
-            case MANAGER -> managersFilepath;
-        };
+    public void saveUser(User _user) {
+        if (_user == null) {
+            return;
+        }
+        if (!(_user instanceof RoleBasedUser)) {
+            System.out.println(BashColors.format("⚠️ Skipping user, " + _user.getId() + ". Unhandled user type for saving.", BashColors.YELLOW));
+            return;
+        }
+        RoleBasedUser user = (RoleBasedUser) _user;
+        String filename = getFilenameForROle(user.getRole());
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename, true))) {
-            writer.write(user.toFileString());
+            writer.write(toFileString(user));
             writer.newLine();
         } catch (IOException e) {
-            System.out.println("❌ Error writing to file: " + filename);
+            System.out.println(BashColors.format("❌ Error writing to file: " + filename, BashColors.RED));
         }
     }
 }

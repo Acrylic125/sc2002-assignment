@@ -4,8 +4,6 @@ import java.util.*;
 
 import com.group6.BTOSystem;
 import com.group6.btoproject.BTOProjectTypeID;
-import com.group6.users.HDBManager;
-import com.group6.users.HDBOfficer;
 import com.group6.users.User;
 import com.group6.utils.BashColors;
 import com.group6.views.AuthenticatedView;
@@ -93,7 +91,7 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
             String sortTypeValue = stringifySortName(filters.getSortByName());
             String showOnlyManagedProjectsValue = stringifyShowOnlyManagedProjects(filters.isOnlyShowManagedProjects());
 
-            boolean canFilterByManagedProjects = user instanceof HDBOfficer || user instanceof HDBManager;
+            boolean canFilterByManagedProjects = user.getPermissions().canManageProjects();
 
             System.out.println(BashColors.format("Filters", BashColors.BOLD));
             System.out.println("ID | Filter | Value");

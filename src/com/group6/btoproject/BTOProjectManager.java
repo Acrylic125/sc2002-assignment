@@ -1,8 +1,5 @@
 package com.group6.btoproject;
 
-import com.group6.users.Applicant;
-import com.group6.users.User;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;

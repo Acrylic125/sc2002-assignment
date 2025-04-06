@@ -2,8 +2,6 @@ package com.group6.views.applicant;
 
 import com.group6.btoproject.BTOProject;
 import com.group6.btoproject.BTOProjectManager;
-import com.group6.users.HDBManager;
-import com.group6.users.HDBOfficer;
 import com.group6.users.User;
 import com.group6.utils.BashColors;
 import com.group6.views.AuthenticatedView;
@@ -50,9 +48,7 @@ public class ApplicantViewMyEnquiriesView implements PaginatedView, Authenticate
         this.projects = new ArrayList<>(
                 projectManager.getProjects().values().stream()
                         .filter((project) -> {
-                            if (!(project.isVisibleToPublic()
-                                    || user instanceof HDBOfficer
-                                    || user instanceof HDBManager)) {
+                            if (!(project.isVisibleToPublic() || user.getPermissions().canViewNonVisibleProjects())) {
                                 return false;
                             }
                             return project.getEnquiries()

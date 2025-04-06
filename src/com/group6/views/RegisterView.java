@@ -1,3 +1,12 @@
+package com.group6.views;
+
+import com.group6.users.*;
+import com.group6.utils.BashColors;
+import com.group6.utils.TryCatchResult;
+import com.group6.utils.Utils;
+import com.group6.utils.ValidateUtils;
+
+import java.util.Optional;
 import java.util.Scanner;
 import java.util.UUID;
 
@@ -5,19 +14,8 @@ import java.util.UUID;
  * Handles the user registration process for Applicants, Officers, and Managers.
  */
 public class RegisterView implements View {
-    private final Scanner scanner;
-    private final UserManager userManager;
 
-    /**
-     * Constructs a RegisterView with the specified scanner and userManager.
-     *
-     * @param scanner The scanner used for reading user input.
-     * @param userManager The UserManager responsible for handling user data and registration.
-     */
-    public RegisterView(Scanner scanner, UserManager userManager) {
-        this.scanner = scanner;
-        this.userManager = userManager;
-    }
+    private ViewContext ctx;
 
     /**
      * Runs the registration process, prompting the user for necessary details and creating the user.
@@ -26,72 +24,134 @@ public class RegisterView implements View {
      *
      * @return A MenuView instance, which represents the main menu after registration.
      */
-    public View run() {
-        System.out.println("\n--- User Registration ---");
+    @Override
+    public View render(ViewContext ctx) {
+        this.ctx = ctx;
+
+        final UserManager userManager = ctx.getBtoSystem().getUsers();
+        System.out.println(BashColors.format("User Registration", BashColors.BOLD));
 
         // 1. Choose role
         UserRole role = UserRole.APPLICANT;
 
         // 2. Common inputs
-        String name = prompt("Enter full name: ");
-
-        String nric;
-        while (true) {
-            nric = prompt("Enter NRIC (e.g. S1234567A): ").toUpperCase();
-            if (!validateUtils.isValidNRIC(nric)) {
-                System.out.println("❌ Invalid NRIC format.");
-            } else if (userManager.getUserByNRIC(nric).isPresent()) {
-                System.out.println("❌ NRIC already registered.");
-            } else {
-                break;
-            }
+        Optional<String> nameOpt = requestName();
+        if (nameOpt.isEmpty()) {
+            return null;
         }
 
-        int age;
-        while (true) {
-            try {
-                age = Integer.parseInt(prompt("Enter age: "));
-                if (age < 18) {
-                    System.out.println("❌ Age must be 18 or above.");
-                } else {
-                    break;
-                }
-            } catch (NumberFormatException e) {
-                System.out.println("❌ Please enter a valid number.");
-            }
+        Optional<String> nricOpt = requestNric();
+        if (nricOpt.isEmpty()) {
+            return null;
         }
 
-        UserMaritalStatus maritalStatus;
-        while (true) {
-            System.out.print("Enter marital status (Single/Married): ");
-            String statusInput = scanner.nextLine().trim().toUpperCase();
-            if (statusInput.equals("SINGLE")) {
-                maritalStatus = UserMaritalStatus.SINGLE;
-                break;
-            } else if (statusInput.equals("MARRIED")) {
-                maritalStatus = UserMaritalStatus.MARRIED;
-                break;
-            } else {
-                System.out.println("❌ Invalid input. Please enter 'Single' or 'Married'.");
-            }
+        Optional<UserMaritalStatus> maritalStatusOpt = requestMaritalStatus();
+        if (maritalStatusOpt.isEmpty()) {
+            return null;
         }
 
-        String password = prompt("Create password: ");
-        String userId = UUID.randomUUID().toString();
+        Optional<Integer> ageOpt = requestAge();
+        if (ageOpt.isEmpty()) {
+            return null;
+        }
 
-        // 3. Create appropriate user
-        User newUser = new Applicant(userId, nric, age, maritalStatus, password);
+        Optional<String> passwordOpt = requestPassword();
+        if (passwordOpt.isEmpty()) {
+            return null;
+        }
 
-        // 4. Save
-        userManager.registerUser(newUser);
+        User user = new RoleBasedUser(
+                role, UUID.randomUUID().toString(), nameOpt.get(), nricOpt.get(), ageOpt.get(), maritalStatusOpt.get(), passwordOpt.get()
+        );
+        userManager.registerUser(user);
+        System.out.println(BashColors.format("✅ Registration successful as applicant! You can now log in.", BashColors.GREEN));
 
-        System.out.println("✅ Registration successful as applicant! You can now log in.");
-        return new MenuView(scanner, userManager);
+        return null;
     }
 
+    private Optional<String> requestName() {
+        final Scanner scanner = ctx.getScanner();
+        System.out.println(BashColors.format("Type in your account name or leave empty ('') to cancel.", BashColors.BOLD));
 
-    private String prompt(String message) {
-        System.out.print(message);
-        return scanner.nextLine().trim();
+        String value = scanner.nextLine().trim();
+        if (value.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(value);
     }
+
+    private Optional<String> requestNric() {
+        final Scanner scanner = ctx.getScanner();
+        final UserManager userManager = ctx.getBtoSystem().getUsers();
+        while (true) {
+            System.out.println(BashColors.format("Type in your NRIC (e.g. S1234567A) or leave empty ('') to cancel.", BashColors.BOLD));
+
+            String value = scanner.nextLine().trim();
+            if (value.isEmpty()) {
+                return Optional.empty();
+            }
+
+            if (!ValidateUtils.isValidNRIC(value)) {
+                System.out.println(BashColors.format("Invalid NRIC. Format must start with S or T then 7 digits, and ending with a capital letter.", BashColors.RED));
+                System.out.println("Type anything to continue.");
+                scanner.nextLine();
+                continue;
+            }
+            if (userManager.getUserByNRIC(value).isPresent()) {
+                System.out.println(BashColors.format("Invalid NRIC. User with the same NRIC is already registered.", BashColors.RED));
+                System.out.println("Type anything to continue.");
+                scanner.nextLine();
+                continue;
+            }
+
+            return Optional.of(value);
+        }
+    }
+
+    private Optional<UserMaritalStatus> requestMaritalStatus() {
+        final Scanner scanner = ctx.getScanner();
+        while (true) {
+            System.out.println(BashColors.format("Type in your marital status (SINGLE or MARRIED) or leave empty ('') to cancel.", BashColors.BOLD));
+
+            String value = scanner.nextLine().trim().toUpperCase();
+            if (value.equals("SINGLE")) {
+                return Optional.of(UserMaritalStatus.SINGLE);
+            }
+            if (value.equals("MARRIED")) {
+                return Optional.of(UserMaritalStatus.MARRIED);
+            }
+            System.out.println(BashColors.format("Invalid Marital status. Marital status must be either 'SINGLE' or 'MARRIED'.", BashColors.RED));
+            System.out.println("Type anything to continue.");
+            scanner.nextLine();
+        }
+    }
+
+    private Optional<Integer> requestAge() {
+        final Scanner scanner = ctx.getScanner();
+        while (true) {
+            System.out.println(BashColors.format("Type in your age or leave empty ('') to cancel.", BashColors.BOLD));
+
+            String value = scanner.nextLine().trim().toUpperCase();
+            TryCatchResult<Integer, Throwable> result = Utils.tryCatch(() -> Integer.parseInt(value));
+            if (result.getErr().isPresent()) {
+                System.out.println(BashColors.format("Invalid age. Age must be an integer.", BashColors.RED));
+                System.out.println("Type anything to continue.");
+                scanner.nextLine();
+                continue;
+            }
+            return result.getData();
+        }
+    }
+
+    private Optional<String> requestPassword() {
+        final Scanner scanner = ctx.getScanner();
+        System.out.println(BashColors.format("Type in your password or leave empty ('') to cancel.", BashColors.BOLD));
+
+        String value = scanner.nextLine().trim();
+        if (value.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(value);
+    }
+
 }

@@ -1,3 +1,6 @@
+package com.group6.users;
+
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -9,7 +12,7 @@ import java.util.Optional;
  * </p>
  */
 public class UserManager {
-    private final Map<String, User> users;
+    private Map<String, User> users = new HashMap<>();
     private final UserStorage userStorage; // Inject UserStorage instance
 
     /**
@@ -22,7 +25,10 @@ public class UserManager {
      */
     public UserManager(UserStorage userStorage) {
         this.userStorage = userStorage;
-        this.users = userStorage.loadAllUsers(); // Load users from files
+    }
+
+    public void setUsers(Map<String, User> users) {
+        this.users = users;
     }
 
     /**
@@ -35,6 +41,16 @@ public class UserManager {
     }
 
     /**
+     * Get a user by id.
+     *
+     * @param id id of the project.
+     * @return user with the id.
+     */
+    public Optional<User> getUser(String id) {
+        return Optional.ofNullable(users.get(id));
+    }
+
+    /**
      * Finds a user by NRIC.
      * <p>
      * This method searches for a user based on their unique NRIC identifier.
@@ -44,7 +60,9 @@ public class UserManager {
      * @return An {@code Optional<User>} containing the user if found, or empty otherwise.
      */
     public Optional<User> getUserByNRIC(String nric) {
-        return Optional.ofNullable(users.get(nric));
+        return users.values().stream()
+                .filter((user) -> user.getNric().equals(nric))
+                .findFirst();
     }
 
     /**
@@ -74,7 +92,7 @@ public class UserManager {
         if (users.containsKey(user.getNric())) {
             return false; // NRIC already exists
         }
-        users.put(user.getNric(), user);
+        users.put(user.getId(), user);
         userStorage.saveUser(user);
         return true;
     }

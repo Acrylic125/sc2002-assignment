@@ -1,3 +1,12 @@
+package com.group6.views;
+
+import com.group6.users.User;
+import com.group6.users.UserAuthenticator;
+import com.group6.users.UserManager;
+import com.group6.utils.BashColors;
+import com.group6.utils.ValidateUtils;
+
+import java.util.Optional;
 import java.util.Scanner;
 
 /**
@@ -7,11 +16,7 @@ import java.util.Scanner;
  */
 public class LoginView implements View {
     private static final int MAX_ATTEMPTS = 3;
-    private final UserAuthenticator authenticator;
-
-    public LoginView(UserAuthenticator authenticator) {
-        this.authenticator = authenticator;
-    }
+    private ViewContext ctx;
 
     /**
      * Renders the login interface, allowing users to enter their credentials.
@@ -21,52 +26,79 @@ public class LoginView implements View {
      */
     @Override
     public View render(ViewContext ctx) {
+        this.ctx = ctx;
+
         Scanner scanner = ctx.getScanner();
-        System.out.println("\n--- User Login ---");
+        System.out.println(BashColors.format("User Login", BashColors.BOLD));
+
+        final UserAuthenticator userAuthenticator = new UserAuthenticator(ctx.getBtoSystem().getUsers());
+
         int attempts = 0;
 
         while (attempts < MAX_ATTEMPTS) {
-            System.out.print("Enter NRIC: ");
-            String nric = scanner.nextLine().toUpperCase();
-
-            if (!validateUtils.isValidNRIC(nric)) {
-                System.out.println("❌ Invalid NRIC format.");
-                attempts++;
-                continue;
+            Optional<String> nricOpt = requestNric();
+            if (nricOpt.isEmpty()) {
+                return null;
             }
 
-            System.out.print("Enter password: ");
-            String password = scanner.nextLine();
+            Optional<String> passwordOpt = requestPassword();
+            if (passwordOpt.isEmpty()) {
+                return null;
+            }
 
-            User user = authenticator.authenticate(nric, password);
+            User user = userAuthenticator.authenticate(nricOpt.get(), passwordOpt.get());
             if (user != null) {
+                ctx.setUser(user);
                 System.out.println("✅ Login successful!");
-                return getHomeView(user);
+                return new RoleBasedHomeView();
             }
 
             attempts++;
-            System.out.println("❌ Incorrect NRIC or password. Attempts left: " + (MAX_ATTEMPTS - attempts));
+            int left = MAX_ATTEMPTS - attempts;
+            if (left <= 0) {
+                break;
+            }
+            System.out.println(BashColors.format("❌ Incorrect NRIC or password. Attempts left: " + left, BashColors.RED));
+            System.out.println("Type anything to continue.");
+            scanner.nextLine();
         }
 
-        System.out.println("🚫 Too many failed attempts. Returning to main menu.");
-        return new MenuView(ctx.getScanner(), authenticator.getUserManager());
+        System.out.println(BashColors.format("🚫 Too many failed attempts. Cancelling...", BashColors.RED));
+        System.out.println("Type anything to continue.");
+        scanner.nextLine();
+        return null;
     }
 
-    /**
-     * Determines and returns the appropriate home view based on user role.
-     *
-     * @param user The logged-in user.
-     * @return A role-specific home view or the main menu as fallback.
-     */
-    private View getHomeView(User user) {
-        return switch (user.getRole()) {
-            case "Applicant" -> new ApplicantHomeView(user);
-            case "Officer" -> new OfficerHomeView(user);
-            case "Manager" -> new ManagerHomeView(user);
-            default -> {
-                System.out.println("⚠ Unknown user role. Returning to main menu.");
-                yield new MenuView(new Scanner(System.in), authenticator.getUserManager());
+    private Optional<String> requestNric() {
+        final Scanner scanner = ctx.getScanner();
+        while (true) {
+            System.out.println(BashColors.format("Type in your NRIC (e.g. S1234567A) or leave empty ('') to cancel.", BashColors.BOLD));
+
+            String value = scanner.nextLine().trim();
+            if (value.isEmpty()) {
+                return Optional.empty();
             }
-        };
+
+            if (!ValidateUtils.isValidNRIC(value)) {
+                System.out.println(BashColors.format("Invalid NRIC. Format must start with S or T then 7 digits, and ending with a capital letter.", BashColors.RED));
+                System.out.println("Type anything to continue.");
+                scanner.nextLine();
+                continue;
+            }
+
+            return Optional.of(value);
+        }
     }
+
+    private Optional<String> requestPassword() {
+        final Scanner scanner = ctx.getScanner();
+        System.out.println(BashColors.format("Type in your password or leave empty ('') to cancel.", BashColors.BOLD));
+
+        String value = scanner.nextLine().trim();
+        if (value.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(value);
+    }
+
 }

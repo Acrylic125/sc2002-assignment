@@ -1,20 +1,16 @@
-package com.group6.views.applicant;
+package com.group6.views;
 
 import com.group6.users.User;
 import com.group6.utils.BashColors;
-import com.group6.views.AuthenticatedView;
-import com.group6.views.View;
-import com.group6.views.ViewContext;
+import com.group6.views.applicant.ApplicantProjectsView;
+import com.group6.views.applicant.ApplicantViewMyApplicationsView;
+import com.group6.views.applicant.ApplicantViewMyEnquiriesView;
 
 import java.util.Scanner;
 
-public class ApplicantHomeView implements AuthenticatedView {
-    private ViewContext ctx;
+public class RoleBasedHomeView implements AuthenticatedView {
 
-//    @Override
-//    public boolean isAuthorized(User user) {
-//        return user instanceof Applicant;
-//    }
+    private ViewContext ctx;
 
     @Override
     public View render(ViewContext ctx, User user) {
@@ -51,5 +47,4 @@ public class ApplicantHomeView implements AuthenticatedView {
             }
         }
     }
-
 }

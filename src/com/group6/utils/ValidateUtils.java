@@ -32,6 +32,6 @@ public class ValidateUtils {
     * @return {@code true} if NRIC is valid.
     */
     public static boolean isValidNRIC(String nric){
-        return nric_pattern.matcher(nric).matches();
+        return NRIC_PATTERN.matcher(nric).matches();
     }
 }

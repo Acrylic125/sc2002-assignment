@@ -1,9 +1,11 @@
+package com.group6.users;
+
 /**
  * Handles the authentication process for users by validating their NRIC and password.
  * It interacts with the UserManager to verify login credentials and retrieve user data.
  */
 public class UserAuthenticator {
-    private UserManager userManager;
+    private final UserManager userManager;
 
     /**
      * Constructs a UserAuthenticator with the given UserManager.
@@ -19,7 +21,9 @@ public class UserAuthenticator {
      *
      * @return The UserManager instance that this authenticator uses.
      */
-    public UserManager getUserManager(){return userManager;}
+    public UserManager getUserManager() {
+        return userManager;
+    }
 
     /**
      * Authenticates a user by checking their NRIC and password.

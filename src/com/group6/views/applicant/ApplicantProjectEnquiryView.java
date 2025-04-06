@@ -9,8 +9,6 @@ import com.group6.btoproject.BTOEnquiry;
 import com.group6.btoproject.BTOEnquiryMessage;
 import com.group6.btoproject.BTOProject;
 import com.group6.btoproject.BTOProjectManager;
-import com.group6.users.HDBManager;
-import com.group6.users.HDBOfficer;
 import com.group6.users.User;
 import com.group6.users.UserManager;
 import com.group6.utils.BashColors;
@@ -105,9 +103,9 @@ public class ApplicantProjectEnquiryView implements PaginatedView, Authenticated
         System.out.println("Enquiry ID | Message | Response");
         List<BTOEnquiry> enquiries = project.getEnquiries().stream()
                 .filter((enquiry) -> {
-                    if (!filterUserEnquiries && (user instanceof HDBOfficer || user instanceof HDBManager)) {
-                        return true;
-                    }
+//                    if (!filterUserEnquiries && (user instanceof HDBOfficer || user instanceof HDBManager)) {
+//                        return true;
+//                    }
                     return enquiry.getSenderMessage().getSenderUserId().equals(user.getId());
                 })
                 .toList();
@@ -142,7 +140,7 @@ public class ApplicantProjectEnquiryView implements PaginatedView, Authenticated
             System.out.println(
                     "Page " + page + " / " + getLastPage() +
                             " - Type 'v' to view, 'a' to add, 'd' to delete, 'e' to edit, 'n' to go to next page, 'p' to go to  previous page, 'page' to go to a specific page, or leave empty ('') to go back:  ");
-            String opt = scanner.nextLine();
+            String opt = scanner.nextLine().trim();
             switch (opt) {
                 case "v":
                     showViewEnquiry();
@@ -214,7 +212,8 @@ public class ApplicantProjectEnquiryView implements PaginatedView, Authenticated
             }
             enquiry = enquiryOpt.get();
             if (!enquiry.getSenderMessage().getSenderUserId().equals(user.getId())
-                    || !(!filterUserEnquiries && (user instanceof HDBOfficer || user instanceof HDBManager))) {
+//                    || !(!filterUserEnquiries && (user instanceof HDBOfficer || user instanceof HDBManager))
+            ) {
                 System.out.println(BashColors.format(
                         "You are not the sender of this enquiry, you may not view it. Please type in a valid id.",
                         BashColors.RED));

@@ -7,8 +7,6 @@ import java.util.Optional;
 import java.util.Scanner;
 
 import com.group6.btoproject.*;
-import com.group6.users.Applicant;
-import com.group6.users.HDBOfficer;
 import com.group6.users.User;
 import com.group6.utils.BashColors;
 import com.group6.utils.Utils;
@@ -22,7 +20,7 @@ public class ApplicantApplyProjectView implements AuthenticatedView {
 
     @Override
     public boolean isAuthorized(User user) {
-        return user instanceof Applicant;
+        return user.getPermissions().canApply();
     }
 
     @Override
@@ -112,7 +110,7 @@ public class ApplicantApplyProjectView implements AuthenticatedView {
                 continue;
             }
 
-            if (user instanceof HDBOfficer) {
+            if (user.getPermissions().canRegisterForProject()) {
                 final Optional<HDBOfficerRegistration> reg = project.getActiveOfficerRegistration(user.getId());
                 if (reg.isPresent()) {
                     HDBOfficerRegistration officerReg = reg.get();
@@ -141,11 +139,6 @@ public class ApplicantApplyProjectView implements AuthenticatedView {
 
     private Optional<BTOProjectTypeID> showRequestProjectType(BTOProject project) {
         final Scanner scanner = ctx.getScanner();
-        if (!(this.user instanceof Applicant)) {
-            System.out.println("You are not an applicant.");
-            return Optional.empty();
-        }
-        Applicant user = (Applicant) this.user;
 
         while (true) {
             final List<BTOProjectType> types = new ArrayList<>(project.getProjectTypes());
@@ -196,7 +189,7 @@ public class ApplicantApplyProjectView implements AuthenticatedView {
                 }
 
                 System.out
-                        .println("Type the type (e.g. '" + types.get(0).getId().getName()
+                        .println("Type the type (e.g. '" + types.getFirst().getId().getName()
                                 + "') or leave empty ('') to cancel:");
                 final String typeId = scanner.nextLine().trim().toLowerCase();
                 if (typeId.isEmpty()) {

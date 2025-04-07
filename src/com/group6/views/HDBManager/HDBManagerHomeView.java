@@ -18,48 +18,25 @@ public class HDBManagerHomeView implements View {
             System.out.println("5. View All Projects");
             System.out.println("6. View My Projects");
             System.out.println("7. Manage Officer Registrations");
-            System.out.println("8. Manage Applicant Applications");
-            System.out.println("9. Handle Withdrawal Requests");
-            System.out.println("10. View/Reply to Enquiries");
-            System.out.println("11. Generate Reports");
             System.out.println("#. Logout");
             System.out.print("Enter your choice: ");
 
             String input = sc.nextLine();
             switch (input) {
                 case "1":
-                    // return new CreateBTOProjectView();
-                    break;
+                    return new CreateBTOProjectView();
                 case "2":
-                    // return new EditProjectView();
-                    break;
+                    return new EditProjectView();
                 case "3":
-                    // return new DeleteProjectView();
-                    break;
+                    return new DeleteProjectView();
                 case "4":
-                    // return new ToggleVisibilityView();
-                    break;
+                    return new ToggleVisibilityView();
                 case "5":
-                    // return new ViewAllProjectsView();
-                    break;
+                    return new ViewAllProjectsView();
                 case "6":
-                    // return new ViewMyProjectsView();
-                    break;
+                    return new ViewMyProjectsView();
                 case "7":
-                    // return new ManageOfficerRegistrationsView();
-                    break;
-                case "8":
-                    // return new ManageApplicationsView();
-                    break;
-                case "9":
-                    // return new HandleWithdrawalsView();
-                    break;
-                case "10":
-                    // return new ViewAndReplyEnquiriesView();
-                    break;
-                case "11":
-                    // return new GenerateReportView();
-                    break;
+                    return new ManageOfficerRegistrationsView();
                 case "#":
                     System.out.println("Logging out...");
                     return null;

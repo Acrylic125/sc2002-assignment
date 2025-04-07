@@ -144,6 +144,15 @@ public class HDBOfficerApplicationApprovalView implements PaginatedView, Authent
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
         final Scanner scanner = ctx.getScanner();
 
+        final Optional<User> applicantOpt = ctx.getBtoSystem().getUsers().getUser(application.getApplicantUserId());
+        if (applicantOpt.isEmpty()) {
+            System.out.println(BashColors.format("Applicant not found.", BashColors.RED));
+            System.out.println("Type anything to continue.");
+            scanner.nextLine();
+            return;
+        }
+        final User applicant = applicantOpt.get();
+
         Optional<Throwable> transitionErrOpt = Utils.tryCatch(() -> {
             projectManager.transitionApplicationStatus(project.getId(), application.getId(),
                     statusOpt.get());
@@ -156,7 +165,25 @@ public class HDBOfficerApplicationApprovalView implements PaginatedView, Authent
             scanner.nextLine();
             return;
         }
+
         System.out.println(BashColors.format("Successfully updated application status.", BashColors.GREEN));
+
+        if (statusOpt.get().equals(BTOApplicationStatus.BOOKED)) {
+            Optional<Throwable> receiptErrOpt = Utils.tryCatch(() -> {
+                projectManager.generateBookingReceipt(project.getId(), application.getId(), applicant);
+            }).getErr();
+
+            if (receiptErrOpt.isPresent()) {
+                System.out.println(BashColors.format(
+                        "Failed to generate receipt. The application status will remain as BOOKED.", BashColors.RED));
+                System.out.println(BashColors.format(
+                        receiptErrOpt.get().getMessage(), BashColors.RED));
+                System.out.println("Type anything to continue.");
+                scanner.nextLine();
+                return;
+            }
+            System.out.println(BashColors.format("Generated Receipt and sent to applicant.", BashColors.GREEN));
+        }
         System.out.println("Type anything to continue.");
         scanner.nextLine();
     }

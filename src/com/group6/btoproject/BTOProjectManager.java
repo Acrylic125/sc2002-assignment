@@ -1,5 +1,7 @@
 package com.group6.btoproject;
 
+import com.group6.users.User;
+
 import java.util.*;
 
 /**
@@ -13,6 +15,7 @@ public class BTOProjectManager {
 
     // Map<String Id, BTOProject>
     private final Map<String, BTOProject> projects = new HashMap<>();
+    private final List<BTOBookingReceipt> bookingReceipts = new LinkedList<>();
 
     /**
      * Constructor for BTOProjectManager.
@@ -555,4 +558,50 @@ public class BTOProjectManager {
                 .filter(project -> project.isManagingOfficer(officerUserId))
                 .toList();
     }
+
+    public void generateBookingReceipt(String projectId, String applicationId, User applicant) throws RuntimeException {
+        final Optional<BTOProject> projectOpt = getProject(projectId);
+        if (projectOpt.isEmpty()) {
+            throw new RuntimeException("Project cannot be found.");
+        }
+        final BTOProject project = projectOpt.get();
+        final Optional<BTOApplication> applicationOpt = project.getApplication(applicationId);
+        if (applicationOpt.isEmpty()) {
+            throw new RuntimeException("Application cannot be found.");
+        }
+        final BTOApplication application = applicationOpt.get();
+        if (!application.getStatus().equals(BTOApplicationStatus.BOOKED)) {
+            throw new RuntimeException("Receipts can only be generated for applications that has a status of BOOKED.");
+        }
+        if (!applicant.getId().equals(application.getApplicantUserId())) {
+            throw new RuntimeException("User provided does not match with application applicant user id.");
+        }
+
+        final Optional<BTOProjectType> typeOpt = project.getProjectType(application.getTypeId());
+        if (typeOpt.isEmpty()) {
+            throw new RuntimeException("Type with type id, " + application.getId() + " does not exist in project.");
+        }
+        final BTOProjectType type = typeOpt.get();
+
+        final BTOBookingReceipt receipt = new BTOBookingReceipt(
+                UUID.randomUUID().toString(),
+                applicationId,
+                projectId,
+                application.getApplicantUserId()
+        );
+        receipt.setNric(applicant.getNric());
+        receipt.setApplicantName(applicant.getName());
+        receipt.setPrice(type.getPrice());
+        receipt.setProjectName(project.getName());
+        receipt.setProjectNeighbourhood(project.getNeighbourhood());
+        receipt.setDateOfBooking(System.currentTimeMillis());
+        receipt.setTypeID(type.getId());
+
+        bookingReceipts.add(receipt);
+    }
+
+    public List<BTOBookingReceipt> getBookingReceipts(String userId) {
+        return bookingReceipts.stream().filter((receipt) -> receipt.getUserId().equals(userId)).toList();
+    }
+
 }

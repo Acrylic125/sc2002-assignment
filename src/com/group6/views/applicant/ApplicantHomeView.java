@@ -31,6 +31,7 @@ public class ApplicantHomeView implements AuthenticatedView {
         options.add(new ViewOption("View All Projects", ApplicantProjectsView::new));
         options.add(new ViewOption("View My Applied Projects", ApplicantViewMyApplicationsView::new));
         options.add(new ViewOption("View My Enquiries", ApplicantViewMyEnquiriesView::new));
+        options.add(new ViewOption("View My Booking Receipts", ApplicantReceiptsView::new));
         if (this.isRootView) {
             options.add(new ViewOption("Logout", () -> {
                 logout();

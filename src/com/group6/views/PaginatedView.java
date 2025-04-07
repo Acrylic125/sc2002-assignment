@@ -59,7 +59,7 @@ public interface PaginatedView extends View {
 
     default boolean requestPrevPage(Scanner scanner) {
         if (!this.nextPage()) {
-            System.out.println(BashColors.format("You are already on the last page.", BashColors.RED));
+            System.out.println(BashColors.format("You are already on the first page.", BashColors.RED));
             System.out.println("Type anything to continue.");
             scanner.nextLine();
             return true;

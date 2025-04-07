@@ -32,9 +32,9 @@ public class ApplicantApplyProjectView implements AuthenticatedView {
 
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
         List<BTOProject> activeProjects = projectManager.getActiveProjectsForUser(user.getId());
-        if (!activeProjects.isEmpty()) {
+        if (!projectManager.getBookedApplicationsForUser(user.getId()).isEmpty()) {
             System.out.println(BashColors.format(
-                    "You have already applied for the following projects. You may not apply for another project.",
+                    "You are already booked for the following projects. You may not apply for another project.",
                     BashColors.RED));
             activeProjects.forEach((project) -> {
                 System.out.println(" - " + project.getName());
@@ -85,8 +85,7 @@ public class ApplicantApplyProjectView implements AuthenticatedView {
 
             final Optional<BTOProject> projectOpt = projectManager.getProject(projectId);
             if (projectOpt.isEmpty()) {
-                System.out.println(
-                        BashColors.format("Project not found, please type in a valid project id.", BashColors.RED));
+                System.out.println(BashColors.format("Project not found, please type in a valid project id.", BashColors.RED));
                 System.out.println("Type anything to continue.");
                 scanner.nextLine();
                 continue;
@@ -101,6 +100,7 @@ public class ApplicantApplyProjectView implements AuthenticatedView {
                 scanner.nextLine();
                 continue;
             }
+
             if (!project.isVisibleToPublic()) {
                 System.out.println(BashColors.format(
                         "This project is not visible to the public, such projects cannot be applied to. Please choose another project.",

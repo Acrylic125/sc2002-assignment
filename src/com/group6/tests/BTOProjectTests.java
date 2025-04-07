@@ -25,6 +25,12 @@ public class BTOProjectTests {
         project2.addProjectType(new BTOProjectType(BTOProjectTypeID.S_3_ROOM, 40_000, 1));
         project2.setOfficerLimit(1);
 
+        BTOProject project3 = new BTOProject(UUID.randomUUID().toString(), UUID.randomUUID().toString());
+        project3.setName("C");
+        project3.addProjectType(new BTOProjectType(BTOProjectTypeID.S_2_ROOM, 15_000, 2));
+        project3.addProjectType(new BTOProjectType(BTOProjectTypeID.S_3_ROOM, 40_000, 1));
+        project3.setOfficerLimit(1);
+
         Date today = new Date(System.currentTimeMillis());
         Date tomorrow = new Date(System.currentTimeMillis() + 86400_000);
 
@@ -38,6 +44,11 @@ public class BTOProjectTests {
                 tomorrow
         );
         projectManager.addProject(project2);
+        project3.setApplicationWindow(
+                today,
+                tomorrow
+        );
+        projectManager.addProject(project3);
 
         String[] userIds = {
                 "User 1",
@@ -68,6 +79,11 @@ public class BTOProjectTests {
         }).getErr().get().getMessage());
         System.out.println("  Done!");
 
+        System.out.println("Checking if applicant can apply to other projects:");
+        projectManager.requestApply(project3.getId(), userIds[0], BTOProjectTypeID.S_2_ROOM);
+        projectManager.requestApply(project3.getId(), userIds[1], BTOProjectTypeID.S_2_ROOM);
+        System.out.println("  Done!");
+
         System.out.println("Checking if can transition application:");
         String[] applicationIds = {
                 project.getActiveApplication(userIds[0]).get().getId(),
@@ -80,6 +96,17 @@ public class BTOProjectTests {
         projectManager.transitionApplicationStatus(project.getId(), applicationIds[0], BTOApplicationStatus.BOOKED);
         projectManager.transitionApplicationStatus(project.getId(), applicationIds[1], BTOApplicationStatus.SUCCESSFUL);
         projectManager.transitionApplicationStatus(project.getId(), applicationIds[1], BTOApplicationStatus.BOOKED);
+        System.out.println("  Done!");
+
+        System.out.println("Checking if can directly transition to BOOKED if already booked (Should error):");
+        String[] application2Ids = {
+                project3.getActiveApplication(userIds[0]).get().getId(),
+                project3.getActiveApplication(userIds[1]).get().getId(),
+        };
+        projectManager.transitionApplicationStatus(project3.getId(), application2Ids[0], BTOApplicationStatus.SUCCESSFUL);
+        System.out.println("  Err: " + Utils.tryCatch(() -> {
+            projectManager.transitionApplicationStatus(project3.getId(), application2Ids[0], BTOApplicationStatus.BOOKED);
+        }).getErr().get().getMessage());
         System.out.println("  Done!");
 
         System.out.println("Checking if can directly transition to BOOKED (Should error):");

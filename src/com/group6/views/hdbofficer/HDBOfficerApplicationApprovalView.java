@@ -166,7 +166,7 @@ public class HDBOfficerApplicationApprovalView implements PaginatedView, Authent
 
         while (true) {
             System.out.println(BashColors.format(
-                    "Enter ID of Application you want to modify or leave empty ('') to cancel: ", BashColors.BOLD));
+                    "Enter ID of Application or leave empty ('') to cancel: ", BashColors.BOLD));
             String appId = scanner.nextLine().trim();
             if (appId.isEmpty()) {
                 return Optional.empty();

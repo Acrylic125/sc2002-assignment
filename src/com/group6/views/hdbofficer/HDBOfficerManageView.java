@@ -4,14 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import com.group6.btoproject.BTOProject;
-import com.group6.btoproject.BTOProjectManager;
 import com.group6.users.User;
 import com.group6.users.UserPermissions;
 import com.group6.utils.BashColors;
 import com.group6.views.*;
 
-public class HDBOfficerManageView implements AuthenticatedView{
+public class HDBOfficerManageView implements AuthenticatedView {
     private final boolean isRootView;
 
     private ViewContext ctx;
@@ -42,8 +40,9 @@ public class HDBOfficerManageView implements AuthenticatedView{
             options.add(new ViewOption("Register to Manage Project", HDBOfficerRegisterProjectsView::new));
         }
         options.add(new ViewOption("View All Registrations", HDBOfficerViewRegistrationsView::new));
-        options.add(new ViewOption("View Successful Applications (My managed projects) and Answer Enquiries", HDBOfficeRespondView::new));
-        options.add(new ViewOption("Approve Applicant Applications", HDBOfficerAppApprovalView::new));
+        options.add(new ViewOption("View My managed projects", HDBOfficerManagedProjectsView::new));
+        // options.add(new ViewOption("Approve Applicant Applications", () -> new
+        // HDBOfficerApplicationApprovalView()));
         if (isRootView) {
             options.add(new ViewOption("Logout", () -> {
                 logout();
@@ -80,7 +79,8 @@ public class HDBOfficerManageView implements AuthenticatedView{
                 if (option != null) {
                     return option.getCallback().get();
                 }
-            } catch (NumberFormatException _) {}
+            } catch (NumberFormatException _) {
+            }
             System.out.println(BashColors.format("Invalid option.", BashColors.RED));
             System.out.println("Type anything to continue.");
             scanner.nextLine();

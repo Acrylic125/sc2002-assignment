@@ -25,7 +25,6 @@ public class HDBOfficerRegisterProjectsView implements PaginatedView, Authentica
 
     private ViewContext ctx;
     private int page = 1;
-    private List<BTOProject> projects = new ArrayList<>();
     private List<BTOProject> filteredProjects = new ArrayList<>();
 
     @Override
@@ -53,14 +52,14 @@ public class HDBOfficerRegisterProjectsView implements PaginatedView, Authentica
         final ProjectsViewFilters filters = ctx.getViewAllProjectsFilters();
 
         this.ctx = ctx;
-        this.projects = projectManager.getProjects().values().stream()
+        final List<BTOProject> projects = projectManager.getProjects().values().stream()
                 .filter((project) -> project.isVisibleToPublic() || user.getPermissions().canViewNonVisibleProjects())
                 .toList();
         // We ASSUME filters cannot be applied UNTIL the user goes to the filters view
         // and return which will call this.
         //
         // We just do it once here to avoid unnecessary filtering.
-        this.filteredProjects = filters.applyFilters(this.projects, user);
+        this.filteredProjects = filters.applyFilters(projects, user);
 
         return this.showOptions();
     }
@@ -98,13 +97,13 @@ public class HDBOfficerRegisterProjectsView implements PaginatedView, Authentica
                     return b;
                 }
                 return a + ", " + b;
-            }).get() : "(None)";
+            }).get() : BashColors.format("(None)", BashColors.LIGHT_GRAY);
 
             System.out.println("Project: " + project.getName() + ", " + project.getNeighbourhood());
             System.out.println("ID: " + project.getId());
             System.out.println("Types (No. Units Available / Total No. Units / Price):");
             if (types.isEmpty()) {
-                System.out.println("  (No types available)");
+                System.out.println(BashColors.format("  (No types available)", BashColors.LIGHT_GRAY));
             } else {
                 types.sort((a, b) -> a.getId().compareTo(b.getId()));
 
@@ -118,7 +117,7 @@ public class HDBOfficerRegisterProjectsView implements PaginatedView, Authentica
             boolean isWindowOpen = project.isApplicationWindowOpen();
             String projectOpenWindowStr = Utils.formatToDDMMYYYY(project.getApplicationOpenDate())
                     + " to " + Utils.formatToDDMMYYYY(project.getApplicationCloseDate());
-            System.out.println("Application / Registration period: " + BashColors.format(projectOpenWindowStr, isWindowOpen
+            System.out.println("Application and Registration period: " + BashColors.format(projectOpenWindowStr, isWindowOpen
                     ? BashColors.GREEN
                     : BashColors.RED));
 

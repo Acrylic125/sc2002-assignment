@@ -7,6 +7,7 @@ public enum UserRole {
     ), OFFICER(
             new UserPermissions()
                     .setApply(true)
+                    .setRegisterForProject(true)
                     .setApproveApplications(true)
                     .setApproveWithdrawal(true)
                     .setApproveOfficerRegistrations(true)

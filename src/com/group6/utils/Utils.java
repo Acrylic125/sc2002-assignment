@@ -4,6 +4,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.function.Supplier;
 
@@ -66,6 +67,22 @@ public class Utils {
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
         return formatter.format(date);
+    }
+
+    public static String joinStringDelimiter(List<String> options, String delimiter, String lastDelimiter) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < options.size(); i++) {
+            sb.append(options.get(i));
+            if (i < options.size() - 1) {
+                if (i == options.size() - 2) {
+                    sb.append(lastDelimiter);
+                } else {
+                    sb.append(delimiter);
+                }
+            }
+        }
+
+        return sb.toString();
     }
 
 }

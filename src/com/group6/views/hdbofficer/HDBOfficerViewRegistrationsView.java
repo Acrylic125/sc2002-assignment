@@ -45,11 +45,7 @@ public class HDBOfficerViewRegistrationsView implements AuthenticatedView, Pagin
     }
 
     private void showRegistrations() {
-        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
         final UserManager userManager = ctx.getBtoSystem().getUsers();
-
-        // Get all projects where the officer has applied to register
-        List<BTOProjectManager.BTOFullOfficerRegistration> officerRegistrations = projectManager.getAllOfficerRegistrations(user.getId());
 
         System.out.println(BashColors.format("My Officer Registrations", BashColors.BOLD));
         if (officerRegistrations.isEmpty()) {
@@ -87,7 +83,7 @@ public class HDBOfficerViewRegistrationsView implements AuthenticatedView, Pagin
             boolean isWindowOpen = project.isApplicationWindowOpen();
             String projectOpenWindowStr = Utils.formatToDDMMYYYY(project.getApplicationOpenDate())
                     + " to " + Utils.formatToDDMMYYYY(project.getApplicationCloseDate());
-            System.out.println("Application / Registration period: " + BashColors.format(projectOpenWindowStr, isWindowOpen
+            System.out.println("Application and Registration period: " + BashColors.format(projectOpenWindowStr, isWindowOpen
                     ? BashColors.GREEN
                     : BashColors.RED));
             String officerSlotsStr = officers.size() + " / " + project.getOfficerLimit();

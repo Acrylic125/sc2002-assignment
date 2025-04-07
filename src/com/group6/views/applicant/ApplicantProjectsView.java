@@ -1,9 +1,6 @@
 package com.group6.views.applicant;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Scanner;
+import java.util.*;
 
 import com.group6.btoproject.BTOProject;
 import com.group6.btoproject.BTOProjectManager;
@@ -25,7 +22,6 @@ public class ApplicantProjectsView implements PaginatedView, AuthenticatedView {
     private ViewContext ctx;
     private User user;
     private int page = 1;
-    private List<BTOProject> projects = new ArrayList<>();
     private List<BTOProject> filteredProjects = new ArrayList<>();
 
     @Override
@@ -54,7 +50,7 @@ public class ApplicantProjectsView implements PaginatedView, AuthenticatedView {
 
         this.ctx = ctx;
         this.user = user;
-        this.projects = projectManager.getProjects().values().stream()
+        final List<BTOProject> projects = projectManager.getProjects().values().stream()
                 .filter((project) -> {
                     final UserPermissions permissions = user.getPermissions();
                     if (!(project.isApplicationWindowOpen() || permissions.canViewClosedProjects())) {
@@ -67,7 +63,7 @@ public class ApplicantProjectsView implements PaginatedView, AuthenticatedView {
         // and return which will call this.
         //
         // We just do it once here to avoid unnecessary filtering.
-        this.filteredProjects = filters.applyFilters(this.projects, user);
+        this.filteredProjects = filters.applyFilters(projects, user);
 
         return this.showOptions();
     }
@@ -105,16 +101,15 @@ public class ApplicantProjectsView implements PaginatedView, AuthenticatedView {
                             return b;
                         }
                         return a + ", " + b;
-                    }).get()
-                    : "(None)";
+            }).get() : BashColors.format("(None)", BashColors.LIGHT_GRAY);
 
             System.out.println("Project: " + project.getName() + ", " + project.getNeighbourhood());
             System.out.println("ID: " + project.getId());
             System.out.println("Types (No. Units Available / Total No. Units / Price):");
-            if (types.size() <= 0) {
+            if (types.isEmpty()) {
                 System.out.println("  (No types available)");
             } else {
-                types.sort((a, b) -> a.getId().compareTo(b.getId()));
+                types.sort(Comparator.comparing(a -> a.getId().getName()));
 
                 for (BTOProjectType type : types) {
                     System.out.println(

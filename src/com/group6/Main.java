@@ -62,6 +62,7 @@ public class Main {
         User jessica = userManager.getUser("73cc8ce3-60f0-4d0b-9d2e-a91fecf91ded").get();
         User daniel = userManager.getUser("b4b3f882-2f6a-44d5-9472-2b8c21568524").get();
         User emily = userManager.getUser("c72a0ad1-a32a-466a-b6c6-5c9fe535a8f3").get();
+        User sarah = userManager.getUser("e7c709b7-22a4-411a-9ec1-c191b7fc729b").get();
 
         // Adding Project 1
         BTOProject acaciaBreezeYishun = new BTOProject("hello world", jessica.getId());
@@ -94,6 +95,9 @@ public class Main {
         someBtoProject.setOfficerLimit(3);
 
         btoProjectManager.addProject(someBtoProject);
+        btoProjectManager.requestApply(someBtoProject.getId(), sarah.getId(), BTOProjectTypeID.S_3_ROOM);
+        btoProjectManager.requestRegisterOfficer(someBtoProject.getId(), emily.getId());
+        btoProjectManager.transitionOfficerRegistrationStatus(someBtoProject.getId(), emily.getId(), HDBOfficerRegistrationStatus.SUCCESSFUL);
     }
 
     // public static List<User> parseUserCSV(String filePath) {

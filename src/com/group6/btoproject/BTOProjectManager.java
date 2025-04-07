@@ -175,6 +175,27 @@ public class BTOProjectManager {
     }
 
     /**
+     * Get all valid application state transitions.
+     * 
+     * @param currentStatus current status of the application.
+     * @return set of valid application state transitions.
+     */
+    public Set<BTOApplicationStatus> getValidApplicationStateTransitions(BTOApplicationStatus currentStatus) {
+        if (currentStatus == BTOApplicationStatus.PENDING) {
+            return Set.of(
+                    BTOApplicationStatus.SUCCESSFUL,
+                    BTOApplicationStatus.UNSUCCESSFUL);
+        } else if (currentStatus == BTOApplicationStatus.SUCCESSFUL) {
+            return Set.of(
+                    BTOApplicationStatus.BOOKED,
+                    BTOApplicationStatus.UNSUCCESSFUL);
+        } else if (currentStatus == BTOApplicationStatus.BOOKED) {
+            return Set.of(BTOApplicationStatus.UNSUCCESSFUL);
+        }
+        return Set.of();
+    }
+
+    /**
      * Transition the status of an application.
      *
      * @param projectId     project id.
@@ -196,6 +217,7 @@ public class BTOProjectManager {
         }
 
         final BTOProject project = projectOpt.get();
+
         final Optional<BTOApplication> applicationOpt = project.getApplication(applicationId);
         if (applicationOpt.isEmpty()) {
             throw new RuntimeException("Application not found.");
@@ -203,20 +225,10 @@ public class BTOProjectManager {
         final BTOApplication application = applicationOpt.get();
 
         final BTOApplicationStatus currentStatus = application.getStatus();
-        if (currentStatus == BTOApplicationStatus.PENDING) {
-            if (!(status == BTOApplicationStatus.SUCCESSFUL
-                    || status == BTOApplicationStatus.UNSUCCESSFUL)) {
-                throw new RuntimeException("Invalid transition from PENDING.");
-            }
-        } else if (currentStatus == BTOApplicationStatus.SUCCESSFUL) {
-            if (!(status == BTOApplicationStatus.BOOKED
-                    || status == BTOApplicationStatus.UNSUCCESSFUL)) {
-                throw new RuntimeException("Invalid transition from SUCCESSFUL.");
-            }
-        } else if (currentStatus == BTOApplicationStatus.BOOKED) {
-            if (status != BTOApplicationStatus.UNSUCCESSFUL) {
-                throw new RuntimeException("Invalid transition from BOOKED.");
-            }
+        final Set<BTOApplicationStatus> validStatuses = getValidApplicationStateTransitions(currentStatus);
+        if (!validStatuses.contains(status)) {
+            throw new RuntimeException("Invalid transition from " + currentStatus + " to " + status
+                    + ". Only allowed to transition from " + currentStatus + " to " + validStatuses + ".");
         }
 
         if (status == BTOApplicationStatus.BOOKED || status == BTOApplicationStatus.SUCCESSFUL) {
@@ -229,6 +241,10 @@ public class BTOProjectManager {
             int bookedCountForType = project.getBookedCountForType(application.getTypeId());
             if (bookedCountForType >= projectType.getMaxQuantity()) {
                 throw new RuntimeException("Project type, " + application.getTypeId() + " has no availability.");
+            }
+
+            if (!project.isApplicationWindowOpen()) {
+                throw new RuntimeException("Application window is closed.");
             }
 
             if (project.isManagingOfficer(application.getApplicantUserId())) {
@@ -464,8 +480,11 @@ public class BTOProjectManager {
     public List<BTOFullOfficerRegistration> getAllOfficerRegistrations(String officerUserId) {
         return projects.values().stream()
                 .map(project -> {
-                    Optional<HDBOfficerRegistration> registrationOpt = project.getActiveOfficerRegistration(officerUserId);
-                    return registrationOpt.map(hdbOfficerRegistration -> new BTOFullOfficerRegistration(project, hdbOfficerRegistration)).orElse(null);
+                    Optional<HDBOfficerRegistration> registrationOpt = project
+                            .getActiveOfficerRegistration(officerUserId);
+                    return registrationOpt.map(
+                            hdbOfficerRegistration -> new BTOFullOfficerRegistration(project, hdbOfficerRegistration))
+                            .orElse(null);
                 })
                 .filter(Objects::nonNull)
                 .toList();

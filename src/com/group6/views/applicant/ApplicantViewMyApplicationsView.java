@@ -48,6 +48,20 @@ public class ApplicantViewMyApplicationsView implements PaginatedView, Authentic
         return page;
     }
 
+    private String stringifyApplicationStatus(BTOApplicationStatus status) {
+        switch (status) {
+            case PENDING:
+                return BashColors.format("Pending", BashColors.YELLOW);
+            case BOOKED:
+                return BashColors.format("Booked", BashColors.BLUE);
+            case SUCCESSFUL:
+                return BashColors.format("Successful", BashColors.GREEN);
+            case UNSUCCESSFUL:
+                return BashColors.format("Unsuccessful", BashColors.RED);
+        }
+        return BashColors.format("(Unknown)", BashColors.LIGHT_GRAY);
+    }
+
     @Override
     public View render(ViewContext ctx, User user) {
         this.ctx = ctx;
@@ -102,23 +116,7 @@ public class ApplicantViewMyApplicationsView implements PaginatedView, Authentic
             System.out.println("ID: " + project.getId());
 
             BTOApplicationStatus status = application.getStatus();
-            String statusStr;
-            switch (status) {
-                case PENDING:
-                    statusStr = BashColors.format("Pending", BashColors.YELLOW);
-                    break;
-                case BOOKED:
-                    statusStr = BashColors.format("Booked", BashColors.BLUE);
-                    break;
-                case SUCCESSFUL:
-                    statusStr = BashColors.format("Successful", BashColors.GREEN);
-                    break;
-                case UNSUCCESSFUL:
-                    statusStr = BashColors.format("Unsuccessful", BashColors.RED);
-                    break;
-                default:
-                    statusStr = "Unknown";
-            }
+            String statusStr = stringifyApplicationStatus(status);
 
             System.out.println("Status: " + statusStr);
 
@@ -130,7 +128,8 @@ public class ApplicantViewMyApplicationsView implements PaginatedView, Authentic
                 System.out.println(
                         "No. of Units: (Unknown)");
                 System.out.println("Price: (Unknown)");
-                System.out.println(BashColors.format("  Type " + application.getTypeId().getName() + " does not exist in project.", BashColors.RED));
+                System.out.println(BashColors.format(
+                        "  Type " + application.getTypeId().getName() + " does not exist in project.", BashColors.RED));
             } else {
                 BTOProjectType type = typeOpt.get();
                 System.out.println(

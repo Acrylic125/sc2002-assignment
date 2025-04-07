@@ -117,7 +117,7 @@ public class BTOProject {
     /**
      * Enquiries getter.
      * Create copy to avoid direct mutations.
-     * 
+     *
      * @return {@link #enquiries}
      */
     public List<BTOEnquiry> getEnquiries() {
@@ -298,7 +298,7 @@ public class BTOProject {
 
     /**
      * Determine if the user is a successfully registered officer.
-     * 
+     *
      * @param officerUserId officer user id.
      * @return true if the user is a successfully registered officer.
      */

@@ -8,6 +8,7 @@ import java.util.Scanner;
 import com.group6.btoproject.BTOApplication;
 import com.group6.btoproject.BTOApplicationStatus;
 import com.group6.btoproject.BTOApplicationWithdrawal;
+import com.group6.btoproject.BTOEnquiry;
 import com.group6.btoproject.BTOProject;
 import com.group6.btoproject.BTOProjectManager;
 import com.group6.btoproject.BTOProjectType;
@@ -25,6 +26,7 @@ public class ApplicantViewMyApplicationsView implements PaginatedView, Authentic
     private static final int PAGE_SIZE = 3;
 
     private ViewContext ctx;
+    private User user;
     private int page = 1;
     private List<BTOFullApplication> applications = new ArrayList<>();
     private List<BTOFullApplication> filteredApplications = new ArrayList<>();
@@ -65,6 +67,7 @@ public class ApplicantViewMyApplicationsView implements PaginatedView, Authentic
     @Override
     public View render(ViewContext ctx, User user) {
         this.ctx = ctx;
+        this.user = user;
 
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
         this.applications = new ArrayList<>(
@@ -161,7 +164,17 @@ public class ApplicantViewMyApplicationsView implements PaginatedView, Authentic
             String option = scanner.nextLine().trim();
             switch (option) {
                 case "e":
-                    return new ApplicantProjectEnquiryView();
+                    Optional<BTOProject> projectOpt = showRequestProject();
+                    if (projectOpt.isEmpty()) {
+                        break;
+                    }
+                    final BTOProject project = projectOpt.get();
+                    final List<BTOEnquiry> enquiries = project.getEnquiries().stream()
+                            .filter((enquiry) -> {
+                                return enquiry.getSenderMessage().getSenderUserId().equals(user.getId());
+                            })
+                            .toList();
+                    return new ApplicantProjectEnquiryView(project, enquiries);
                 case "w":
                     return new ApplicantApplicationWithdrawalView();
                 case "f":
@@ -182,6 +195,30 @@ public class ApplicantViewMyApplicationsView implements PaginatedView, Authentic
                     System.out.println("Type anything to continue.");
                     scanner.nextLine();
             }
+        }
+    }
+
+    private Optional<BTOProject> showRequestProject() {
+        final Scanner scanner = ctx.getScanner();
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+
+        while (true) {
+            System.out.println(BashColors.format(
+                    "Type in the project id you or leave empty ('') to cancel:", BashColors.BOLD));
+            final String projectId = scanner.nextLine().trim();
+            if (projectId.isEmpty()) {
+                return Optional.empty();
+            }
+
+            final Optional<BTOProject> projectOpt = projectManager.getProject(projectId);
+            if (projectOpt.isEmpty()) {
+                System.out.println(
+                        BashColors.format("Project not found, please type in a valid project id.", BashColors.BOLD));
+                System.out.println("Type anything to continue.");
+                scanner.nextLine();
+                continue;
+            }
+            return projectOpt;
         }
     }
 

@@ -1,5 +1,6 @@
 package com.group6.views.hdbofficer;
 
+import com.group6.btoproject.BTOEnquiry;
 import com.group6.btoproject.BTOProject;
 import com.group6.btoproject.BTOProjectManager;
 import com.group6.users.User;
@@ -11,6 +12,7 @@ import com.group6.views.AuthenticatedView;
 import com.group6.views.PaginatedView;
 import com.group6.views.View;
 import com.group6.views.ViewContext;
+import com.group6.views.applicant.ApplicantProjectEnquiryView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -124,17 +126,20 @@ public class HDBOfficerManagedProjectsView implements PaginatedView, Authenticat
         if (permissions.canApproveWithdrawal()) {
             options.add("'w' to go to Withdrawals");
         }
+        if (permissions.canRespondEnquiries()) {
+            options.add("'e' to view Enquiries");
+        }
         options.add("'n' to go to next page");
         options.add("'p' to go to previous page");
         options.add("'page' to go to a specific page");
         options.add("leave empty ('') to go back");
+        final String optionsStr = Utils.joinStringDelimiter(
+                options,
+                ", ",
+                " or ");
 
         while (true) {
             showManagedProjects();
-            String optionsStr = Utils.joinStringDelimiter(
-                    options,
-                    ", ",
-                    " or ");
             System.out.println("Page " + page + " / " + getLastPage() + " - " + optionsStr + ":");
 
             String option = scanner.nextLine().trim();
@@ -150,6 +155,16 @@ public class HDBOfficerManagedProjectsView implements PaginatedView, Authenticat
                     break;
                 case "":
                     return null;
+                case "e":
+                    if (permissions.canRespondEnquiries()) {
+                        Optional<BTOProject> projectOpt = requestProject();
+                        if (projectOpt.isEmpty()) {
+                            break;
+                        }
+                        final BTOProject project = projectOpt.get();
+                        final List<BTOEnquiry> enquiries = project.getEnquiries();
+                        return new ApplicantProjectEnquiryView(project, enquiries, true);
+                    }
                 case "w":
                     if (permissions.canApproveWithdrawal()) {
                         Optional<BTOProject> projectOpt = requestProject();

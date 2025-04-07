@@ -2,6 +2,7 @@ package com.group6.views.applicant;
 
 import java.util.*;
 
+import com.group6.btoproject.BTOEnquiry;
 import com.group6.btoproject.BTOProject;
 import com.group6.btoproject.BTOProjectManager;
 import com.group6.btoproject.BTOProjectType;
@@ -101,7 +102,8 @@ public class ApplicantProjectsView implements PaginatedView, AuthenticatedView {
                             return b;
                         }
                         return a + ", " + b;
-            }).get() : BashColors.format("(None)", BashColors.LIGHT_GRAY);
+                    }).get()
+                    : BashColors.format("(None)", BashColors.LIGHT_GRAY);
 
             System.out.println("Project: " + project.getName() + ", " + project.getNeighbourhood());
             System.out.println("ID: " + project.getId());
@@ -150,7 +152,17 @@ public class ApplicantProjectsView implements PaginatedView, AuthenticatedView {
                 case "a":
                     return new ApplicantApplyProjectView();
                 case "e":
-                    return new ApplicantProjectEnquiryView();
+                    final Optional<BTOProject> projectOpt = this.showRequestProject();
+                    if (projectOpt.isEmpty()) {
+                        break;
+                    }
+                    final BTOProject project = projectOpt.get();
+                    final List<BTOEnquiry> enquiries = project.getEnquiries().stream()
+                            .filter((enquiry) -> {
+                                return enquiry.getSenderMessage().getSenderUserId().equals(user.getId());
+                            })
+                            .toList();
+                    return new ApplicantProjectEnquiryView(project, enquiries);
                 case "f":
                     return new ProjectsViewFiltersView();
                 case "n":
@@ -169,6 +181,30 @@ public class ApplicantProjectsView implements PaginatedView, AuthenticatedView {
                     System.out.println("Type anything to continue.");
                     scanner.nextLine();
             }
+        }
+    }
+
+    private Optional<BTOProject> showRequestProject() {
+        final Scanner scanner = ctx.getScanner();
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+
+        while (true) {
+            System.out.println(BashColors.format(
+                    "Type in the project id you or leave empty ('') to cancel:", BashColors.BOLD));
+            final String projectId = scanner.nextLine().trim();
+            if (projectId.isEmpty()) {
+                return Optional.empty();
+            }
+
+            final Optional<BTOProject> projectOpt = projectManager.getProject(projectId);
+            if (projectOpt.isEmpty()) {
+                System.out.println(
+                        BashColors.format("Project not found, please type in a valid project id.", BashColors.BOLD));
+                System.out.println("Type anything to continue.");
+                scanner.nextLine();
+                continue;
+            }
+            return projectOpt;
         }
     }
 

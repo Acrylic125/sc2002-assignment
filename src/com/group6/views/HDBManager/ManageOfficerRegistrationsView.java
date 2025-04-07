@@ -11,7 +11,6 @@ import com.group6.BTOSystem;
 import com.group6.btoproject.BTOProject;
 import com.group6.btoproject.HDBOfficerRegistration;
 import com.group6.btoproject.HDBOfficerRegistrationStatus;
-import com.group6.users.HDBManager;
 import com.group6.views.View;
 import com.group6.views.ViewContext;
 

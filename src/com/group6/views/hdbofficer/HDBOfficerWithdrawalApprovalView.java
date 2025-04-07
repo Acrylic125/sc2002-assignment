@@ -1,12 +1,8 @@
 package com.group6.views.hdbofficer;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Scanner;
-import java.util.Set;
-
 import com.group6.btoproject.BTOApplication;
-import com.group6.btoproject.BTOApplicationStatus;
+import com.group6.btoproject.BTOApplicationWithdrawal;
+import com.group6.btoproject.BTOApplicationWithdrawalStatus;
 import com.group6.btoproject.BTOProject;
 import com.group6.btoproject.BTOProjectManager;
 import com.group6.users.User;
@@ -16,22 +12,27 @@ import com.group6.utils.TryCatchResult;
 import com.group6.utils.Utils;
 import com.group6.views.AuthenticatedView;
 import com.group6.views.PaginatedView;
-import com.group6.views.ViewContext;
 import com.group6.views.View;
+import com.group6.views.ViewContext;
 
-public class HDBOfficerApplicationApprovalView implements PaginatedView, AuthenticatedView {
+import java.util.List;
+import java.util.Optional;
+import java.util.Scanner;
+import java.util.Set;
+
+public class HDBOfficerWithdrawalApprovalView implements PaginatedView, AuthenticatedView {
 
     private static final int PAGE_SIZE = 3;
 
     private final BTOProject project;
 
-    private List<BTOApplication> applications;
+    private List<BTOApplicationWithdrawal> applications;
     private ViewContext ctx;
     private int page = 1;
 
-    public HDBOfficerApplicationApprovalView(BTOProject project) {
+    public HDBOfficerWithdrawalApprovalView(BTOProject project) {
         this.project = project;
-        this.applications = project.getApplications();
+        this.applications = project.getWithdrawals();
     }
 
     @Override
@@ -53,12 +54,10 @@ public class HDBOfficerApplicationApprovalView implements PaginatedView, Authent
         return page;
     }
 
-    private String stringifyApplicationStatus(BTOApplicationStatus status) {
+    private String stringifyApplicationStatus(BTOApplicationWithdrawalStatus status) {
         switch (status) {
             case PENDING:
                 return BashColors.format("Pending", BashColors.YELLOW);
-            case BOOKED:
-                return BashColors.format("Booked", BashColors.BLUE);
             case SUCCESSFUL:
                 return BashColors.format("Successful", BashColors.GREEN);
             case UNSUCCESSFUL:
@@ -69,7 +68,7 @@ public class HDBOfficerApplicationApprovalView implements PaginatedView, Authent
 
     @Override
     public boolean isAuthorized(User user) {
-        return user.getPermissions().canApproveApplications();
+        return user.getPermissions().canApproveWithdrawal();
     }
 
     @Override
@@ -78,22 +77,37 @@ public class HDBOfficerApplicationApprovalView implements PaginatedView, Authent
         return showOptions();
     }
 
-    private void showApplications() {
+    private void showWithdrawals() {
         final UserManager userManager = ctx.getBtoSystem().getUsers();
+
         System.out.println(BashColors.format(
-                "Applications for " + project.getName() + ", " + project.getNeighbourhood(), BashColors.BOLD));
-        System.out.println("Application ID | Applicant | Status");
+                "Withdrawals for " + project.getName() + ", " + project.getNeighbourhood(), BashColors.BOLD));
+        System.out.println("Withdrawal ID | Application ID | Applicant | Status");
         final int lastIndex = Math.min(page * PAGE_SIZE, applications.size());
         final int firstIndex = (page - 1) * PAGE_SIZE;
         // Render the projects in the page.
         for (int i = firstIndex; i < lastIndex; i++) {
-            BTOApplication application = applications.get(i);
+            BTOApplicationWithdrawal withdrawal = applications.get(i);
+            Optional<BTOApplication> applicationOpt = project.getApplication(withdrawal.getApplicationId());
+            String statusStr = stringifyApplicationStatus(withdrawal.getStatus());
+            if (applicationOpt.isEmpty()) {
+                System.out.println(BashColors.format(
+                        withdrawal.getId() + " | " + withdrawal.getApplicationId() + " | "
+                                + BashColors.format("(Unknown)", BashColors.LIGHT_GRAY) + " | "
+                                + statusStr,
+                        BashColors.RED));
+                continue;
+            }
+
+            BTOApplication application = applicationOpt.get();
             Optional<User> userOpt = userManager.getUser(application.getApplicantUserId());
             String userStr = userOpt.map(User::getName).orElse(BashColors.format("(Unknown)", BashColors.LIGHT_GRAY));
-            String statusStr = stringifyApplicationStatus(application.getStatus());
-            System.out.println(application.getId() + " | " + userStr + " ("
-                    + BashColors.format(application.getApplicantUserId(), BashColors.LIGHT_GRAY) + ")" + " | "
-                    + statusStr);
+            System.out.println(
+                    withdrawal.getId() + " | "
+                            + application.getId() + " | "
+                            + userStr + " ("
+                            + BashColors.format(application.getApplicantUserId(), BashColors.LIGHT_GRAY) + ")" + " | "
+                            + statusStr);
         }
     }
 
@@ -101,7 +115,7 @@ public class HDBOfficerApplicationApprovalView implements PaginatedView, Authent
         final Scanner scanner = ctx.getScanner();
 
         while (true) {
-            showApplications();
+            showWithdrawals();
             System.out.println("Page " + page + " / " + getLastPage() +
                     " - Type 's' to modify status, 'n' to go to next page, 'p' to go to previous page, 'page' to go to a specific page,  or leave empty ('') to go back:");
 
@@ -130,13 +144,13 @@ public class HDBOfficerApplicationApprovalView implements PaginatedView, Authent
     }
 
     private void showRequestStatusChange() {
-        Optional<BTOApplication> applicationOpt = requestApplication();
-        if (applicationOpt.isEmpty()) {
+        Optional<BTOApplicationWithdrawal> withdrawalOpt = requestWithdrawal();
+        if (withdrawalOpt.isEmpty()) {
             return;
         }
 
-        BTOApplication application = applicationOpt.get();
-        Optional<BTOApplicationStatus> statusOpt = requestApplicationStatus(application);
+        BTOApplicationWithdrawal withdrawal = withdrawalOpt.get();
+        Optional<BTOApplicationWithdrawalStatus> statusOpt = requestWithdrawalStatus(withdrawal);
         if (statusOpt.isEmpty()) {
             return;
         }
@@ -145,64 +159,59 @@ public class HDBOfficerApplicationApprovalView implements PaginatedView, Authent
         final Scanner scanner = ctx.getScanner();
 
         Optional<Throwable> transitionErrOpt = Utils.tryCatch(() -> {
-            projectManager.transitionApplicationStatus(project.getId(), application.getId(),
+            projectManager.transitionWithdrawApplicationStatus(
+                    project.getId(), withdrawal.getApplicationId(),
                     statusOpt.get());
         }).getErr();
         if (transitionErrOpt.isPresent()) {
-            System.out.println(BashColors.format("Failed to update application status.", BashColors.RED));
+            System.out.println(BashColors.format("Failed to update withdrawal status.", BashColors.RED));
             System.out.println(BashColors.format(
                     transitionErrOpt.get().getMessage(), BashColors.RED));
             System.out.println("Type anything to continue.");
             scanner.nextLine();
             return;
         }
-        System.out.println(BashColors.format("Successfully updated application status.", BashColors.GREEN));
+        System.out.println(BashColors.format("Successfully updated withdrawal status.", BashColors.GREEN));
         System.out.println("Type anything to continue.");
         scanner.nextLine();
     }
 
-    private Optional<BTOApplication> requestApplication() {
+    private Optional<BTOApplicationWithdrawal> requestWithdrawal() {
         final Scanner scanner = ctx.getScanner();
 
         while (true) {
             System.out.println(BashColors.format(
-                    "Enter ID of Application or leave empty ('') to cancel: ", BashColors.BOLD));
+                    "Enter ID of Withdrawal or leave empty ('') to cancel: ", BashColors.BOLD));
             String appId = scanner.nextLine().trim();
             if (appId.isEmpty()) {
                 return Optional.empty();
             }
 
-            final Optional<BTOApplication> applicationOpt = project.getApplication(appId);
-            if (applicationOpt.isEmpty()) {
-                System.out.println(BashColors.format("Application not found.", BashColors.RED));
+            final Optional<BTOApplicationWithdrawal> withdrawalOpt = project.getWithdrawal(appId);
+            if (withdrawalOpt.isEmpty()) {
+                System.out.println(BashColors.format("Withdrawal not found.", BashColors.RED));
                 System.out.println("Type anything to continue.");
                 scanner.nextLine();
                 continue;
             }
 
-            return applicationOpt;
+            return withdrawalOpt;
         }
     }
 
-    private Optional<BTOApplicationStatus> requestApplicationStatus(BTOApplication application) {
+    private Optional<BTOApplicationWithdrawalStatus> requestWithdrawalStatus(BTOApplicationWithdrawal withdrawal) {
         final Scanner scanner = ctx.getScanner();
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
-        final BTOApplicationStatus[] allStatuses = BTOApplicationStatus.values();
-        final Set<BTOApplicationStatus> validStatuses = projectManager
-                .getValidApplicationStateTransitions(application.getStatus());
+        final BTOApplicationWithdrawalStatus[] allStatuses = BTOApplicationWithdrawalStatus.values();
+        final Set<BTOApplicationWithdrawalStatus> validStatuses = projectManager
+                .getValidWithdrawalStateTransitions(withdrawal.getStatus());
 
         while (true) {
             System.out.println(BashColors.format("What status to change to?", BashColors.BOLD));
             System.out.println("Available statuses:");
-            for (BTOApplicationStatus status : allStatuses) {
+            for (BTOApplicationWithdrawalStatus status : allStatuses) {
                 boolean isStatusTransitionValid = validStatuses.contains(status);
 
-                if ((status == BTOApplicationStatus.SUCCESSFUL || status == BTOApplicationStatus.BOOKED)
-                        && !project.isApplicationWindowOpen()) {
-                    System.out.println("  "
-                            + BashColors.format(status.toString() + " (Application window closed)", BashColors.RED));
-                    continue;
-                }
                 if (!isStatusTransitionValid) {
                     System.out.println("  " + BashColors.format(status.toString(), BashColors.RED));
                     continue;
@@ -216,18 +225,16 @@ public class HDBOfficerApplicationApprovalView implements PaginatedView, Authent
                 return Optional.empty();
             }
 
-            TryCatchResult<BTOApplicationStatus, Throwable> statusRes = Utils
-                    .tryCatch(() -> BTOApplicationStatus.valueOf(_status));
+            TryCatchResult<BTOApplicationWithdrawalStatus, Throwable> statusRes = Utils
+                    .tryCatch(() -> BTOApplicationWithdrawalStatus.valueOf(_status));
             if (statusRes.getErr().isPresent()) {
                 System.out.println(BashColors.format("Invalid status.", BashColors.RED));
                 System.out.println("Type anything to continue.");
                 scanner.nextLine();
                 continue;
             }
-            BTOApplicationStatus status = statusRes.getData().get();
-            if (!validStatuses.contains(status)
-                    || ((status == BTOApplicationStatus.SUCCESSFUL || status == BTOApplicationStatus.BOOKED)
-                            && !project.isApplicationWindowOpen())) {
+            BTOApplicationWithdrawalStatus status = statusRes.getData().get();
+            if (!validStatuses.contains(status)) {
                 System.out.println(BashColors.format("Invalid status.", BashColors.RED));
                 System.out.println("Type anything to continue.");
                 scanner.nextLine();

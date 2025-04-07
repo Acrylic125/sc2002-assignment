@@ -27,6 +27,25 @@ public class HDBOfficerManagedProjectsView implements PaginatedView, Authenticat
     private List<BTOProject> managedProjects = new ArrayList<>();
 
     @Override
+    public int getLastPage() {
+        int size = managedProjects.size();
+        if (size % PAGE_SIZE == 0) {
+            return size / PAGE_SIZE;
+        }
+        return size / PAGE_SIZE + 1;
+    }
+
+    @Override
+    public void setPage(int page) {
+        this.page = page;
+    }
+
+    @Override
+    public int getPage() {
+        return page;
+    }
+
+    @Override
     public boolean isAuthorized(User user) {
         return user.getPermissions().canManageProjects();
     }
@@ -112,7 +131,6 @@ public class HDBOfficerManagedProjectsView implements PaginatedView, Authenticat
 
         while (true) {
             showManagedProjects();
-            ;
             String optionsStr = Utils.joinStringDelimiter(
                     options,
                     ", ",
@@ -132,6 +150,15 @@ public class HDBOfficerManagedProjectsView implements PaginatedView, Authenticat
                     break;
                 case "":
                     return null;
+                case "w":
+                    if (permissions.canApproveWithdrawal()) {
+                        Optional<BTOProject> projectOpt = requestProject();
+                        if (projectOpt.isEmpty()) {
+                            break;
+                        }
+
+                        return new HDBOfficerWithdrawalApprovalView(projectOpt.get());
+                    }
                 case "a":
                     if (permissions.canApproveApplications()) {
                         Optional<BTOProject> projectOpt = requestProject();
@@ -184,24 +211,4 @@ public class HDBOfficerManagedProjectsView implements PaginatedView, Authenticat
             return projectOpt;
         }
     }
-
-    @Override
-    public int getLastPage() {
-        int size = managedProjects.size();
-        if (size % PAGE_SIZE == 0) {
-            return size / PAGE_SIZE;
-        }
-        return size / PAGE_SIZE + 1;
-    }
-
-    @Override
-    public void setPage(int page) {
-        this.page = page;
-    }
-
-    @Override
-    public int getPage() {
-        return page;
-    }
-
 }

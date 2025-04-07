@@ -170,6 +170,18 @@ public class BTOProject {
     }
 
     /**
+     * Get withdrawal by id.
+     *
+     * @param withdrawalId withdrawal id.
+     * @return the withdrawal tied to the withdrawal id.
+     */
+    public Optional<BTOApplicationWithdrawal> getWithdrawal(String withdrawalId) {
+        return withdrawals.stream()
+                .filter(withdrawal -> withdrawal.getId().equals(withdrawalId))
+                .findFirst();
+    }
+
+    /**
      * Add a project type to the project.
      *
      * @param projectType project type to add.

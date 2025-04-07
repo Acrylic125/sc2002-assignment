@@ -96,6 +96,7 @@ public class Main {
 
         btoProjectManager.addProject(someBtoProject);
         btoProjectManager.requestApply(someBtoProject.getId(), sarah.getId(), BTOProjectTypeID.S_3_ROOM);
+        btoProjectManager.requestWithdrawApplication(someBtoProject.getId(), someBtoProject.getActiveApplication(sarah.getId()).get().getId());
         btoProjectManager.requestRegisterOfficer(someBtoProject.getId(), emily.getId());
         btoProjectManager.transitionOfficerRegistrationStatus(someBtoProject.getId(), emily.getId(), HDBOfficerRegistrationStatus.SUCCESSFUL);
     }

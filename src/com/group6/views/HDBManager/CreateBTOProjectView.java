@@ -55,11 +55,11 @@ public class CreateBTOProjectView implements View {
 
         // Set application window
         try {
-            System.out.print("Enter application open date (yyyy-MM-dd): ");
+            System.out.print("Enter application open date (dd-MM-yyyy): ");
             String openStr = sc.nextLine();
-            System.out.print("Enter application close date (yyyy-MM-dd): ");
+            System.out.print("Enter application close date (dd-MM-yyyy): ");
             String closeStr = sc.nextLine();
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
             Date openDate = sdf.parse(openStr);
             Date closeDate = sdf.parse(closeStr);
             project.setApplicationWindow(openDate, closeDate);

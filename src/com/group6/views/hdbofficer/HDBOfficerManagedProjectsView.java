@@ -13,6 +13,7 @@ import com.group6.views.PaginatedView;
 import com.group6.views.View;
 import com.group6.views.ViewContext;
 import com.group6.views.applicant.ApplicantProjectEnquiryView;
+import com.group6.views.hdbmanager.EditProjectView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +60,7 @@ public class HDBOfficerManagedProjectsView implements PaginatedView, Authenticat
 
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
 
-        this.managedProjects = projectManager.getOfficerManagingProjects(user.getId());
+        this.managedProjects = projectManager.getManagingProjects(user.getId());
 
         return showOptions();
     }
@@ -129,6 +130,12 @@ public class HDBOfficerManagedProjectsView implements PaginatedView, Authenticat
         if (permissions.canRespondEnquiries()) {
             options.add("'e' to view Enquiries");
         }
+        if (permissions.canEditProject()) {
+            options.add("'edit' to view Enquiries");
+        }
+        if (permissions.canDeleteProject()) {
+            options.add("'delete' to view Enquiries");
+        }
         options.add("'n' to go to next page");
         options.add("'p' to go to previous page");
         options.add("'page' to go to a specific page");
@@ -183,6 +190,24 @@ public class HDBOfficerManagedProjectsView implements PaginatedView, Authenticat
 
                         return new HDBOfficerApplicationApprovalView(projectOpt.get());
                     }
+                case "edit":
+                    if (permissions.canEditProject()) {
+                        Optional<BTOProject> projectOpt = requestProject();
+                        if (projectOpt.isEmpty()) {
+                            break;
+                        }
+
+                        return new EditProjectView(projectOpt.get());
+                    }
+                case "delete":
+                    if (permissions.canDeleteProject()) {
+                        Optional<BTOProject> projectOpt = requestProject();
+                        if (projectOpt.isEmpty()) {
+                            break;
+                        }
+                        showDeleteProject(projectOpt.get());
+                    }
+                    break;
                 default:
                     System.out.println(BashColors.format("Invalid option.", BashColors.RED));
                     System.out.println("Type anything to continue.");
@@ -226,4 +251,51 @@ public class HDBOfficerManagedProjectsView implements PaginatedView, Authenticat
             return projectOpt;
         }
     }
+
+    private void showDeleteProject(BTOProject project) {
+        final Scanner scanner = ctx.getScanner();
+        if (!project.getManagerUserId().equals(user.getId())) {
+            System.out.println(BashColors.format(
+                    "You are not the manager of this project.",
+                    BashColors.RED));
+            System.out.println("Type anything to continue.");
+            scanner.nextLine();
+            return;
+        }
+
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+
+        while (true) {
+            System.out.println(BashColors.format(
+                    "Are you sure you want to delete this project?",
+                    BashColors.RED, BashColors.BOLD));
+            System.out.println("Type in the project id, \"" + project.getId() + "\" or leave empty ('') to cancel:");
+            System.out.println(BashColors.format("Note: This cannot be reverted!", BashColors.LIGHT_GRAY));
+            String projectId = scanner.nextLine().trim();
+            if (projectId.isEmpty()) {
+                return;
+            }
+            if (!projectId.equals(project.getId())) {
+                System.out.println(BashColors.format(
+                        "Project ID does not match.",
+                        BashColors.RED));
+                System.out.println("Type anything to continue.");
+                scanner.nextLine();
+                continue;
+            }
+
+            if (Utils.tryCatch(() -> {
+                projectManager.deleteProject(project.getId());
+            }).getErr().isPresent()) {
+                System.out.println(BashColors.format(
+                        "Failed to delete project.",
+                        BashColors.RED));
+                System.out.println("Type anything to continue.");
+                scanner.nextLine();
+                continue;
+            }
+            System.out.println(BashColors.format("Project has been deleted.", BashColors.GREEN));
+        }
+    }
+
 }

@@ -68,6 +68,19 @@ public class BTOProjectManager {
     }
 
     /**
+     * Delete a project by id.
+     * @param projectId id of the project to be deleted.
+     * @throws RuntimeException If the project is not found.
+     */
+    public void deleteProject(String projectId) throws RuntimeException {
+        final Optional<BTOProject> projectOpt = getProject(projectId);
+        if (projectOpt.isEmpty()) {
+            throw new RuntimeException("Project not found.");
+        }
+        projects.remove(projectId);
+    }
+
+    /**
      * Get all active projects for a user.
      * Although a user SHOULD only have one active application for a project,
      * there is no guarantee that this is the case on the code level.
@@ -571,6 +584,12 @@ public class BTOProjectManager {
     public List<BTOProject> getOfficerManagingProjects(String officerUserId) {
         return projects.values().stream()
                 .filter(project -> project.isManagingOfficer(officerUserId))
+                .toList();
+    }
+
+    public List<BTOProject> getManagingProjects(String userId) {
+        return projects.values().stream()
+                .filter(project -> project.isManagingOfficer(userId) || project.getManagerUserId().equals(userId))
                 .toList();
     }
 

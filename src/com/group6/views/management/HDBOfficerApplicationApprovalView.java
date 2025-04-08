@@ -1,4 +1,4 @@
-package com.group6.views.hdbofficer;
+package com.group6.views.management;
 
 import java.util.List;
 import java.util.Optional;

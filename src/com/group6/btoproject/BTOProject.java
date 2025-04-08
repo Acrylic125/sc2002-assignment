@@ -256,6 +256,17 @@ public class BTOProject {
     }
 
     /**
+     * Get an officer registration based on it's id.
+     * @param registrationId registration id.
+     * @return the hdb officer registration tied to the registration id.
+     */
+    public Optional<HDBOfficerRegistration> getOfficerRegistration(String registrationId) {
+        return hdbOfficerRegistrations.stream()
+                .filter((registration) -> registration.getId().equals(registrationId))
+                .findFirst();
+    }
+
+    /**
      * Get the user's active application.
      * An active application is one that is either pending, successful or booked.
      *

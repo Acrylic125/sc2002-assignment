@@ -1,8 +1,10 @@
-package com.group6.views.hdbmanager;
+package com.group6.views.management;
 
 import java.text.SimpleDateFormat;
 import java.util.Scanner;
+import java.util.UUID;
 
+import com.group6.BTOSystem;
 import com.group6.btoproject.BTOProject;
 import com.group6.btoproject.BTOProjectManager;
 import com.group6.btoproject.BTOProjectType;
@@ -17,108 +19,98 @@ import com.group6.views.ViewContext;
 
 import java.util.*;
 
-public class EditProjectView implements AuthenticatedView {
-
-    private final BTOProject project;
+public class CreateBTOProjectView implements AuthenticatedView {
 
     private ViewContext ctx;
 
-    /**
-     * Constructor for EditProjectView.
-     *
-     * @param project the project to be edited.
-     */
-    public EditProjectView(BTOProject project) {
-        this.project = project;
-    }
-
     @Override
     public boolean isAuthorized(User user) {
-        return user.getPermissions().canEditProject();
+        return user.getPermissions().canCreateProject();
     }
 
     @Override
     public View render(ViewContext ctx, User user) {
         this.ctx = ctx;
 
-        return showOptions();
-    }
+        Scanner sc = ctx.getScanner();
+        BTOSystem system = ctx.getBtoSystem();
 
-    private View showOptions() {
-        final Scanner scanner = ctx.getScanner();
-
-        while (true) {
-            System.out.println(BashColors.format("Edit Project Options", BashColors.BOLD));
-            System.out.println("1. Edit Project Name");
-            System.out.println("2. Edit Project Neighbourhood");
-            System.out.println("3. Edit Project Type");
-            System.out.println("4. Edit Project Officer Limit");
-            System.out.println("5. Edit Project Application Window");
-            System.out.println("6. Edit Project Visibility");
-            System.out.println("");
-            System.out.println("Type the option (e.g. 1, 2, 3) you want to select or leave empty ('') to cancel.");
-
-            final String option = scanner.nextLine().trim();
-            switch (option) {
-                case "1":
-                    Optional<String> projectNameOpt = showRequestProjectName();
-                    if (projectNameOpt.isEmpty()) {
-                        break;
-                    }
-                    String projectName = projectNameOpt.get();
-                    project.setName(projectName);
-                    break;
-                case "2":
-                    Optional<String> neighbourhoodOpt = showRequestProjectNeighbourhood();
-                    if (neighbourhoodOpt.isEmpty()) {
-                        break;
-                    }
-                    String neighbourhood = neighbourhoodOpt.get();
-                    project.setNeighbourhood(neighbourhood);
-                    break;
-                case "3":
-                    Optional<Collection<BTOProjectType>> projectTypesOpt = showRequestProjectTypes();
-                    if (projectTypesOpt.isEmpty()) {
-                        break;
-                    }
-                    Collection<BTOProjectType> projectTypes = projectTypesOpt.get();
-                    for (BTOProjectType projectType : projectTypes) {
-                        project.addProjectType(projectType);
-                    }
-                    break;
-                case "4":
-                    Optional<Integer> officerLimitOpt = showRequestOfficerLimit();
-                    if (officerLimitOpt.isEmpty()) {
-                        break;
-                    }
-                    Integer officerLimit = officerLimitOpt.get();
-                    project.setOfficerLimit(officerLimit);
-                    break;
-                case "5":
-                    Optional<Date[]> applicationWindowOpt = requestApplicationWindow();
-                    if (applicationWindowOpt.isEmpty()) {
-                        break;
-                    }
-                    Date[] applicationWindow = applicationWindowOpt.get();
-                    project.setApplicationWindow(applicationWindow[0], applicationWindow[1]);
-                    break;
-                case "6":
-                    Optional<Boolean> visibilityOpt = requestProjectVisibility();
-                    if (visibilityOpt.isEmpty()) {
-                        break;
-                    }
-                    Boolean visibility = visibilityOpt.get();
-                    project.setVisibleToPublic(visibility);
-                    break;
-                case "":
-                    return null;
-                default:
-                    System.out.println(BashColors.format("Invalid option.", BashColors.RED));
-                    System.out.println("Type anything to continue.");
-                    scanner.nextLine();
-                    continue;
-            }
+        List<BTOProject> activeManagerProjects = system.getProjects().getProjects().values().stream()
+                .filter(p -> p.isApplicationWindowOpen())
+                .toList();
+        if (activeManagerProjects.size() >= 1) {
+            System.out.println(BashColors.format(
+                    "You are currently managing projects that are open, you may not create projects.", BashColors.RED));
+            System.out.println("Type anything to continue.");
+            sc.nextLine();
+            return null;
         }
+
+        System.out.println(BashColors.format("Create BTO Project", BashColors.BOLD));
+        Optional<String> projectNameOpt = showRequestProjectName();
+        if (projectNameOpt.isEmpty()) {
+            return null;
+        }
+        String projectName = projectNameOpt.get();
+
+        Optional<String> neighbourhoodOpt = showRequestProjectNeighbourhood();
+        if (neighbourhoodOpt.isEmpty()) {
+            return null;
+        }
+        String neighbourhood = neighbourhoodOpt.get();
+
+        Optional<Integer> officerLimitOpt = showRequestOfficerLimit();
+        if (officerLimitOpt.isEmpty()) {
+            return null;
+        }
+        int officerLimit = officerLimitOpt.get();
+
+        Optional<Collection<BTOProjectType>> projectTypesOpt = showRequestProjectTypes();
+        if (projectTypesOpt.isEmpty()) {
+            return null;
+        }
+        Collection<BTOProjectType> projectTypes = projectTypesOpt.get();
+
+        Optional<Date[]> applicationWindowOpt = requestApplicationWindow();
+        if (applicationWindowOpt.isEmpty()) {
+            return null;
+        }
+        Date[] applicationWindow = applicationWindowOpt.get();
+        if (applicationWindow.length != 2) {
+            System.out.println(
+                    BashColors.format("Invalid application window, unhandled. Falling back...", BashColors.RED));
+            System.out.println("Type anything to continue.");
+            sc.nextLine();
+            return null;
+        }
+
+        Date openDate = applicationWindow[0];
+        Date closeDate = applicationWindow[1];
+
+        BTOProject project = new BTOProject(UUID.randomUUID().toString(), user.getId());
+        project.setName(projectName);
+        project.setNeighbourhood(neighbourhood);
+        project.setOfficerLimit(officerLimit);
+        for (BTOProjectType type : projectTypes) {
+            project.addProjectType(type);
+        }
+        project.setApplicationWindow(openDate, closeDate);
+        project.setVisibleToPublic(false);
+
+        if (Utils.tryCatch(() -> {
+            system.getProjects().addProject(project);
+        }).getErr().isPresent()) {
+            System.out
+                    .println(BashColors.format("Failed to create project, unhandled. Falling back...", BashColors.RED));
+            System.out.println("Type anything to continue.");
+            sc.nextLine();
+            return null;
+        }
+
+        System.out.println(BashColors.format("Project created with ID: " + project.getId(), BashColors.GREEN));
+        System.out.println("Type anything to continue.");
+        sc.nextLine();
+        return null;
     }
 
     private Optional<String> showRequestProjectName() {
@@ -135,10 +127,6 @@ public class EditProjectView implements AuthenticatedView {
 
             final Optional<BTOProject> projectOpt = projectManager.getProjectByName(name);
             if (projectOpt.isPresent()) {
-                // If the project has the same name.... then obviously it is the same project
-                if (projectOpt.get().getId().equals(project.getId())) {
-                    return Optional.of(name);
-                }
                 System.out.println(BashColors.format(
                         "Project with name already exists, please type in a valid project name.", BashColors.RED));
                 System.out.println("Type anything to continue.");
@@ -162,6 +150,29 @@ public class EditProjectView implements AuthenticatedView {
             }
 
             return Optional.of(neighbourhood);
+        }
+    }
+
+    private Optional<Integer> showRequestOfficerLimit() {
+        final Scanner scanner = ctx.getScanner();
+
+        while (true) {
+            System.out.println(BashColors.format(
+                    "Enter officer limit or leave empty ('') to cancel:", BashColors.BOLD));
+            final String officerLimitStr = scanner.nextLine().trim();
+            if (officerLimitStr.isEmpty()) {
+                return Optional.empty();
+            }
+            TryCatchResult<Integer, Throwable> result = Utils.tryCatch(() -> Integer.parseInt(officerLimitStr));
+            if (result.getErr().isPresent()) {
+                System.out.println(
+                        BashColors.format("Invalid officer limit, please type in a valid number.", BashColors.RED));
+                System.out.println("Type anything to continue.");
+                scanner.nextLine();
+                continue;
+            }
+
+            return result.getData();
         }
     }
 
@@ -239,16 +250,11 @@ public class EditProjectView implements AuthenticatedView {
         final Scanner scanner = ctx.getScanner();
 
         while (true) {
-            int count = project.getBookedCountForType(_projectType.getId());
             System.out.println(BashColors.format(
                     "Enter the quantity and price of the project type separated by a comma (e.g. 10, 450000) or leave empty ('') tp cancel.",
                     BashColors.BOLD));
             System.out.println(BashColors.format(
                     "NOTE: You can set both quantity and price to 0 (i.e. 0, 0) to remove the project type.",
-                    BashColors.LIGHT_GRAY));
-            System.out.println(BashColors.format(
-                    "NOTE: There are already applicants booked into this project type! You must minimally set the quantity to "
-                            + count + ".",
                     BashColors.LIGHT_GRAY));
             final String input = scanner.nextLine().trim();
             if (input.isEmpty()) {
@@ -272,61 +278,9 @@ public class EditProjectView implements AuthenticatedView {
                 continue;
             }
 
-            final int quantity = quantityResult.getData().get();
-            if (quantity < count) {
-                System.out.println(BashColors.format(
-                        "There are already " + count
-                                + " units booked for this project type, please make sure that the quantity is greater than or equal to the booked count.",
-                        BashColors.RED));
-                System.out.println("Type anything to continue.");
-                scanner.nextLine();
-                continue;
-            }
-
             final BTOProjectType projectType = new BTOProjectType(_projectType.getId(), priceResult.getData().get(),
-                    quantity);
+                    quantityResult.getData().get());
             return Optional.of(projectType);
-        }
-    }
-
-    private Optional<Integer> showRequestOfficerLimit() {
-        final Scanner scanner = ctx.getScanner();
-
-        while (true) {
-            int count = project.getManagingOfficerRegistrations().size();
-            System.out.println(BashColors.format(
-                    "Enter officer limit or leave empty ('') to cancel:", BashColors.BOLD));
-            if (count > 0) {
-                System.out.println(BashColors.format(
-                        "NOTE: There are already " + count
-                                + " officers registered for this project! You must minimally set the officer limit to "
-                                + count + ".",
-                        BashColors.LIGHT_GRAY));
-            }
-            final String officerLimitStr = scanner.nextLine().trim();
-            if (officerLimitStr.isEmpty()) {
-                return Optional.empty();
-            }
-            TryCatchResult<Integer, Throwable> result = Utils.tryCatch(() -> Integer.parseInt(officerLimitStr));
-            if (result.getErr().isPresent()) {
-                System.out.println(
-                        BashColors.format("Invalid officer limit, please type in a valid number.", BashColors.RED));
-                System.out.println("Type anything to continue.");
-                scanner.nextLine();
-                continue;
-            }
-            final int officerLimit = result.getData().get();
-            if (officerLimit < count) {
-                System.out.println(BashColors.format(
-                        "There are already " + count
-                                + " officers registered for this project, please make sure that the officer limit is greater than or equal to the current officer count.",
-                        BashColors.RED));
-                System.out.println("Type anything to continue.");
-                scanner.nextLine();
-                continue;
-            }
-
-            return result.getData();
         }
     }
 
@@ -383,28 +337,6 @@ public class EditProjectView implements AuthenticatedView {
             }
 
             return Optional.of(new Date[] { openDate, closeDate });
-        }
-    }
-
-    private Optional<Boolean> requestProjectVisibility() {
-        final Scanner scanner = ctx.getScanner();
-
-        while (true) {
-            System.out.println(BashColors.format(
-                    "Enter project public visibility (true/false) or leave empty ('') to cancel:", BashColors.BOLD));
-            final String visibilityStr = scanner.nextLine().trim();
-            if (visibilityStr.isEmpty()) {
-                return Optional.empty();
-            }
-            if (!visibilityStr.equalsIgnoreCase("true") && !visibilityStr.equalsIgnoreCase("false")) {
-                System.out.println(BashColors.format(
-                        "Invalid project visibility, please type in a valid project visibility.", BashColors.RED));
-                System.out.println("Type anything to continue.");
-                scanner.nextLine();
-                continue;
-            }
-
-            return Optional.of(Boolean.parseBoolean(visibilityStr));
         }
     }
 

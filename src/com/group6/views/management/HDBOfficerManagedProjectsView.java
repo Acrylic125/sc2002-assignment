@@ -1,4 +1,4 @@
-package com.group6.views.hdbofficer;
+package com.group6.views.management;
 
 import com.group6.btoproject.BTOEnquiry;
 import com.group6.btoproject.BTOProject;
@@ -13,7 +13,6 @@ import com.group6.views.PaginatedView;
 import com.group6.views.View;
 import com.group6.views.ViewContext;
 import com.group6.views.applicant.ApplicantProjectEnquiryView;
-import com.group6.views.hdbmanager.EditProjectView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -122,10 +121,13 @@ public class HDBOfficerManagedProjectsView implements PaginatedView, Authenticat
         final List<String> options = new ArrayList<>();
         final UserPermissions permissions = user.getPermissions();
         if (permissions.canApproveApplications()) {
-            options.add("'a' to go to Applications");
+            options.add("'a' to view Applications");
         }
         if (permissions.canApproveWithdrawal()) {
-            options.add("'w' to go to Withdrawals");
+            options.add("'w' to view Withdrawals");
+        }
+        if (permissions.canApproveOfficerRegistrations()) {
+            options.add("'w' to view Officer Registrations");
         }
         if (permissions.canRespondEnquiries()) {
             options.add("'e' to view Enquiries");
@@ -180,6 +182,15 @@ public class HDBOfficerManagedProjectsView implements PaginatedView, Authenticat
                         }
 
                         return new HDBOfficerWithdrawalApprovalView(projectOpt.get());
+                    }
+                case "r":
+                    if (permissions.canApproveOfficerRegistrations()) {
+                        Optional<BTOProject> projectOpt = requestProject();
+                        if (projectOpt.isEmpty()) {
+                            break;
+                        }
+
+                        return new OfficerRegistrationApprovalView(projectOpt.get());
                     }
                 case "a":
                     if (permissions.canApproveApplications()) {

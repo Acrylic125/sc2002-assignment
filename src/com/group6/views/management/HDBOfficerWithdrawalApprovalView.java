@@ -1,4 +1,4 @@
-package com.group6.views.hdbofficer;
+package com.group6.views.management;
 
 import com.group6.btoproject.BTOApplication;
 import com.group6.btoproject.BTOApplicationWithdrawal;

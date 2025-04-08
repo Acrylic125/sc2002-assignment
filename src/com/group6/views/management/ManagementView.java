@@ -1,4 +1,4 @@
-package com.group6.views.hdbofficer;
+package com.group6.views.management;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,13 +9,13 @@ import com.group6.users.UserPermissions;
 import com.group6.utils.BashColors;
 import com.group6.views.*;
 
-public class HDBOfficerManageView implements AuthenticatedView {
+public class ManagementView implements AuthenticatedView {
     private final boolean isRootView;
 
     private ViewContext ctx;
     private User user;
 
-    public HDBOfficerManageView(boolean isRootView) {
+    public ManagementView(boolean isRootView) {
         this.isRootView = isRootView;
     }
 
@@ -36,6 +36,9 @@ public class HDBOfficerManageView implements AuthenticatedView {
         final UserPermissions userPermissions = user.getPermissions();
 
         List<ViewOption> options = new ArrayList<>();
+        if (userPermissions.canCreateProject()) {
+            options.add(new ViewOption("Create New Project", CreateBTOProjectView::new));
+        }
         if (userPermissions.canRegisterForProject()) {
             options.add(new ViewOption("Register to Manage Project", HDBOfficerRegisterProjectsView::new));
             options.add(new ViewOption("View My Registrations", HDBOfficerViewRegistrationsView::new));

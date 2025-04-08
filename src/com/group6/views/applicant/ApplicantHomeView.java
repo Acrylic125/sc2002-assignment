@@ -28,7 +28,7 @@ public class ApplicantHomeView implements AuthenticatedView {
         final Scanner scanner = ctx.getScanner();
 
         List<ViewOption> options = new ArrayList<>();
-        options.add(new ViewOption("View All Projects", ApplicantProjectsView::new));
+        options.add(new ViewOption("View All Projects", ProjectsView::new));
         options.add(new ViewOption("View My Applied Projects", ApplicantViewMyApplicationsView::new));
         options.add(new ViewOption("View My Enquiries", ApplicantViewMyEnquiriesView::new));
         options.add(new ViewOption("View My Booking Receipts", ApplicantReceiptsView::new));

@@ -11,7 +11,7 @@ public enum UserRole {
                     .setApproveApplications(true)
                     .setApproveWithdrawal(true)
                     .setApproveOfficerRegistrations(true)
-                    .setRespondEnquiries(true)
+                    .setRespondEnquiries(1)
                     .setViewNonVisibleProjects(true)
                     .setViewClosedProjects(true)
     ), MANAGER(
@@ -19,7 +19,7 @@ public enum UserRole {
                     .setApproveApplications(true)
                     .setApproveWithdrawal(true)
                     .setApproveOfficerRegistrations(true)
-                    .setRespondEnquiries(true)
+                    .setRespondEnquiries(2)
                     .setCreateProject(true)
                     .setEditProject(true)
                     .setDeleteProject(true)

@@ -38,8 +38,8 @@ public class HDBOfficerManageView implements AuthenticatedView {
         List<ViewOption> options = new ArrayList<>();
         if (userPermissions.canRegisterForProject()) {
             options.add(new ViewOption("Register to Manage Project", HDBOfficerRegisterProjectsView::new));
+            options.add(new ViewOption("View My Registrations", HDBOfficerViewRegistrationsView::new));
         }
-        options.add(new ViewOption("View All Registrations", HDBOfficerViewRegistrationsView::new));
         options.add(new ViewOption("View My managed projects", HDBOfficerManagedProjectsView::new));
         // options.add(new ViewOption("Approve Applicant Applications", () -> new
         // HDBOfficerApplicationApprovalView()));
@@ -79,8 +79,7 @@ public class HDBOfficerManageView implements AuthenticatedView {
                 if (option != null) {
                     return option.getCallback().get();
                 }
-            } catch (NumberFormatException _) {
-            }
+            } catch (NumberFormatException _) {}
             System.out.println(BashColors.format("Invalid option.", BashColors.RED));
             System.out.println("Type anything to continue.");
             scanner.nextLine();

@@ -64,11 +64,20 @@ public class BTOProjectManager {
                 .anyMatch((_project) -> project.getName().equals(_project.getName()))) {
             throw new RuntimeException("Project with name already exists.");
         }
+
+        String managerId = project.getManagerUserId();
+        if (projects.values().stream()
+                .anyMatch((_project) -> _project.isApplicationWindowOpen()
+                        && _project.getManagerUserId().equals(managerId))) {
+            throw new RuntimeException("Manager already has an active project opened.");
+        }
+
         projects.put(project.getId(), project);
     }
 
     /**
      * Delete a project by id.
+     * 
      * @param projectId id of the project to be deleted.
      * @throws RuntimeException If the project is not found.
      */
@@ -578,6 +587,12 @@ public class BTOProjectManager {
                             .orElse(null);
                 })
                 .filter(Objects::nonNull)
+                .toList();
+    }
+
+    public List<BTOProject> getManagerManagingProjects(String managerUserId) {
+        return projects.values().stream()
+                .filter(project -> project.getManagerUserId().equals(managerUserId))
                 .toList();
     }
 

@@ -35,6 +35,17 @@ public class CreateBTOProjectView implements AuthenticatedView {
         Scanner sc = ctx.getScanner();
         BTOSystem system = ctx.getBtoSystem();
 
+        List<BTOProject> activeManagerProjects = system.getProjects().getProjects().values().stream()
+                .filter(p -> p.isApplicationWindowOpen())
+                .toList();
+        if (activeManagerProjects.size() >= 1) {
+            System.out.println(BashColors.format(
+                    "You are currently managing projects that are open, you may not create projects.", BashColors.RED));
+            System.out.println("Type anything to continue.");
+            sc.nextLine();
+            return null;
+        }
+
         System.out.println(BashColors.format("Create BTO Project", BashColors.BOLD));
         Optional<String> projectNameOpt = showRequestProjectName();
         if (projectNameOpt.isEmpty()) {
@@ -86,7 +97,15 @@ public class CreateBTOProjectView implements AuthenticatedView {
         project.setApplicationWindow(openDate, closeDate);
         project.setVisibleToPublic(false);
 
-        system.getProjects().addProject(project);
+        if (Utils.tryCatch(() -> {
+            system.getProjects().addProject(project);
+        }).getErr().isPresent()) {
+            System.out
+                    .println(BashColors.format("Failed to create project, unhandled. Falling back...", BashColors.RED));
+            System.out.println("Type anything to continue.");
+            sc.nextLine();
+            return null;
+        }
 
         System.out.println(BashColors.format("Project created with ID: " + project.getId(), BashColors.GREEN));
         System.out.println("Type anything to continue.");

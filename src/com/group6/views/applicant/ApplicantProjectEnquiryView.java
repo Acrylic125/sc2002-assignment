@@ -10,7 +10,6 @@ import com.group6.btoproject.BTOEnquiryMessage;
 import com.group6.btoproject.BTOProject;
 import com.group6.users.User;
 import com.group6.users.UserManager;
-import com.group6.users.UserPermissions;
 import com.group6.utils.BashColors;
 import com.group6.utils.Utils;
 import com.group6.views.AuthenticatedView;
@@ -106,8 +105,8 @@ public class ApplicantProjectEnquiryView implements PaginatedView, Authenticated
         }
         options.add("'v' to view");
         options.add("'a' to add");
-        options.add("'e' to add");
-        options.add("'d' to edit");
+        options.add("'e' to edit");
+        options.add("'d' to delete");
         options.add("'n' to go to next page");
         options.add("'p' to go to previous page");
         options.add("'page' to go to a specific page");

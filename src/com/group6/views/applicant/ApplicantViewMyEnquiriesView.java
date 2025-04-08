@@ -98,9 +98,7 @@ public class ApplicantViewMyEnquiriesView implements PaginatedView, Authenticate
                     }
                     final BTOProject project = projectOpt.get();
                     final List<BTOEnquiry> enquiries = project.getEnquiries().stream()
-                            .filter((enquiry) -> {
-                                return enquiry.getSenderMessage().getSenderUserId().equals(user.getId());
-                            })
+                            .filter((enquiry) -> enquiry.getSenderMessage().getSenderUserId().equals(user.getId()))
                             .toList();
                     return new ApplicantProjectEnquiryView(project, enquiries);
                 case "n":

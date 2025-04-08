@@ -16,7 +16,9 @@ import com.group6.views.PaginatedView;
 import com.group6.views.View;
 import com.group6.views.ViewContext;
 
-public class ApplicantProjectsView implements PaginatedView, AuthenticatedView {
+import static java.util.stream.Collectors.toList;
+
+public class ProjectsView implements PaginatedView, AuthenticatedView {
 
     private static final int PAGE_SIZE = 3;
 
@@ -142,46 +144,71 @@ public class ApplicantProjectsView implements PaginatedView, AuthenticatedView {
     private View showOptions() {
         final Scanner scanner = ctx.getScanner();
 
+        Utils.joinStringDelimiter(new ArrayList<>(), ", ", " or ");
+        final List<String> options = new ArrayList<>();
+        final UserPermissions permissions = user.getPermissions();
+        if (permissions.canRespondEnquiries() || permissions.canApply()) {
+            options.add("'e' to enquire");
+        }
+        if (permissions.canApply()) {
+            options.add("'a' to apply");
+        }
+        options.add("'n' to go to next page");
+        options.add("'p' to go to previous page");
+        options.add("'page' to go to a specific page");
+        options.add("leave empty ('') to go back");
+
+        final String optionsStr = Utils.joinStringDelimiter(
+                options,
+                ", ",
+                " or ");
+
         while (true) {
             showProjects();
-            System.out.println("Page " + page + " / " + getLastPage() +
-                    " - Type 'e' to enquire, 'a' to apply, 'f' to filter, 'n' to go to next page, 'p' to go to previous page, 'page' to go to a specific page,  or leave empty ('') to go back:");
+            System.out.println("Page " + page + " / " + getLastPage() + " - " + optionsStr + ":");
 
             String option = scanner.nextLine().trim();
-            switch (option) {
-                case "a":
-                    return new ApplicantApplyProjectView();
-                case "e":
-                    final Optional<BTOProject> projectOpt = this.showRequestProject();
-                    if (projectOpt.isEmpty()) {
-                        break;
-                    }
-                    final BTOProject project = projectOpt.get();
-                    final List<BTOEnquiry> enquiries = project.getEnquiries().stream()
-                            .filter((enquiry) -> {
-                                return enquiry.getSenderMessage().getSenderUserId().equals(user.getId());
-                            })
-                            .toList();
-                    return new ApplicantProjectEnquiryView(project, enquiries);
-                case "f":
-                    return new ProjectsViewFiltersView();
-                case "n":
-                    this.requestNextPage(scanner);
-                    break;
-                case "p":
-                    this.requestPrevPage(scanner);
-                    break;
-                case "page":
-                    this.requestPage(scanner);
-                    break;
-                case "":
-                    return null;
-                default:
-                    System.out.println(BashColors.format("Invalid option.", BashColors.RED));
-                    System.out.println("Type anything to continue.");
-                    scanner.nextLine();
+            if (option.equals("f")) {
+                return new ProjectsViewFiltersView();
             }
+            if (option.equals("n")) {
+                this.requestNextPage(scanner);
+                break;
+            }
+            if (option.equals("p")) {
+                this.requestPrevPage(scanner);
+                break;
+            }
+            if (option.equals("page")) {
+                this.requestPage(scanner);
+                break;
+            }
+            if (option.isEmpty()) {
+                return null;
+            }
+            if (option.equals("a") && permissions.canApply()) {
+                return new ApplicantApplyProjectView();
+            }
+            if (option.equals("e") && (
+                    permissions.canRespondEnquiries() || permissions.canApply())) {
+                final Optional<BTOProject> projectOpt = this.showRequestProject();
+                if (projectOpt.isEmpty()) {
+                    break;
+                }
+                final BTOProject project = projectOpt.get();
+                final int enquiryLevel = user.getPermissions().getRespondEnquiresLevel();
+                final boolean canRespondToProject = (enquiryLevel == 1 && project.isManagingOfficer(user.getId())) || enquiryLevel == 2;
+                final List<BTOEnquiry> enquiries = project.getEnquiries().stream()
+                        .filter((enquiry) ->
+                                canRespondToProject || enquiry.getSenderMessage().getSenderUserId().equals(user.getId()))
+                        .toList();
+                return new ApplicantProjectEnquiryView(project, enquiries, canRespondToProject);
+            }
+            System.out.println(BashColors.format("Invalid option.", BashColors.RED));
+            System.out.println("Type anything to continue.");
+            scanner.nextLine();
         }
+        return null;
     }
 
     private Optional<BTOProject> showRequestProject() {

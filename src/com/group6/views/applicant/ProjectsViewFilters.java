@@ -12,7 +12,7 @@ import java.util.*;
  * Project view filters.
  * Filters are composited into a single object to simplify.
  * They are all treated as an AND filters.
- * See {@link ApplicantProjectsView}
+ * See {@link ProjectsView}
  */
 public class ProjectsViewFilters {
 

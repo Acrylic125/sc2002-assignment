@@ -10,7 +10,10 @@ public class UserPermissions {
     private boolean createProject;
     private boolean editProject;
     private boolean deleteProject;
-    private boolean respondEnquiries;
+    // Level 0 -> Cannot respond
+    // Level 1 -> Can respond to managing projects enquiries
+    // Level 2 -> Can respond to all enquiries
+    private int respondEnquiries;
     private boolean viewNonVisibleProjects;
     private boolean viewClosedProjects;
 
@@ -88,12 +91,16 @@ public class UserPermissions {
         return this;
     }
 
-    public boolean canRespondEnquiries() {
+    public int getRespondEnquiresLevel() {
         return respondEnquiries;
     }
 
-    public UserPermissions setRespondEnquiries(boolean respondEnquiries) {
-        this.respondEnquiries = respondEnquiries;
+    public boolean canRespondEnquiries() {
+        return respondEnquiries > 0;
+    }
+
+    public UserPermissions setRespondEnquiries(int respondEnquiriesLevel) {
+        this.respondEnquiries = respondEnquiriesLevel;
         return this;
     }
 
@@ -123,7 +130,7 @@ public class UserPermissions {
      */
     public boolean canManageProjects() {
         return createProject || editProject || deleteProject || registerForProject ||
-                respondEnquiries || approveApplications || approveWithdrawal || approveOfficerRegistrations;
+                canRespondEnquiries() || approveApplications || approveWithdrawal || approveOfficerRegistrations;
     }
 
 }

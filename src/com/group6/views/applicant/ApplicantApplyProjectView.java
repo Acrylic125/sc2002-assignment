@@ -85,7 +85,8 @@ public class ApplicantApplyProjectView implements AuthenticatedView {
 
             final Optional<BTOProject> projectOpt = projectManager.getProject(projectId);
             if (projectOpt.isEmpty()) {
-                System.out.println(BashColors.format("Project not found, please type in a valid project id.", BashColors.RED));
+                System.out.println(
+                        BashColors.format("Project not found, please type in a valid project id.", BashColors.RED));
                 System.out.println("Type anything to continue.");
                 scanner.nextLine();
                 continue;
@@ -188,9 +189,8 @@ public class ApplicantApplyProjectView implements AuthenticatedView {
                     return Optional.empty();
                 }
 
-                System.out
-                        .println("Type the type (e.g. '" + types.getFirst().getId().getName()
-                                + "') or leave empty ('') to cancel:");
+                System.out.println("Type the type (e.g. '" + types.getFirst().getId().getName()
+                        + "') or leave empty ('') to cancel:");
                 final String typeId = scanner.nextLine().trim().toLowerCase();
                 if (typeId.isEmpty()) {
                     return Optional.empty();

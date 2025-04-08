@@ -1,4 +1,4 @@
-package com.group6.views.HDBManager;
+package com.group6.views.hdbmanager;
 
 import java.util.ArrayList;
 import java.util.HashMap;

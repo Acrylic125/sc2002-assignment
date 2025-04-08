@@ -197,13 +197,13 @@ public class HDBOfficerManagedProjectsView implements PaginatedView, Authenticat
             System.out.println(BashColors.format(
                     "Enter ID of Project or leave empty ('') to cancel: ",
                     BashColors.BOLD));
-            String projectid = scanner.nextLine().trim();
-            if (projectid.equals("")) {
+            String projectId = scanner.nextLine().trim();
+            if (projectId.isEmpty()) {
                 return Optional.empty();
             }
 
             final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
-            final Optional<BTOProject> projectOpt = projectManager.getProject(projectid);
+            final Optional<BTOProject> projectOpt = projectManager.getProject(projectId);
             if (projectOpt.isEmpty()) {
                 System.out.println(BashColors.format(
                         "Project not found.",

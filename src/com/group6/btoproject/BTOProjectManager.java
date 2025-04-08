@@ -33,6 +33,18 @@ public class BTOProjectManager {
     }
 
     /**
+     * Get a project by name.
+     *
+     * @param name name of the project.
+     * @return project with the name.
+     */
+    public Optional<BTOProject> getProjectByName(String name) {
+        return projects.values().stream()
+                .filter(project -> project.getName().equalsIgnoreCase(name))
+                .findFirst();
+    }
+
+    /**
      * Get a project by id.
      *
      * @param id id of the project.
@@ -338,7 +350,8 @@ public class BTOProjectManager {
      * @param currentStatus current status of the registration.
      * @return set of valid application state transitions.
      */
-    public Set<HDBOfficerRegistrationStatus> getValidOfficerRegistrationStateTransitions(HDBOfficerRegistrationStatus currentStatus) {
+    public Set<HDBOfficerRegistrationStatus> getValidOfficerRegistrationStateTransitions(
+            HDBOfficerRegistrationStatus currentStatus) {
         if (currentStatus == HDBOfficerRegistrationStatus.PENDING) {
             return Set.of(
                     HDBOfficerRegistrationStatus.SUCCESSFUL,
@@ -376,7 +389,8 @@ public class BTOProjectManager {
 
         final HDBOfficerRegistration registration = registrationOpt.get();
         final HDBOfficerRegistrationStatus currentStatus = registration.getStatus();
-        final Set<HDBOfficerRegistrationStatus> validStatuses = getValidOfficerRegistrationStateTransitions(currentStatus);
+        final Set<HDBOfficerRegistrationStatus> validStatuses = getValidOfficerRegistrationStateTransitions(
+                currentStatus);
         if (!validStatuses.contains(status)) {
             throw new RuntimeException("Invalid transition from " + currentStatus + " to " + status
                     + ". Only allowed to transition from " + currentStatus + " to " + validStatuses + ".");
@@ -455,7 +469,8 @@ public class BTOProjectManager {
      * @param currentStatus current status of the withdrawal.
      * @return set of valid application state transitions.
      */
-    public Set<BTOApplicationWithdrawalStatus> getValidWithdrawalStateTransitions(BTOApplicationWithdrawalStatus currentStatus) {
+    public Set<BTOApplicationWithdrawalStatus> getValidWithdrawalStateTransitions(
+            BTOApplicationWithdrawalStatus currentStatus) {
         if (currentStatus == BTOApplicationWithdrawalStatus.PENDING) {
             return Set.of(
                     BTOApplicationWithdrawalStatus.SUCCESSFUL,
@@ -587,8 +602,7 @@ public class BTOProjectManager {
                 UUID.randomUUID().toString(),
                 applicationId,
                 projectId,
-                application.getApplicantUserId()
-        );
+                application.getApplicantUserId());
         receipt.setNric(applicant.getNric());
         receipt.setApplicantName(applicant.getName());
         receipt.setPrice(type.getPrice());

@@ -16,7 +16,7 @@ public class UserPermissions {
     private int respondEnquiries;
     private boolean viewNonVisibleProjects;
     private boolean viewClosedProjects;
-    private boolean canGenerateReport;
+    private boolean generateApplicantsReport;
 
     protected UserPermissions() {}
 
@@ -120,6 +120,15 @@ public class UserPermissions {
 
     public UserPermissions setViewClosedProjects(boolean viewClosedProjects) {
         this.viewClosedProjects = viewClosedProjects;
+        return this;
+    }
+
+    public boolean canGenerateApplicantsReport() {
+        return generateApplicantsReport;
+    }
+
+    public UserPermissions setGenerateApplicantsReport(boolean generateApplicantsReport) {
+        this.generateApplicantsReport = generateApplicantsReport;
         return this;
     }
 

@@ -3,8 +3,8 @@ package com.group6.users;
 public enum UserRole {
     APPLICANT(
             new UserPermissions()
-                    .setApply(true)
-    ), OFFICER(
+                    .setApply(true)),
+    OFFICER(
             new UserPermissions()
                     .setApply(true)
                     .setRegisterForProject(true)
@@ -13,8 +13,8 @@ public enum UserRole {
                     .setApproveOfficerRegistrations(true)
                     .setRespondEnquiries(1)
                     .setViewNonVisibleProjects(true)
-                    .setViewClosedProjects(true)
-    ), MANAGER(
+                    .setViewClosedProjects(true)),
+    MANAGER(
             new UserPermissions()
                     .setApproveApplications(true)
                     .setApproveWithdrawal(true)
@@ -25,7 +25,7 @@ public enum UserRole {
                     .setDeleteProject(true)
                     .setViewNonVisibleProjects(true)
                     .setViewClosedProjects(true)
-    );
+                    .setGenerateApplicantsReport(true));
 
     private final UserPermissions permissions;
 

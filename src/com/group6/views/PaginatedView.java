@@ -2,7 +2,6 @@ package com.group6.views;
 
 import com.group6.utils.BashColors;
 
-import java.util.Optional;
 import java.util.Scanner;
 
 public interface PaginatedView extends View {
@@ -14,10 +13,12 @@ public interface PaginatedView extends View {
 
     default boolean requestPage(Scanner scanner) {
         while (true) {
-            System.out.println(BashColors.format("You are currently on page " + getPage() + " / " + getLastPage(), BashColors.BOLD));
+            System.out.println(BashColors.format("You are currently on page " + getPage() + " / " + getLastPage(),
+                    BashColors.BOLD));
             System.out.println("Type the page number you want to go to or empty ('') to go back:");
             String pageStr = scanner.nextLine().trim();
-            if (pageStr.isEmpty()) return false;
+            if (pageStr.isEmpty())
+                return false;
             try {
                 int page = Integer.parseInt(pageStr);
                 if (page >= 1 && page <= getLastPage()) {
@@ -35,7 +36,9 @@ public interface PaginatedView extends View {
                         scanner.nextLine();
                         return false;
                     }
-                    System.out.println(BashColors.format("Invalid page number, page must be between 1 and "+ getLastPage() + " (inclusive).", BashColors.RED));
+                    System.out.println(BashColors.format(
+                            "Invalid page number, page must be between 1 and " + getLastPage() + " (inclusive).",
+                            BashColors.RED));
                     System.out.println("Type anything to continue.");
                     scanner.nextLine();
                 }
@@ -58,7 +61,7 @@ public interface PaginatedView extends View {
     }
 
     default boolean requestPrevPage(Scanner scanner) {
-        if (!this.nextPage()) {
+        if (!this.prevPage()) {
             System.out.println(BashColors.format("You are already on the first page.", BashColors.RED));
             System.out.println("Type anything to continue.");
             scanner.nextLine();

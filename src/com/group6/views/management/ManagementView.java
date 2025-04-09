@@ -44,6 +44,13 @@ public class ManagementView implements AuthenticatedView {
             options.add(new ViewOption("View My Registrations", HDBOfficerViewRegistrationsView::new));
         }
         options.add(new ViewOption("View My managed projects", HDBOfficerManagedProjectsView::new));
+        if (userPermissions.canGenerateApplicantsReport()) {
+            options.add(new ViewOption("Generate Applicants Report", () -> {
+                final List<User> applicants = ctx.getBtoSystem().getUsers().getUsers().values().stream()
+                        .filter(user -> user.getPermissions().canApply()).toList();
+                return new ApplicantReportView(applicants);
+            }));
+        }
         // options.add(new ViewOption("Approve Applicant Applications", () -> new
         // HDBOfficerApplicationApprovalView()));
         if (isRootView) {
@@ -82,7 +89,8 @@ public class ManagementView implements AuthenticatedView {
                 if (option != null) {
                     return option.getCallback().get();
                 }
-            } catch (NumberFormatException _) {}
+            } catch (NumberFormatException _) {
+            }
             System.out.println(BashColors.format("Invalid option.", BashColors.RED));
             System.out.println("Type anything to continue.");
             scanner.nextLine();

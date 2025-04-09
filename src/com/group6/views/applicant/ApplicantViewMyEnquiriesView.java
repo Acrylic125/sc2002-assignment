@@ -1,5 +1,6 @@
 package com.group6.views.applicant;
 
+import com.group6.btoproject.BTOEnquiry;
 import com.group6.btoproject.BTOProject;
 import com.group6.btoproject.BTOProjectManager;
 import com.group6.users.User;
@@ -18,6 +19,7 @@ public class ApplicantViewMyEnquiriesView implements PaginatedView, Authenticate
     private static final int PAGE_SIZE = 3;
 
     private ViewContext ctx;
+    private User user;
     private int page = 1;
     private List<BTOProject> projects = new ArrayList<>();
 
@@ -45,6 +47,8 @@ public class ApplicantViewMyEnquiriesView implements PaginatedView, Authenticate
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
 
         this.ctx = ctx;
+        this.user = user;
+
         this.projects = new ArrayList<>(
                 projectManager.getProjects().values().stream()
                         .filter((project) -> {
@@ -67,7 +71,7 @@ public class ApplicantViewMyEnquiriesView implements PaginatedView, Authenticate
         System.out.println(BashColors.format("Your Eqnuiries:", BashColors.BOLD));
         System.out.println("Project Id | Project Name");
         if (projects.isEmpty()) {
-            System.out.println("(No projects with your enquiries found)");
+            System.out.println(BashColors.format("(No projects with your enquiries found)", BashColors.LIGHT_GRAY));
             return;
         }
         // Render the projects in the page.
@@ -88,39 +92,54 @@ public class ApplicantViewMyEnquiriesView implements PaginatedView, Authenticate
             String option = scanner.nextLine().trim();
             switch (option) {
                 case "e":
-                    return new ApplicantProjectEnquiryView(true);
-                case "n":
-                    if (!this.nextPage()) {
-                        System.out.println("You are already on the last page.");
-                        System.out.println("Type anything to continue.");
-                        scanner.nextLine();
-                    }
-                    break;
-                case "p":
-                    if (!this.prevPage()) {
-                        System.out.println("You are already on the first page.");
-                        System.out.println("Type anything to continue.");
-                        scanner.nextLine();
-                    }
-                    break;
-                case "page":
-                    Optional<Integer> pageOpt = this.requestPage(scanner);
-                    if (pageOpt.isEmpty()) {
+                    Optional<BTOProject> projectOpt = showRequestProject();
+                    if (projectOpt.isEmpty()) {
                         break;
                     }
-                    if (!this.page(pageOpt.get())) {
-                        System.out.println("Invalid page number.");
-                        System.out.println("Type anything to continue.");
-                        scanner.nextLine();
-                    }
+                    final BTOProject project = projectOpt.get();
+                    return new ApplicantProjectEnquiryView(project, () -> project.getEnquiries().stream()
+                            .filter((enquiry) -> enquiry.getSenderMessage().getSenderUserId().equals(user.getId()))
+                            .toList());
+                case "n":
+                    this.requestNextPage(scanner);
+                    break;
+                case "p":
+                    this.requestPrevPage(scanner);
+                    break;
+                case "page":
+                    this.requestPage(scanner);
                     break;
                 case "":
                     return null;
                 default:
-                    System.out.println("Invalid option.");
+                    System.out.println(BashColors.format("Invalid option.", BashColors.RED));
                     System.out.println("Type anything to continue.");
                     scanner.nextLine();
             }
+        }
+    }
+
+    private Optional<BTOProject> showRequestProject() {
+        final Scanner scanner = ctx.getScanner();
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+
+        while (true) {
+            System.out.println(BashColors.format(
+                    "Type in the project id you or leave empty ('') to cancel:", BashColors.BOLD));
+            final String projectId = scanner.nextLine().trim();
+            if (projectId.isEmpty()) {
+                return Optional.empty();
+            }
+
+            final Optional<BTOProject> projectOpt = projectManager.getProject(projectId);
+            if (projectOpt.isEmpty()) {
+                System.out.println(
+                        BashColors.format("Project not found, please type in a valid project id.", BashColors.BOLD));
+                System.out.println("Type anything to continue.");
+                scanner.nextLine();
+                continue;
+            }
+            return projectOpt;
         }
     }
 

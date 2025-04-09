@@ -1,4 +1,4 @@
-package com.group6.views.applicant;
+package com.group6.views.management;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,24 +8,23 @@ import java.util.Scanner;
 import com.group6.btoproject.BTOProject;
 import com.group6.btoproject.BTOProjectManager;
 import com.group6.btoproject.BTOProjectType;
+import com.group6.btoproject.HDBOfficerRegisterCheck;
 import com.group6.users.User;
 import com.group6.users.UserManager;
-import com.group6.users.UserPermissions;
 import com.group6.utils.BashColors;
 import com.group6.utils.Utils;
 import com.group6.views.AuthenticatedView;
 import com.group6.views.PaginatedView;
 import com.group6.views.View;
 import com.group6.views.ViewContext;
+import com.group6.views.applicant.ProjectsViewFilters;
 
-public class ApplicantProjectsView implements PaginatedView, AuthenticatedView {
+public class HDBOfficerRegisterProjectsView implements PaginatedView, AuthenticatedView {
 
     private static final int PAGE_SIZE = 3;
 
     private ViewContext ctx;
-    private User user;
     private int page = 1;
-    private List<BTOProject> projects = new ArrayList<>();
     private List<BTOProject> filteredProjects = new ArrayList<>();
 
     @Override
@@ -53,21 +52,14 @@ public class ApplicantProjectsView implements PaginatedView, AuthenticatedView {
         final ProjectsViewFilters filters = ctx.getViewAllProjectsFilters();
 
         this.ctx = ctx;
-        this.user = user;
-        this.projects = projectManager.getProjects().values().stream()
-                .filter((project) -> {
-                    final UserPermissions permissions = user.getPermissions();
-                    if (!(project.isApplicationWindowOpen() || permissions.canViewClosedProjects())) {
-                        return false;
-                    }
-                    return project.isVisibleToPublic() || permissions.canViewNonVisibleProjects();
-                })
+        final List<BTOProject> projects = projectManager.getProjects().values().stream()
+                .filter((project) -> project.isVisibleToPublic() || user.getPermissions().canViewNonVisibleProjects())
                 .toList();
         // We ASSUME filters cannot be applied UNTIL the user goes to the filters view
         // and return which will call this.
         //
         // We just do it once here to avoid unnecessary filtering.
-        this.filteredProjects = filters.applyFilters(this.projects, user);
+        this.filteredProjects = filters.applyFilters(projects, user);
 
         return this.showOptions();
     }
@@ -98,21 +90,20 @@ public class ApplicantProjectsView implements PaginatedView, AuthenticatedView {
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .toList();
-            String managerName = managerOpt.isPresent() ? managerOpt.get().getName() : "(Unknown)";
+            String managerName = managerOpt.isPresent() ? managerOpt.get().getName() : BashColors.format("(Unknown)", BashColors.LIGHT_GRAY);
             String officerNames = !officers.isEmpty()
                     ? officers.stream().map(User::getName).reduce((a, b) -> {
-                        if (a.isEmpty()) {
-                            return b;
-                        }
-                        return a + ", " + b;
-                    }).get()
-                    : "(None)";
+                if (a.isEmpty()) {
+                    return b;
+                }
+                return a + ", " + b;
+            }).get() : BashColors.format("(None)", BashColors.LIGHT_GRAY);
 
             System.out.println("Project: " + project.getName() + ", " + project.getNeighbourhood());
             System.out.println("ID: " + project.getId());
             System.out.println("Types (No. Units Available / Total No. Units / Price):");
-            if (types.size() <= 0) {
-                System.out.println("  (No types available)");
+            if (types.isEmpty()) {
+                System.out.println(BashColors.format("  (No types available)", BashColors.LIGHT_GRAY));
             } else {
                 types.sort((a, b) -> a.getId().compareTo(b.getId()));
 
@@ -126,15 +117,18 @@ public class ApplicantProjectsView implements PaginatedView, AuthenticatedView {
             boolean isWindowOpen = project.isApplicationWindowOpen();
             String projectOpenWindowStr = Utils.formatToDDMMYYYY(project.getApplicationOpenDate())
                     + " to " + Utils.formatToDDMMYYYY(project.getApplicationCloseDate());
-            System.out.println("Application period: " + BashColors.format(projectOpenWindowStr, isWindowOpen
+            System.out.println("Application and Registration period: " + BashColors.format(projectOpenWindowStr, isWindowOpen
                     ? BashColors.GREEN
                     : BashColors.RED));
-            System.out.println("Manager / Officers: " + managerName + " / " + officerNames);
-            if (user.getPermissions().canViewNonVisibleProjects()) {
-                boolean isVisibleToPublic = project.isVisibleToPublic();
-                System.out.println("Visible to public: " + BashColors.format(isVisibleToPublic ? "YES" : "NO",
-                        isVisibleToPublic ? BashColors.GREEN : BashColors.RED));
+
+            String officerSlotsStr = officers.size() + " / " + project.getOfficerLimit();
+            if (officers.size() >= project.getOfficerLimit()) {
+                officerSlotsStr = BashColors.format(officerSlotsStr, BashColors.RED);
             }
+            System.out.println("Manager / Officers (" + officerSlotsStr + "): " + managerName + " / " + officerNames);
+            boolean isVisibleToPublic = project.isVisibleToPublic();
+            System.out.println("Visible to public: " + BashColors.format(isVisibleToPublic ? "YES" : "NO",
+                    isVisibleToPublic ? BashColors.GREEN : BashColors.RED));
             System.out.println("");
         }
         System.out.println("Showing " + (lastIndex - firstIndex) + " of " + projects.size());
@@ -146,40 +140,20 @@ public class ApplicantProjectsView implements PaginatedView, AuthenticatedView {
         while (true) {
             showProjects();
             System.out.println("Page " + page + " / " + getLastPage() +
-                    " - Type 'e' to enquire, 'a' to apply, 'f' to filter, 'n' to go to next page, 'p' to go to previous page, 'page' to go to a specific page,  or leave empty ('') to go back:");
+                    " - Type 'a' to apply, 'n' to go to next page, 'p' to go to previous page, 'page' to go to a specific page,  or leave empty ('') to go back:");
 
             String option = scanner.nextLine().trim();
             switch (option) {
                 case "a":
-                    return new ApplicantApplyProjectView();
-                case "e":
-                    return new ApplicantProjectEnquiryView();
-                case "f":
-                    return new ProjectsViewFiltersView();
+                    return new HDBOfficerRegisterCheck();
                 case "n":
-                    if (!this.nextPage()) {
-                        System.out.println(BashColors.format("You are already on the last page.", BashColors.RED));
-                        System.out.println("Type anything to continue.");
-                        scanner.nextLine();
-                    }
+                    this.requestNextPage(scanner);
                     break;
                 case "p":
-                    if (!this.prevPage()) {
-                        System.out.println(BashColors.format("You are already on the first page.", BashColors.RED));
-                        System.out.println("Type anything to continue.");
-                        scanner.nextLine();
-                    }
+                    this.requestPrevPage(scanner);
                     break;
                 case "page":
-                    Optional<Integer> pageOpt = this.requestPage(scanner);
-                    if (pageOpt.isEmpty()) {
-                        break;
-                    }
-                    if (!this.page(pageOpt.get())) {
-                        System.out.println(BashColors.format("Invalid page number.", BashColors.RED));
-                        System.out.println("Type anything to continue.");
-                        scanner.nextLine();
-                    }
+                    this.requestPage(scanner);
                     break;
                 case "":
                     return null;

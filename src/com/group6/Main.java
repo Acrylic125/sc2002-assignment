@@ -62,13 +62,14 @@ public class Main {
         User jessica = userManager.getUser("73cc8ce3-60f0-4d0b-9d2e-a91fecf91ded").get();
         User daniel = userManager.getUser("b4b3f882-2f6a-44d5-9472-2b8c21568524").get();
         User emily = userManager.getUser("c72a0ad1-a32a-466a-b6c6-5c9fe535a8f3").get();
+        User sarah = userManager.getUser("e7c709b7-22a4-411a-9ec1-c191b7fc729b").get();
 
         // Adding Project 1
         BTOProject acaciaBreezeYishun = new BTOProject("hello world", jessica.getId());
         acaciaBreezeYishun.setName("Acacia Breeze");
         acaciaBreezeYishun.setNeighbourhood("Yishun");
-        acaciaBreezeYishun.addProjectType(new BTOProjectType(BTOProjectTypeID.S_2_ROOM, 350_000, 2));
-        acaciaBreezeYishun.addProjectType(new BTOProjectType(BTOProjectTypeID.S_3_ROOM, 450_000, 3));
+        acaciaBreezeYishun.setProjectType(new BTOProjectType(BTOProjectTypeID.S_2_ROOM, 350_000, 2));
+        acaciaBreezeYishun.setProjectType(new BTOProjectType(BTOProjectTypeID.S_3_ROOM, 450_000, 3));
         LocalDate start = LocalDate.of(2025, 2, 15);
         LocalDate end = LocalDate.of(2025, 3, 20);
 
@@ -85,8 +86,8 @@ public class Main {
         BTOProject someBtoProject = new BTOProject(UUID.randomUUID().toString(), jessica.getId());
         someBtoProject.setName("Some BTO Project");
         someBtoProject.setNeighbourhood("Palau NTU");
-        someBtoProject.addProjectType(new BTOProjectType(BTOProjectTypeID.S_2_ROOM, 350_000, 2));
-        someBtoProject.addProjectType(new BTOProjectType(BTOProjectTypeID.S_3_ROOM, 450_000, 2));
+        someBtoProject.setProjectType(new BTOProjectType(BTOProjectTypeID.S_2_ROOM, 350_000, 2));
+        someBtoProject.setProjectType(new BTOProjectType(BTOProjectTypeID.S_3_ROOM, 450_000, 2));
 
         someBtoProject.setApplicationWindow(
                 Date.from(LocalDate.of(2025, 2, 15).atStartOfDay(ZoneId.systemDefault()).toInstant()),
@@ -94,6 +95,11 @@ public class Main {
         someBtoProject.setOfficerLimit(3);
 
         btoProjectManager.addProject(someBtoProject);
+        btoProjectManager.requestApply(someBtoProject.getId(), sarah.getId(), BTOProjectTypeID.S_3_ROOM);
+        btoProjectManager.requestWithdrawApplication(someBtoProject.getId(), someBtoProject.getActiveApplication(sarah.getId()).get().getId());
+        btoProjectManager.requestRegisterOfficer(someBtoProject.getId(), emily.getId());
+        btoProjectManager.transitionOfficerRegistrationStatus(someBtoProject.getId(), emily.getId(), HDBOfficerRegistrationStatus.SUCCESSFUL);
+
     }
 
     // public static List<User> parseUserCSV(String filePath) {

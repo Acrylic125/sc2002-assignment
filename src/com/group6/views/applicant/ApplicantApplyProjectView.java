@@ -32,14 +32,14 @@ public class ApplicantApplyProjectView implements AuthenticatedView {
 
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
         List<BTOProject> activeProjects = projectManager.getActiveProjectsForUser(user.getId());
-        if (!activeProjects.isEmpty()) {
+        if (!projectManager.getBookedApplicationsForUser(user.getId()).isEmpty()) {
             System.out.println(BashColors.format(
-                    "You have already applied for the following projects. You may not apply for another project.",
+                    "You are already booked for the following projects. You may not apply for another project.",
                     BashColors.RED));
             activeProjects.forEach((project) -> {
                 System.out.println(" - " + project.getName());
             });
-            System.out.println("");
+            System.out.println();
             System.out.println("Consider withdrawing your application before applying for a new project.");
             System.out.println("Type anything to continue.");
             scanner.nextLine();
@@ -51,6 +51,23 @@ public class ApplicantApplyProjectView implements AuthenticatedView {
             return null;
         }
         final BTOProject project = projectOpt.get();
+
+        if (project.getActiveApplication(user.getId()).isPresent()) {
+            System.out.println(BashColors.format(
+                    "You have already applied for this project.",
+                    BashColors.RED));
+            System.out.println("Type anything to continue.");
+            scanner.nextLine();
+            return null;
+        }
+        if (project.isManagedBy(user.getId())) {
+            System.out.println(BashColors.format(
+                    "You are managing this project. You may not apply for it.",
+                    BashColors.RED));
+            System.out.println("Type anything to continue.");
+            scanner.nextLine();
+            return null;
+        }
 
         final Optional<BTOProjectTypeID> typeOpt = showRequestProjectType(project);
         if (typeOpt.isEmpty()) {
@@ -101,6 +118,7 @@ public class ApplicantApplyProjectView implements AuthenticatedView {
                 scanner.nextLine();
                 continue;
             }
+
             if (!project.isVisibleToPublic()) {
                 System.out.println(BashColors.format(
                         "This project is not visible to the public, such projects cannot be applied to. Please choose another project.",
@@ -188,9 +206,8 @@ public class ApplicantApplyProjectView implements AuthenticatedView {
                     return Optional.empty();
                 }
 
-                System.out
-                        .println("Type the type (e.g. '" + types.getFirst().getId().getName()
-                                + "') or leave empty ('') to cancel:");
+                System.out.println("Type the type (e.g. '" + types.getFirst().getId().getName()
+                        + "') or leave empty ('') to cancel:");
                 final String typeId = scanner.nextLine().trim().toLowerCase();
                 if (typeId.isEmpty()) {
                     return Optional.empty();

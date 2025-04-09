@@ -1,14 +1,8 @@
 package com.group6.btoproject;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import com.group6.users.User;
+
+import java.util.*;
 
 /**
  * Represents a central point to manage/access projects of a
@@ -21,6 +15,7 @@ public class BTOProjectManager {
 
     // Map<String Id, BTOProject>
     private final Map<String, BTOProject> projects = new HashMap<>();
+    private final List<BTOBookingReceipt> bookingReceipts = new LinkedList<>();
 
     /**
      * Constructor for BTOProjectManager.
@@ -35,6 +30,18 @@ public class BTOProjectManager {
      */
     public Map<String, BTOProject> getProjects() {
         return projects;
+    }
+
+    /**
+     * Get a project by name.
+     *
+     * @param name name of the project.
+     * @return project with the name.
+     */
+    public Optional<BTOProject> getProjectByName(String name) {
+        return projects.values().stream()
+                .filter(project -> project.getName().equalsIgnoreCase(name))
+                .findFirst();
     }
 
     /**
@@ -57,7 +64,29 @@ public class BTOProjectManager {
                 .anyMatch((_project) -> project.getName().equals(_project.getName()))) {
             throw new RuntimeException("Project with name already exists.");
         }
+
+        String managerId = project.getManagerUserId();
+        if (projects.values().stream()
+                .anyMatch((_project) -> _project.isApplicationWindowOpen()
+                        && _project.getManagerUserId().equals(managerId))) {
+            throw new RuntimeException("Manager already has an active project opened.");
+        }
+
         projects.put(project.getId(), project);
+    }
+
+    /**
+     * Delete a project by id.
+     * 
+     * @param projectId id of the project to be deleted.
+     * @throws RuntimeException If the project is not found.
+     */
+    public void deleteProject(String projectId) throws RuntimeException {
+        final Optional<BTOProject> projectOpt = getProject(projectId);
+        if (projectOpt.isEmpty()) {
+            throw new RuntimeException("Project not found.");
+        }
+        projects.remove(projectId);
     }
 
     /**
@@ -109,22 +138,34 @@ public class BTOProjectManager {
         projects.values().forEach(project -> {
             project.getApplications().forEach(application -> {
                 if (application.getApplicantUserId().equals(userId)) {
-                    Optional<BTOApplicationWithdrawal> wotjdrawaOpt = project.getActiveWithdrawal(application.getId());
-                    result.add(new BTOFullApplication(project, application, wotjdrawaOpt.orElse(null)));
+                    Optional<BTOApplicationWithdrawal> withdrawalOpt = project.getActiveWithdrawal(application.getId());
+                    result.add(new BTOFullApplication(project, application, withdrawalOpt.orElse(null)));
                 }
             });
         });
         return result;
     }
 
+    /**
+     * Get all booked applications for a user.
+     *
+     * @param userId id of the user.
+     * @return list of booked applications for the user.
+     */
+    public List<BTOFullApplication> getBookedApplicationsForUser(String userId) {
+        return getAllApplicationsForUser(userId).stream()
+                .filter(application -> application.getApplication().getStatus() == BTOApplicationStatus.BOOKED)
+                .toList();
+    }
+
+    /**
+     * Get all project types.
+     *
+     * @return list of all project types.
+     */
     public List<BTOProjectTypeID> getAllProjectTypes() {
-        Set<BTOProjectTypeID> projectTypes = new HashSet<>();
-        projects.values().forEach(project -> {
-            project.getProjectTypes().forEach(type -> {
-                projectTypes.add(type.getId());
-            });
-        });
-        return new ArrayList<>(projectTypes);
+        return Arrays.stream(BTOProjectTypeID.values())
+                .toList();
     }
 
     /**
@@ -138,7 +179,8 @@ public class BTOProjectManager {
      *                          - is SUCCESSFUL and has the same applicantUserId.
      *                          - is BOOKED and has the same applicantUserId.
      */
-    public void requestApply(String projectId, String applicantUserId, BTOProjectTypeID typeId) throws RuntimeException {
+    public void requestApply(String projectId, String applicantUserId, BTOProjectTypeID typeId)
+            throws RuntimeException {
         BTOProject project = projects.get(projectId);
         if (project == null) {
             throw new RuntimeException("Project not found.");
@@ -146,6 +188,15 @@ public class BTOProjectManager {
 
         if (!project.isApplicationWindowOpen()) {
             throw new RuntimeException("Application window is closed.");
+        }
+
+        if (project.isApplicantBooked(applicantUserId)) {
+            throw new RuntimeException(
+                    "Applicant is already booked for this project.");
+        }
+
+        if (!getBookedApplicationsForUser(applicantUserId).isEmpty()) {
+            throw new RuntimeException("Applicant can only be booked for 1 project.");
         }
 
         project.getActiveApplication(applicantUserId)
@@ -169,8 +220,8 @@ public class BTOProjectManager {
             throw new RuntimeException("Project type, " + typeId.getName() + " has no availability.");
         }
 
-        if (project.isManagingOfficer(applicantUserId)) {
-            throw new RuntimeException("Project registered officers cannot apply for this project.");
+        if (project.isManagedBy(applicantUserId)) {
+            throw new RuntimeException("User is already managing this project and thus cannot apply for this project..");
         }
 
         final BTOApplication application = new BTOApplication(
@@ -179,6 +230,27 @@ public class BTOProjectManager {
                 typeId,
                 BTOApplicationStatus.PENDING);
         project.addApplication(application);
+    }
+
+    /**
+     * Get all valid application state transitions.
+     * 
+     * @param currentStatus current status of the application.
+     * @return set of valid application state transitions.
+     */
+    public Set<BTOApplicationStatus> getValidApplicationStateTransitions(BTOApplicationStatus currentStatus) {
+        if (currentStatus == BTOApplicationStatus.PENDING) {
+            return Set.of(
+                    BTOApplicationStatus.SUCCESSFUL,
+                    BTOApplicationStatus.UNSUCCESSFUL);
+        } else if (currentStatus == BTOApplicationStatus.SUCCESSFUL) {
+            return Set.of(
+                    BTOApplicationStatus.BOOKED,
+                    BTOApplicationStatus.UNSUCCESSFUL);
+        } else if (currentStatus == BTOApplicationStatus.BOOKED) {
+            return Set.of(BTOApplicationStatus.UNSUCCESSFUL);
+        }
+        return Set.of();
     }
 
     /**
@@ -203,6 +275,7 @@ public class BTOProjectManager {
         }
 
         final BTOProject project = projectOpt.get();
+
         final Optional<BTOApplication> applicationOpt = project.getApplication(applicationId);
         if (applicationOpt.isEmpty()) {
             throw new RuntimeException("Application not found.");
@@ -210,20 +283,10 @@ public class BTOProjectManager {
         final BTOApplication application = applicationOpt.get();
 
         final BTOApplicationStatus currentStatus = application.getStatus();
-        if (currentStatus == BTOApplicationStatus.PENDING) {
-            if (!(status == BTOApplicationStatus.SUCCESSFUL
-                    || status == BTOApplicationStatus.UNSUCCESSFUL)) {
-                throw new RuntimeException("Invalid transition from PENDING.");
-            }
-        } else if (currentStatus == BTOApplicationStatus.SUCCESSFUL) {
-            if (!(status == BTOApplicationStatus.BOOKED
-                    || status == BTOApplicationStatus.UNSUCCESSFUL)) {
-                throw new RuntimeException("Invalid transition from SUCCESSFUL.");
-            }
-        } else if (currentStatus == BTOApplicationStatus.BOOKED) {
-            if (status != BTOApplicationStatus.UNSUCCESSFUL) {
-                throw new RuntimeException("Invalid transition from BOOKED.");
-            }
+        final Set<BTOApplicationStatus> validStatuses = getValidApplicationStateTransitions(currentStatus);
+        if (!validStatuses.contains(status)) {
+            throw new RuntimeException("Invalid transition from " + currentStatus + " to " + status
+                    + ". Only allowed to transition from " + currentStatus + " to " + validStatuses + ".");
         }
 
         if (status == BTOApplicationStatus.BOOKED || status == BTOApplicationStatus.SUCCESSFUL) {
@@ -238,8 +301,18 @@ public class BTOProjectManager {
                 throw new RuntimeException("Project type, " + application.getTypeId() + " has no availability.");
             }
 
-            if (project.isManagingOfficer(application.getApplicantUserId())) {
-                throw new RuntimeException("Project registered officers cannot apply for this project.");
+            if (!project.isApplicationWindowOpen()) {
+                throw new RuntimeException("Application window is closed.");
+            }
+
+            if (project.isManagedBy(application.getApplicantUserId())) {
+                throw new RuntimeException("User is already managing this project and thus cannot apply for this project..");
+            }
+
+            if (status == BTOApplicationStatus.BOOKED) {
+                if (!getBookedApplicationsForUser(application.getApplicantUserId()).isEmpty()) {
+                    throw new RuntimeException("Applicant can only be booked for 1 project.");
+                }
             }
         }
 
@@ -278,11 +351,37 @@ public class BTOProjectManager {
                     "Project Applicants with approved bookings may not register to manage this project.");
         }
 
+        final List<BTOProject> managedByOfficer = this.getOfficerManagingProjects(userId);
+        for (BTOProject managedProject : managedByOfficer) {
+            if (managedProject.isApplicationWindowOpen()) {
+                throw new RuntimeException(
+                        "Officer is already managing another project that's currently open.");
+            }
+        }
+
         final HDBOfficerRegistration registration = new HDBOfficerRegistration(
                 UUID.randomUUID().toString(),
                 userId,
                 HDBOfficerRegistrationStatus.PENDING);
         project.addHDBOfficerRegistration(registration);
+    }
+
+    /**
+     * Get all valid registration state transitions.
+     *
+     * @param currentStatus current status of the registration.
+     * @return set of valid application state transitions.
+     */
+    public Set<HDBOfficerRegistrationStatus> getValidOfficerRegistrationStateTransitions(
+            HDBOfficerRegistrationStatus currentStatus) {
+        if (currentStatus == HDBOfficerRegistrationStatus.PENDING) {
+            return Set.of(
+                    HDBOfficerRegistrationStatus.SUCCESSFUL,
+                    HDBOfficerRegistrationStatus.UNSUCCESSFUL);
+        } else if (currentStatus == HDBOfficerRegistrationStatus.SUCCESSFUL) {
+            return Set.of(HDBOfficerRegistrationStatus.UNSUCCESSFUL);
+        }
+        return Set.of();
     }
 
     /**
@@ -311,13 +410,12 @@ public class BTOProjectManager {
         }
 
         final HDBOfficerRegistration registration = registrationOpt.get();
-        if (registration.getStatus() == HDBOfficerRegistrationStatus.PENDING) {
-            if (!(status == HDBOfficerRegistrationStatus.SUCCESSFUL
-                    || status == HDBOfficerRegistrationStatus.UNSUCCESSFUL)) {
-                throw new RuntimeException("Invalid transition from PENDING.");
-            }
-        } else {
-            throw new RuntimeException("Invalid transition from " + registration.getStatus() + " to " + status + ".");
+        final HDBOfficerRegistrationStatus currentStatus = registration.getStatus();
+        final Set<HDBOfficerRegistrationStatus> validStatuses = getValidOfficerRegistrationStateTransitions(
+                currentStatus);
+        if (!validStatuses.contains(status)) {
+            throw new RuntimeException("Invalid transition from " + currentStatus + " to " + status
+                    + ". Only allowed to transition from " + currentStatus + " to " + validStatuses + ".");
         }
 
         if (status == HDBOfficerRegistrationStatus.SUCCESSFUL) {
@@ -328,6 +426,14 @@ public class BTOProjectManager {
             if (project.isApplicantBooked(userId)) {
                 throw new RuntimeException(
                         "Project Applicants with approved bookings may not register to manage this project.");
+            }
+
+            final List<BTOProject> managedByOfficer = this.getOfficerManagingProjects(userId);
+            for (BTOProject managedProject : managedByOfficer) {
+                if (managedProject.isApplicationWindowOpen()) {
+                    throw new RuntimeException(
+                            "Officer is already managing another project that's currently open.");
+                }
             }
         }
 
@@ -380,6 +486,22 @@ public class BTOProjectManager {
     }
 
     /**
+     * Get all valid withdrawal state transitions.
+     *
+     * @param currentStatus current status of the withdrawal.
+     * @return set of valid application state transitions.
+     */
+    public Set<BTOApplicationWithdrawalStatus> getValidWithdrawalStateTransitions(
+            BTOApplicationWithdrawalStatus currentStatus) {
+        if (currentStatus == BTOApplicationWithdrawalStatus.PENDING) {
+            return Set.of(
+                    BTOApplicationWithdrawalStatus.SUCCESSFUL,
+                    BTOApplicationWithdrawalStatus.UNSUCCESSFUL);
+        }
+        return Set.of();
+    }
+
+    /**
      * Transition an application withdrawal status.
      *
      * @param projectId     project id.
@@ -420,8 +542,11 @@ public class BTOProjectManager {
             throw new RuntimeException("There is no pending withdrawal request.");
         }
         final BTOApplicationWithdrawal withdrawal = withdrawalOpt.get();
-        if (withdrawal.getStatus() != BTOApplicationWithdrawalStatus.PENDING) {
-            throw new RuntimeException("There is no pending withdrawal request.");
+        final BTOApplicationWithdrawalStatus currentStatus = withdrawal.getStatus();
+        final Set<BTOApplicationWithdrawalStatus> validStatuses = getValidWithdrawalStateTransitions(currentStatus);
+        if (!validStatuses.contains(status)) {
+            throw new RuntimeException("Invalid transition from " + currentStatus + " to " + status
+                    + ". Only allowed to transition from " + currentStatus + " to " + validStatuses + ".");
         }
 
         if (status == BTOApplicationWithdrawalStatus.SUCCESSFUL) {
@@ -432,6 +557,99 @@ public class BTOProjectManager {
         } else {
             throw new RuntimeException("Invalid status.");
         }
+    }
+
+    public static class BTOFullOfficerRegistration {
+        private final BTOProject project;
+        private final HDBOfficerRegistration registration;
+
+        public BTOFullOfficerRegistration(BTOProject project, HDBOfficerRegistration registration) {
+            this.project = project;
+            this.registration = registration;
+        }
+
+        public BTOProject getProject() {
+            return project;
+        }
+
+        public HDBOfficerRegistration getRegistration() {
+            return registration;
+        }
+    }
+
+    public List<BTOFullOfficerRegistration> getAllOfficerRegistrations(String officerUserId) {
+        return projects.values().stream()
+                .map(project -> {
+                    Optional<HDBOfficerRegistration> registrationOpt = project
+                            .getActiveOfficerRegistration(officerUserId);
+                    return registrationOpt.map(
+                            hdbOfficerRegistration -> new BTOFullOfficerRegistration(project, hdbOfficerRegistration))
+                            .orElse(null);
+                })
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
+    public List<BTOProject> getManagerManagingProjects(String managerUserId) {
+        return projects.values().stream()
+                .filter(project -> project.getManagerUserId().equals(managerUserId))
+                .toList();
+    }
+
+    public List<BTOProject> getOfficerManagingProjects(String officerUserId) {
+        return projects.values().stream()
+                .filter(project -> project.isManagingOfficer(officerUserId))
+                .toList();
+    }
+
+    public List<BTOProject> getManagingProjects(String userId) {
+        return projects.values().stream()
+                .filter(project -> project.isManagingOfficer(userId) || project.getManagerUserId().equals(userId))
+                .toList();
+    }
+
+    public void generateBookingReceipt(String projectId, String applicationId, User applicant) throws RuntimeException {
+        final Optional<BTOProject> projectOpt = getProject(projectId);
+        if (projectOpt.isEmpty()) {
+            throw new RuntimeException("Project cannot be found.");
+        }
+        final BTOProject project = projectOpt.get();
+        final Optional<BTOApplication> applicationOpt = project.getApplication(applicationId);
+        if (applicationOpt.isEmpty()) {
+            throw new RuntimeException("Application cannot be found.");
+        }
+        final BTOApplication application = applicationOpt.get();
+        if (!application.getStatus().equals(BTOApplicationStatus.BOOKED)) {
+            throw new RuntimeException("Receipts can only be generated for applications that has a status of BOOKED.");
+        }
+        if (!applicant.getId().equals(application.getApplicantUserId())) {
+            throw new RuntimeException("User provided does not match with application applicant user id.");
+        }
+
+        final Optional<BTOProjectType> typeOpt = project.getProjectType(application.getTypeId());
+        if (typeOpt.isEmpty()) {
+            throw new RuntimeException("Type with type id, " + application.getId() + " does not exist in project.");
+        }
+        final BTOProjectType type = typeOpt.get();
+
+        final BTOBookingReceipt receipt = new BTOBookingReceipt(
+                UUID.randomUUID().toString(),
+                applicationId,
+                projectId,
+                application.getApplicantUserId());
+        receipt.setNric(applicant.getNric());
+        receipt.setApplicantName(applicant.getName());
+        receipt.setPrice(type.getPrice());
+        receipt.setProjectName(project.getName());
+        receipt.setProjectNeighbourhood(project.getNeighbourhood());
+        receipt.setDateOfBooking(System.currentTimeMillis());
+        receipt.setTypeID(type.getId());
+
+        bookingReceipts.add(receipt);
+    }
+
+    public List<BTOBookingReceipt> getBookingReceipts(String userId) {
+        return bookingReceipts.stream().filter((receipt) -> receipt.getUserId().equals(userId)).toList();
     }
 
 }

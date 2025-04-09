@@ -1,20 +1,24 @@
 package com.group6.views;
 
 import com.group6.users.User;
+import com.group6.users.UserPermissions;
 import com.group6.utils.BashColors;
-import com.group6.views.applicant.ApplicantProjectsView;
-import com.group6.views.applicant.ApplicantViewMyApplicationsView;
-import com.group6.views.applicant.ApplicantViewMyEnquiriesView;
+import com.group6.views.applicant.ApplicantHomeView;
+import com.group6.views.management.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class RoleBasedHomeView implements AuthenticatedView {
 
     private ViewContext ctx;
+    private User user;
 
     @Override
     public View render(ViewContext ctx, User user) {
         this.ctx = ctx;
+        this.user = user;
 
         return showOptions();
     }
@@ -22,29 +26,60 @@ public class RoleBasedHomeView implements AuthenticatedView {
     private View showOptions() {
         final Scanner scanner = ctx.getScanner();
 
-        while (true) {
-            System.out.println(BashColors.format("Applicant Home Menu", BashColors.BOLD));
-            System.out.println("1. View All Projects");
-            System.out.println("2. View My Applied Projects");
-            System.out.println("3. View My Enquiries");
-            System.out.println("");
-            System.out.println("Type the option (e.g. 1, 2, 3) you want to select or leave empty ('') to cancel.");
+        final List<ViewOption> options = new ArrayList<>();
+        final UserPermissions permissions = user.getPermissions();
+        // Everyone can view applications.
+        options.add(new ViewOption(
+                "Go to Applicant Portal (" + BashColors.format("View applications and enquire", BashColors.LIGHT_GRAY) + ")",
+                () -> new ApplicantHomeView(false)
+        ));
+        if (permissions.canManageProjects()) {
+            options.add(new ViewOption(
+                    "Go to Manager Portal (" + BashColors.format("Answer enquiries, Register for projects, Manage approved Projects", BashColors.LIGHT_GRAY) + ")",
+                    () -> new ManagementView(false)
+            ));
+        }
+        options.add(new ViewOption(
+                "Logout",
+                () -> {
+                    logout();
+                    return new MenuView();
+                }
+        ));
 
-            String option = scanner.nextLine().trim();
-            switch (option) {
-                case "1":
-                    return new ApplicantProjectsView();
-                case "2":
-                    return new ApplicantViewMyApplicationsView();
-                case "3":
-                    return new ApplicantViewMyEnquiriesView();
-                case "":
-                    return null;
-                default:
-                    System.out.println("Invalid option.");
-                    System.out.println("Type anything to continue.");
-                    scanner.nextLine();
+        while (true) {
+            System.out.println(BashColors.format("Choose a dashboard to view", BashColors.BOLD));
+            int i = 1;
+            for (ViewOption option : options) {
+                String[] str = option.getOption();
+                if (str.length > 0) {
+                    System.out.println(i++ + ". " + str[0]);
+                    for (int j = 1; j < str.length; j++) {
+                        System.out.println("   " + str[j]);
+                    }
+                }
             }
+            System.out.println("");
+            System.out.println("Type the option (e.g. 1, 2, 3) you want to select.");
+
+            String _optionIndex = scanner.nextLine().trim();
+            try {
+                int optionIndex = Integer.parseInt(_optionIndex) - 1;
+                ViewOption option = options.get(optionIndex);
+                if (option != null) {
+                    return option.getCallback().get();
+                }
+            } catch (NumberFormatException _) {}
+            System.out.println(BashColors.format("Invalid option.", BashColors.RED));
+            System.out.println("Type anything to continue.");
+            scanner.nextLine();
         }
     }
+
+    private void logout() {
+        ctx.clearViewStack();
+        ctx.setUser(null);
+        System.out.println(BashColors.format("Logged out!", BashColors.GREEN));
+    }
+
 }

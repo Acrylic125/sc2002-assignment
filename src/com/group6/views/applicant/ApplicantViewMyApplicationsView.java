@@ -5,12 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
-import com.group6.btoproject.BTOApplication;
-import com.group6.btoproject.BTOApplicationStatus;
-import com.group6.btoproject.BTOApplicationWithdrawal;
-import com.group6.btoproject.BTOProject;
-import com.group6.btoproject.BTOProjectManager;
-import com.group6.btoproject.BTOProjectType;
+import com.group6.btoproject.*;
 import com.group6.btoproject.BTOProjectManager.BTOFullApplication;
 import com.group6.users.User;
 import com.group6.users.UserManager;
@@ -25,6 +20,7 @@ public class ApplicantViewMyApplicationsView implements PaginatedView, Authentic
     private static final int PAGE_SIZE = 3;
 
     private ViewContext ctx;
+    private User user;
     private int page = 1;
     private List<BTOFullApplication> applications = new ArrayList<>();
     private List<BTOFullApplication> filteredApplications = new ArrayList<>();
@@ -48,9 +44,36 @@ public class ApplicantViewMyApplicationsView implements PaginatedView, Authentic
         return page;
     }
 
+    private String stringifyApplicationStatus(BTOApplicationStatus status) {
+        switch (status) {
+            case PENDING:
+                return BashColors.format("Pending", BashColors.YELLOW);
+            case BOOKED:
+                return BashColors.format("Booked", BashColors.BLUE);
+            case SUCCESSFUL:
+                return BashColors.format("Successful", BashColors.GREEN);
+            case UNSUCCESSFUL:
+                return BashColors.format("Unsuccessful", BashColors.RED);
+        }
+        return BashColors.format("(Unknown)", BashColors.LIGHT_GRAY);
+    }
+
+    private String stringifyWithdrawalStatus(BTOApplicationWithdrawalStatus status) {
+        switch (status) {
+            case PENDING:
+                return BashColors.format("Pending", BashColors.YELLOW);
+            case SUCCESSFUL:
+                return BashColors.format("Successful", BashColors.GREEN);
+            case UNSUCCESSFUL:
+                return BashColors.format("Unsuccessful", BashColors.RED);
+        }
+        return BashColors.format("(Unknown)", BashColors.LIGHT_GRAY);
+    }
+
     @Override
     public View render(ViewContext ctx, User user) {
         this.ctx = ctx;
+        this.user = user;
 
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
         this.applications = new ArrayList<>(
@@ -102,23 +125,7 @@ public class ApplicantViewMyApplicationsView implements PaginatedView, Authentic
             System.out.println("ID: " + project.getId());
 
             BTOApplicationStatus status = application.getStatus();
-            String statusStr;
-            switch (status) {
-                case PENDING:
-                    statusStr = BashColors.format("Pending", BashColors.YELLOW);
-                    break;
-                case BOOKED:
-                    statusStr = BashColors.format("Booked", BashColors.BLUE);
-                    break;
-                case SUCCESSFUL:
-                    statusStr = BashColors.format("Successful", BashColors.GREEN);
-                    break;
-                case UNSUCCESSFUL:
-                    statusStr = BashColors.format("Unsuccessful", BashColors.RED);
-                    break;
-                default:
-                    statusStr = "Unknown";
-            }
+            String statusStr = stringifyApplicationStatus(status);
 
             System.out.println("Status: " + statusStr);
 
@@ -127,27 +134,27 @@ public class ApplicantViewMyApplicationsView implements PaginatedView, Authentic
                     .findFirst();
 
             if (typeOpt.isEmpty()) {
-                System.out.println(
-                        "No. of Units: (Unknown)");
-                System.out.println("  Type " + typeOpt.get().getId() + " does not exist in project.");
-                System.out.println("Price: (Unknown)");
-                System.out.println("  Type " + typeOpt.get().getId() + " does not exist in project.");
+                System.out.println(BashColors.format("Type: (Unknown)", BashColors.RED));
+                System.out.println("  No. of Units: (Unknown)");
+                System.out.println("  Price: (Unknown)");
+                System.out.println(BashColors.format(
+                        "  Type " + application.getTypeId().getName() + " does not exist in project.", BashColors.RED));
             } else {
                 BTOProjectType type = typeOpt.get();
-                System.out.println(
-                        "No. of Units: " + project.getBookedCountForType(type.getId()) + " / " + type.getMaxQuantity());
-                System.out.println("Price: $" + Utils.formatMoney(type.getPrice()));
+                System.out.println("Type: " + type.getId().getName());
+                System.out.println("  No. of Units: " + project.getBookedCountForType(type.getId()) + " / " + type.getMaxQuantity());
+                System.out.println("  Price: $" + Utils.formatMoney(type.getPrice()));
             }
 
             System.out.println("Application period: " + Utils.formatToDDMMYYYY(project.getApplicationOpenDate())
                     + " to " + Utils.formatToDDMMYYYY(project.getApplicationCloseDate()));
             System.out.println("Manager / Officers: " + managerName + " / " + officerNames);
             if (withdrawalOpt.isPresent()) {
-                System.out.println("Withdrawal Status: " + withdrawalOpt.get().getStatus());
+                System.out.println("Withdrawal Status: " + stringifyWithdrawalStatus(withdrawalOpt.get().getStatus()));
             } else {
-                System.out.println("Withdrawal Status: N/A");
+                System.out.println("Withdrawal Status: " + BashColors.format("N/A", BashColors.LIGHT_GRAY));
             }
-            System.out.println("");
+            System.out.println();
         }
         System.out.println("Showing " + (lastIndex - firstIndex) + " of " + applications.size());
     }
@@ -163,43 +170,58 @@ public class ApplicantViewMyApplicationsView implements PaginatedView, Authentic
             String option = scanner.nextLine().trim();
             switch (option) {
                 case "e":
-                    return new ApplicantProjectEnquiryView();
+                    Optional<BTOProject> projectOpt = showRequestProject();
+                    if (projectOpt.isEmpty()) {
+                        break;
+                    }
+                    final BTOProject project = projectOpt.get();
+                    return new ApplicantProjectEnquiryView(project, () -> project.getEnquiries().stream()
+                            .filter((enquiry) -> enquiry.getSenderMessage().getSenderUserId().equals(user.getId()))
+                            .toList());
                 case "w":
                     return new ApplicantApplicationWithdrawalView();
                 case "f":
                     return new ApplicantViewMyApplicationsFilterView();
                 case "n":
-                    if (!this.nextPage()) {
-                        System.out.println("You are already on the last page.");
-                        System.out.println("Type anything to continue.");
-                        scanner.nextLine();
-                    }
+                    this.requestNextPage(scanner);
                     break;
                 case "p":
-                    if (!this.prevPage()) {
-                        System.out.println("You are already on the first page.");
-                        System.out.println("Type anything to continue.");
-                        scanner.nextLine();
-                    }
+                    this.requestPrevPage(scanner);
                     break;
                 case "page":
-                    Optional<Integer> pageOpt = this.requestPage(scanner);
-                    if (pageOpt.isEmpty()) {
-                        break;
-                    }
-                    if (!this.page(pageOpt.get())) {
-                        System.out.println("Invalid page number.");
-                        System.out.println("Type anything to continue.");
-                        scanner.nextLine();
-                    }
+                    this.requestPage(scanner);
                     break;
                 case "":
                     return null;
                 default:
-                    System.out.println("Invalid option.");
+                    System.out.println(BashColors.format("Invalid option.", BashColors.RED));
                     System.out.println("Type anything to continue.");
                     scanner.nextLine();
             }
+        }
+    }
+
+    private Optional<BTOProject> showRequestProject() {
+        final Scanner scanner = ctx.getScanner();
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+
+        while (true) {
+            System.out.println(BashColors.format(
+                    "Type in the project id you or leave empty ('') to cancel:", BashColors.BOLD));
+            final String projectId = scanner.nextLine().trim();
+            if (projectId.isEmpty()) {
+                return Optional.empty();
+            }
+
+            final Optional<BTOProject> projectOpt = projectManager.getProject(projectId);
+            if (projectOpt.isEmpty()) {
+                System.out.println(
+                        BashColors.format("Project not found, please type in a valid project id.", BashColors.BOLD));
+                System.out.println("Type anything to continue.");
+                scanner.nextLine();
+                continue;
+            }
+            return projectOpt;
         }
     }
 

@@ -12,7 +12,7 @@ import java.util.UUID;
 public class BTOEnquiry {
     /**
      *
-     * @param senderMessage sender message.
+     * @param senderMessage   sender message.
      * @param responseMessage response message.
      * @return {@link BTOEnquiry} instance.
      */

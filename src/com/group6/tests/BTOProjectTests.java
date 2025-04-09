@@ -3,8 +3,6 @@ package com.group6.tests;
 import com.group6.btoproject.*;
 import com.group6.utils.Utils;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.Date;
 import java.util.UUID;
 
@@ -16,9 +14,22 @@ public class BTOProjectTests {
     public static void main(String[] args) {
         BTOProjectManager projectManager = new BTOProjectManager();
         BTOProject project = new BTOProject(UUID.randomUUID().toString(), UUID.randomUUID().toString());
-        project.addProjectType(new BTOProjectType(BTOProjectTypeID.S_2_ROOM, 15_000, 2));
-        project.addProjectType(new BTOProjectType(BTOProjectTypeID.S_3_ROOM, 40_000, 1));
+        project.setName("A");
+        project.setProjectType(new BTOProjectType(BTOProjectTypeID.S_2_ROOM, 15_000, 2));
+        project.setProjectType(new BTOProjectType(BTOProjectTypeID.S_3_ROOM, 40_000, 1));
         project.setOfficerLimit(1);
+
+        BTOProject project2 = new BTOProject(UUID.randomUUID().toString(), UUID.randomUUID().toString());
+        project2.setName("B");
+        project2.setProjectType(new BTOProjectType(BTOProjectTypeID.S_2_ROOM, 15_000, 2));
+        project2.setProjectType(new BTOProjectType(BTOProjectTypeID.S_3_ROOM, 40_000, 1));
+        project2.setOfficerLimit(1);
+
+        BTOProject project3 = new BTOProject(UUID.randomUUID().toString(), UUID.randomUUID().toString());
+        project3.setName("C");
+        project3.setProjectType(new BTOProjectType(BTOProjectTypeID.S_2_ROOM, 15_000, 2));
+        project3.setProjectType(new BTOProjectType(BTOProjectTypeID.S_3_ROOM, 40_000, 1));
+        project3.setOfficerLimit(1);
 
         Date today = new Date(System.currentTimeMillis());
         Date tomorrow = new Date(System.currentTimeMillis() + 86400_000);
@@ -28,6 +39,16 @@ public class BTOProjectTests {
                 tomorrow
         );
         projectManager.addProject(project);
+        project2.setApplicationWindow(
+                today,
+                tomorrow
+        );
+        projectManager.addProject(project2);
+        project3.setApplicationWindow(
+                today,
+                tomorrow
+        );
+        projectManager.addProject(project3);
 
         String[] userIds = {
                 "User 1",
@@ -58,6 +79,11 @@ public class BTOProjectTests {
         }).getErr().get().getMessage());
         System.out.println("  Done!");
 
+        System.out.println("Checking if applicant can apply to other projects:");
+        projectManager.requestApply(project3.getId(), userIds[0], BTOProjectTypeID.S_2_ROOM);
+        projectManager.requestApply(project3.getId(), userIds[1], BTOProjectTypeID.S_2_ROOM);
+        System.out.println("  Done!");
+
         System.out.println("Checking if can transition application:");
         String[] applicationIds = {
                 project.getActiveApplication(userIds[0]).get().getId(),
@@ -70,6 +96,17 @@ public class BTOProjectTests {
         projectManager.transitionApplicationStatus(project.getId(), applicationIds[0], BTOApplicationStatus.BOOKED);
         projectManager.transitionApplicationStatus(project.getId(), applicationIds[1], BTOApplicationStatus.SUCCESSFUL);
         projectManager.transitionApplicationStatus(project.getId(), applicationIds[1], BTOApplicationStatus.BOOKED);
+        System.out.println("  Done!");
+
+        System.out.println("Checking if can directly transition to BOOKED if already booked (Should error):");
+        String[] application2Ids = {
+                project3.getActiveApplication(userIds[0]).get().getId(),
+                project3.getActiveApplication(userIds[1]).get().getId(),
+        };
+        projectManager.transitionApplicationStatus(project3.getId(), application2Ids[0], BTOApplicationStatus.SUCCESSFUL);
+        System.out.println("  Err: " + Utils.tryCatch(() -> {
+            projectManager.transitionApplicationStatus(project3.getId(), application2Ids[0], BTOApplicationStatus.BOOKED);
+        }).getErr().get().getMessage());
         System.out.println("  Done!");
 
         System.out.println("Checking if can directly transition to BOOKED (Should error):");
@@ -105,13 +142,18 @@ public class BTOProjectTests {
         });
         System.out.println("  Done!");
 
-        System.out.println("Checking if HDB officer registrants can register (Should error):");
+        System.out.println("Checking if HDB officer registrants can register for the same project (Should error):");
         System.out.println("  Err: " + Utils.tryCatch(() -> {
             projectManager.requestRegisterOfficer(project.getId(), userIds[2]);
         }).getErr().get().getMessage());
         System.out.println("  Err: " + Utils.tryCatch(() -> {
             projectManager.requestRegisterOfficer(project.getId(), userIds[4]);
         }).getErr().get().getMessage());
+        System.out.println("  Done!");
+
+        System.out.println("Checking if HDB officer registrants can register for other projects:");
+        projectManager.requestRegisterOfficer(project2.getId(), userIds[2]);
+        projectManager.requestRegisterOfficer(project2.getId(), userIds[4]);
         System.out.println("  Done!");
 
         System.out.println("Checking if HDB officer registrants can be approved:");
@@ -136,6 +178,13 @@ public class BTOProjectTests {
                 "Checking if approved HDB officer registrants can have their BTO application approved (Successful) (Should error):");
         System.out.println("  Err: " + Utils.tryCatch(() -> {
             projectManager.transitionApplicationStatus(project.getId(), applicationIds[2], BTOApplicationStatus.SUCCESSFUL);
+        }).getErr().get().getMessage());
+        System.out.println("  Done!");
+
+        System.out.println(
+                "Checking if approved HDB officer registrants can have their other pending registrations approved (Successful) (Should error):");
+        System.out.println("  Err: " + Utils.tryCatch(() -> {
+            projectManager.transitionOfficerRegistrationStatus(project2.getId(), userIds[2], HDBOfficerRegistrationStatus.SUCCESSFUL);
         }).getErr().get().getMessage());
         System.out.println("  Done!");
 
@@ -206,6 +255,26 @@ public class BTOProjectTests {
         project.getEnquiries().forEach((enquiry) -> {
             System.out.println("  " + enquiry.getSenderMessage().getSenderUserId() + ": "
                     + enquiry.getSenderMessage().getMessage());
+        });
+        System.out.println("  Done!");
+
+        // Simulate closing date.
+        today = new Date(System.currentTimeMillis() - 10_0000);
+        tomorrow = new Date(System.currentTimeMillis() - 10_0000);
+        project.setApplicationWindow(
+                today,
+                tomorrow
+        );
+        System.out.println(
+                "Checking if approved HDB officer registrants thats OUT OF THE APPLICATION WINDOW can have their other pending registrations approved (Successful):");
+        projectManager.transitionOfficerRegistrationStatus(project2.getId(), userIds[2], HDBOfficerRegistrationStatus.SUCCESSFUL);
+        System.out.println("  User 2 managed projects (Should show A and B):");
+        projectManager.getOfficerManagingProjects(userIds[2]).forEach((p) -> {
+            System.out.println("    " + p.getName());
+        });
+        System.out.println("  User 4 managed projects (Should not show any):");
+        projectManager.getOfficerManagingProjects(userIds[4]).forEach((p) -> {
+            System.out.println("    " + p.getName());
         });
         System.out.println("  Done!");
     }

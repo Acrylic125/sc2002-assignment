@@ -15,6 +15,8 @@ import java.util.*;
  */
 public class BTOProject {
 
+    public static final int OFFICER_LIMIT = 10;
+
     private final String id;
     private String name;
     private String neighbourhood;
@@ -117,7 +119,7 @@ public class BTOProject {
     /**
      * Enquiries getter.
      * Create copy to avoid direct mutations.
-     * 
+     *
      * @return {@link #enquiries}
      */
     public List<BTOEnquiry> getEnquiries() {
@@ -170,11 +172,33 @@ public class BTOProject {
     }
 
     /**
-     * Add a project type to the project.
+     * Get withdrawal by id.
+     *
+     * @param withdrawalId withdrawal id.
+     * @return the withdrawal tied to the withdrawal id.
+     */
+    public Optional<BTOApplicationWithdrawal> getWithdrawal(String withdrawalId) {
+        return withdrawals.stream()
+                .filter(withdrawal -> withdrawal.getId().equals(withdrawalId))
+                .findFirst();
+    }
+
+    /**
+     * Sets ALL project types to the project.
+     *
+     * @param projectTypes project type to add.
+     */
+    public void setProjectTypes(Map<BTOProjectTypeID, BTOProjectType> projectTypes) {
+        this.projectTypes.clear();
+        this.projectTypes.putAll(projectTypes);
+    }
+
+    /**
+     * Add/Update a project type to the project.
      *
      * @param projectType project type to add.
      */
-    public void addProjectType(BTOProjectType projectType) {
+    public void setProjectType(BTOProjectType projectType) {
         projectTypes.put(projectType.getId(), projectType);
     }
 
@@ -244,6 +268,17 @@ public class BTOProject {
     }
 
     /**
+     * Get an officer registration based on it's id.
+     * @param registrationId registration id.
+     * @return the hdb officer registration tied to the registration id.
+     */
+    public Optional<HDBOfficerRegistration> getOfficerRegistration(String registrationId) {
+        return hdbOfficerRegistrations.stream()
+                .filter((registration) -> registration.getId().equals(registrationId))
+                .findFirst();
+    }
+
+    /**
      * Get the user's active application.
      * An active application is one that is either pending, successful or booked.
      *
@@ -286,13 +321,22 @@ public class BTOProject {
 
     /**
      * Determine if the user is a successfully registered officer.
-     * 
+     *
      * @param officerUserId officer user id.
      * @return true if the user is a successfully registered officer.
      */
     public boolean isManagingOfficer(String officerUserId) {
         return getManagingOfficerRegistrations().stream()
                 .anyMatch(registration -> registration.getOfficerUserId().equals(officerUserId));
+    }
+
+    /**
+     * Check if the user is managing this project.
+     * @param userId user id.
+     * @return true if the user is managing this project.
+     */
+    public boolean isManagedBy(String userId) {
+        return managerUserId.equals(userId) || isManagingOfficer(userId);
     }
 
     /**
@@ -395,6 +439,9 @@ public class BTOProject {
     public void setOfficerLimit(int officerLimit) throws RuntimeException {
         if (officerLimit < 0) {
             throw new IllegalArgumentException("Officer limit cannot be negative.");
+        }
+        if (officerLimit > OFFICER_LIMIT) {
+            throw new IllegalArgumentException("Officer limit cannot exceed " + OFFICER_LIMIT + ".");
         }
         this.officerLimit = officerLimit;
     }

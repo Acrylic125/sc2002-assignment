@@ -1,5 +1,7 @@
 package com.group6.views;
 
+import com.group6.utils.BashColors;
+
 import java.util.Optional;
 import java.util.Scanner;
 
@@ -10,33 +12,59 @@ public interface PaginatedView extends View {
 
     void setPage(int page);
 
-    default Optional<Integer> requestPage(Scanner scanner) {
+    default boolean requestPage(Scanner scanner) {
         while (true) {
-            System.out.println("You are currently on page " + getPage() + " / " + getLastPage());
+            System.out.println(BashColors.format("You are currently on page " + getPage() + " / " + getLastPage(), BashColors.BOLD));
             System.out.println("Type the page number you want to go to or empty ('') to go back:");
             String pageStr = scanner.nextLine().trim();
-            if (pageStr.isEmpty()) return Optional.empty();
+            if (pageStr.isEmpty()) return false;
             try {
                 int page = Integer.parseInt(pageStr);
                 if (page >= 1 && page <= getLastPage()) {
-                    return Optional.of(page);
-                } else {
-                    if (getLastPage() <= 0) {
-                        System.out.println("There is only page 0 (i.e. no page).");
+                    if (!this.page(page)) {
+                        System.out.println(BashColors.format("Invalid page number.", BashColors.RED));
                         System.out.println("Type anything to continue.");
                         scanner.nextLine();
-                        return Optional.empty();
+                        return false;
                     }
-                    System.out.println("Invalid page number, page must be between 1 and "+ getLastPage() + " (inclusive).");
+                    return true;
+                } else {
+                    if (getLastPage() <= 0) {
+                        System.out.println(BashColors.format("There is only page 0 (i.e. no page).", BashColors.RED));
+                        System.out.println("Type anything to continue.");
+                        scanner.nextLine();
+                        return false;
+                    }
+                    System.out.println(BashColors.format("Invalid page number, page must be between 1 and "+ getLastPage() + " (inclusive).", BashColors.RED));
                     System.out.println("Type anything to continue.");
                     scanner.nextLine();
                 }
             } catch (NumberFormatException ex) {
-                System.out.println("Invalid number, page must be an integer!");
+                System.out.println(BashColors.format("Invalid number, page must be an integer!", BashColors.RED));
                 System.out.println("Type anything to continue.");
                 scanner.nextLine();
             }
         }
+    }
+
+    default boolean requestNextPage(Scanner scanner) {
+        if (!this.nextPage()) {
+            System.out.println(BashColors.format("You are already on the last page.", BashColors.RED));
+            System.out.println("Type anything to continue.");
+            scanner.nextLine();
+            return true;
+        }
+        return true;
+    }
+
+    default boolean requestPrevPage(Scanner scanner) {
+        if (!this.nextPage()) {
+            System.out.println(BashColors.format("You are already on the first page.", BashColors.RED));
+            System.out.println("Type anything to continue.");
+            scanner.nextLine();
+            return true;
+        }
+        return true;
     }
 
     default boolean page(int page) {

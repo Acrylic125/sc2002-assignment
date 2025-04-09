@@ -3,6 +3,7 @@ package com.group6.views;
 import com.group6.BTOSystem;
 import com.group6.users.User;
 import com.group6.views.applicant.ApplicantViewMyApplicationFilters;
+import com.group6.views.applicant.ProjectsView;
 import com.group6.views.applicant.ProjectsViewFilters;
 
 import java.util.Optional;
@@ -51,6 +52,13 @@ public final class ViewContext {
     }
 
     /**
+     * Clear view stack.
+     */
+    public void clearViewStack() {
+        viewStack.clear();
+    }
+
+    /**
      *
      * @return The top view.
      * @throws IllegalStateException If there are no more views.
@@ -69,7 +77,7 @@ public final class ViewContext {
      * Return null to go back (i.e. cancel).
      * Return a new view instance to go to that view.
      * Return the view (i.e. this) to stay within the view.
-     * See {@link com.group6.views.applicant.ApplicantProjectsView} and
+     * See {@link ProjectsView} and
      * {@link com.group6.views.applicant.ApplicantProjectEnquiryView} for an
      * example.
      * 

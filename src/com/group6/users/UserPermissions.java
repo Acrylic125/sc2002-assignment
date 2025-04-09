@@ -16,6 +16,7 @@ public class UserPermissions {
     private int respondEnquiries;
     private boolean viewNonVisibleProjects;
     private boolean viewClosedProjects;
+    private boolean canGenerateReport;
 
     protected UserPermissions() {}
 

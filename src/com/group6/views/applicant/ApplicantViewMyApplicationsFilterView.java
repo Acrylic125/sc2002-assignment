@@ -115,8 +115,9 @@ public class ApplicantViewMyApplicationsFilterView extends ProjectsViewFiltersVi
             System.out.println("");
             System.out.println(
                     "Type the application status type you want to filter, or leave empty ('') to not set one.");
-            System.out.println(
-                    "* You may specify multiple by leaving a ',' between entries(e.g. \"PENDING, BOOKED\") which will filter for projects with EITHER pending or booked application statuses.");
+            System.out.println(BashColors.format(
+                    "NOTE: You may specify multiple by leaving a ',' between entries(e.g. \"PENDING, BOOKED\") which will filter for projects with EITHER pending or booked application statuses.",
+                    BashColors.LIGHT_GRAY));
 
             String statusFilterRaw = scanner.nextLine().trim();
             if (statusFilterRaw.isEmpty()) {
@@ -146,8 +147,9 @@ public class ApplicantViewMyApplicationsFilterView extends ProjectsViewFiltersVi
             filters.setApplicationStatusesFilter(newStatusFilters);
             break;
         }
-        System.out.println(
-                "Application Statuses set to: " + stringifyApplicationStatuses(filters.getApplicationStatusesFilter()));
+        System.out.println(BashColors.format(
+                "Application Statuses set to: " + stringifyApplicationStatuses(filters.getApplicationStatusesFilter()),
+                BashColors.GREEN));
         System.out.println("Type anything to continue.");
         scanner.nextLine();
     }

@@ -12,6 +12,7 @@ public class ApplicantHomeView implements AuthenticatedView {
     private final boolean isRootView;
 
     private ViewContext ctx;
+    private User user;
 
     public ApplicantHomeView(boolean isRootView) {
         this.isRootView = isRootView;
@@ -20,6 +21,7 @@ public class ApplicantHomeView implements AuthenticatedView {
     @Override
     public View render(ViewContext ctx, User user) {
         this.ctx = ctx;
+        this.user = user;
 
         return showOptions();
     }
@@ -29,9 +31,11 @@ public class ApplicantHomeView implements AuthenticatedView {
 
         List<ViewOption> options = new ArrayList<>();
         options.add(new ViewOption("View All Projects", ProjectsView::new));
-        options.add(new ViewOption("View My Applied Projects", ApplicantViewMyApplicationsView::new));
-        options.add(new ViewOption("View My Enquiries", ApplicantViewMyEnquiriesView::new));
-        options.add(new ViewOption("View My Booking Receipts", ApplicantReceiptsView::new));
+        if (user.getPermissions().canApply()) {
+            options.add(new ViewOption("View My Applied Projects", ApplicantViewMyApplicationsView::new));
+            options.add(new ViewOption("View My Enquiries", ApplicantViewMyEnquiriesView::new));
+            options.add(new ViewOption("View My Booking Receipts", ApplicantReceiptsView::new));
+        }
         if (this.isRootView) {
             options.add(new ViewOption("Logout", () -> {
                 logout();

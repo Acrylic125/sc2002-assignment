@@ -163,10 +163,8 @@ public class ProjectsViewFilters {
         }
 
         // Filter by managing project.
-        return !isOnlyShowManagedProjects() || (project.getManagerUserId().equals(user.getId())
-                || project.getManagingOfficerRegistrations().stream()
-                .anyMatch((reg) -> reg.getOfficerUserId().equals(user.getId())));
-    }
+        return !isOnlyShowManagedProjects() || project.isManagedBy(user.getId());
+   }
 
     /**
      * Applies the filters INCLUDING SORTING, to a list of projects, given the user.
@@ -185,7 +183,7 @@ public class ProjectsViewFilters {
         }
         filteredProjects = new ArrayList<>(filteredProjects);
         if (sortByName == ViewSortType.ASC) {
-            filteredProjects.sort((a, b) -> a.getName().compareTo(b.getName()));
+            filteredProjects.sort(Comparator.comparing(BTOProject::getName));
         } else {
             filteredProjects.sort((a, b) -> b.getName().compareTo(a.getName()));
         }

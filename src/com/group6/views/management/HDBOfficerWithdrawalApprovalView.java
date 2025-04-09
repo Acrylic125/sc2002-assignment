@@ -26,7 +26,7 @@ public class HDBOfficerWithdrawalApprovalView implements PaginatedView, Authenti
 
     private final BTOProject project;
 
-    private List<BTOApplicationWithdrawal> applications;
+    private final List<BTOApplicationWithdrawal> applications;
     private ViewContext ctx;
     private int page = 1;
 
@@ -82,7 +82,7 @@ public class HDBOfficerWithdrawalApprovalView implements PaginatedView, Authenti
 
         System.out.println(BashColors.format(
                 "Withdrawals for " + project.getName() + ", " + project.getNeighbourhood(), BashColors.BOLD));
-        System.out.println("Withdrawal ID | Application ID | Applicant | Status");
+        System.out.println("Withdrawal ID | Application ID | Applicant | Type | Status");
         final int lastIndex = Math.min(page * PAGE_SIZE, applications.size());
         final int firstIndex = (page - 1) * PAGE_SIZE;
         // Render the projects in the page.
@@ -107,6 +107,7 @@ public class HDBOfficerWithdrawalApprovalView implements PaginatedView, Authenti
                             + application.getId() + " | "
                             + userStr + " ("
                             + BashColors.format(application.getApplicantUserId(), BashColors.LIGHT_GRAY) + ")" + " | "
+                            + application.getTypeId().getName() + " | "
                             + statusStr);
         }
     }

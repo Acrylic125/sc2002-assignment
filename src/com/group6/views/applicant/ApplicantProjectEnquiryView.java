@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
+import java.util.function.Supplier;
 
 import com.group6.btoproject.BTOEnquiry;
 import com.group6.btoproject.BTOEnquiryMessage;
@@ -22,22 +23,25 @@ public class ApplicantProjectEnquiryView implements PaginatedView, Authenticated
     private static final int PAGE_SIZE = 3;
 
     private final BTOProject project;
-    private final List<BTOEnquiry> enquiries;
+    private final Supplier<List<BTOEnquiry>> enquiriesSupplier;
 
+    private List<BTOEnquiry> enquiries;
     private ViewContext ctx;
     private User user;
     private int page = 1;
     private boolean canRespond;
 
-    public ApplicantProjectEnquiryView(BTOProject project, List<BTOEnquiry> enquiries, boolean canRespond) {
+    public ApplicantProjectEnquiryView(BTOProject project, Supplier<List<BTOEnquiry>> enquiriesSupplier, boolean canRespond) {
         this.project = project;
-        this.enquiries = enquiries;
+        this.enquiriesSupplier = enquiriesSupplier;
+        this.enquiries = enquiriesSupplier.get();
         this.canRespond = canRespond;
     }
 
-    public ApplicantProjectEnquiryView(BTOProject project, List<BTOEnquiry> enquiries) {
+    public ApplicantProjectEnquiryView(BTOProject project, Supplier<List<BTOEnquiry>> enquiriesSupplier) {
         this.project = project;
-        this.enquiries = enquiries;
+        this.enquiriesSupplier = enquiriesSupplier;
+        this.enquiries = enquiriesSupplier.get();
     }
 
     @Override
@@ -74,9 +78,7 @@ public class ApplicantProjectEnquiryView implements PaginatedView, Authenticated
                 .format(project.getName() + ", " + project.getNeighbourhood() + " - Enquiries", BashColors.BOLD));
         System.out.println("Enquiry ID | Message | Response");
         if (enquiries.isEmpty()) {
-            System.out.println(BashColors.format("No enquiries found.", BashColors.RED));
-            System.out.println("Type anything to continue.");
-            scanner.nextLine();
+            System.out.println(BashColors.format("(No enquiries found)", BashColors.LIGHT_GRAY));
             return;
         }
         int lastIndex = Math.min(page * PAGE_SIZE, enquiries.size());
@@ -247,6 +249,7 @@ public class ApplicantProjectEnquiryView implements PaginatedView, Authenticated
             return;
         }
         enquiry.setResponseMessage(new BTOEnquiryMessage(user.getId(), newMessage));
+        this.enquiries = enquiriesSupplier.get();
         System.out.println(BashColors.format("Message responded!", BashColors.GREEN));
         System.out.println("Type anything to continue.");
         scanner.nextLine();
@@ -299,6 +302,7 @@ public class ApplicantProjectEnquiryView implements PaginatedView, Authenticated
             return;
         }
         enquiry.setSenderMessage(new BTOEnquiryMessage(user.getId(), newMessage));
+        this.enquiries = enquiriesSupplier.get();
         System.out.println(BashColors.format("Message updated!", BashColors.GREEN));
         System.out.println("Type anything to continue.");
         scanner.nextLine();
@@ -315,6 +319,7 @@ public class ApplicantProjectEnquiryView implements PaginatedView, Authenticated
         project.addEnquiry(BTOEnquiry.create(
                 new BTOEnquiryMessage(user.getId(), opt),
                 null));
+        this.enquiries = enquiriesSupplier.get();
         System.out.println(BashColors.format("Message sent!", BashColors.GREEN));
         System.out.println("Type anything to continue.");
         scanner.nextLine();
@@ -359,6 +364,7 @@ public class ApplicantProjectEnquiryView implements PaginatedView, Authenticated
         }
 
         project.deleteEnquiry(enquiry.getId());
+        this.enquiries = enquiriesSupplier.get();
         System.out.println(BashColors.format("Message deleted", BashColors.GREEN));
         System.out.println("Type anything to continue.");
         scanner.nextLine();

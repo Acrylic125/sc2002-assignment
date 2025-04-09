@@ -198,11 +198,10 @@ public class ProjectsView implements PaginatedView, AuthenticatedView {
                 final BTOProject project = projectOpt.get();
                 final int enquiryLevel = user.getPermissions().getRespondEnquiresLevel();
                 final boolean canRespondToProject = (enquiryLevel == 1 && project.isManagingOfficer(user.getId())) || enquiryLevel == 2;
-                final List<BTOEnquiry> enquiries = project.getEnquiries().stream()
+                return new ApplicantProjectEnquiryView(project, () -> project.getEnquiries().stream()
                         .filter((enquiry) ->
                                 canRespondToProject || enquiry.getSenderMessage().getSenderUserId().equals(user.getId()))
-                        .toList();
-                return new ApplicantProjectEnquiryView(project, enquiries, canRespondToProject);
+                        .toList(), canRespondToProject);
             }
             System.out.println(BashColors.format("Invalid option.", BashColors.RED));
             System.out.println("Type anything to continue.");
@@ -226,7 +225,7 @@ public class ProjectsView implements PaginatedView, AuthenticatedView {
             final Optional<BTOProject> projectOpt = projectManager.getProject(projectId);
             if (projectOpt.isEmpty()) {
                 System.out.println(
-                        BashColors.format("Project not found, please type in a valid project id.", BashColors.BOLD));
+                        BashColors.format("Project not found, please type in a valid project id.", BashColors.RED));
                 System.out.println("Type anything to continue.");
                 scanner.nextLine();
                 continue;

@@ -14,10 +14,7 @@ import com.group6.views.View;
 import com.group6.views.ViewContext;
 import com.group6.views.applicant.ApplicantProjectEnquiryView;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Scanner;
+import java.util.*;
 
 public class HDBOfficerManagedProjectsView implements PaginatedView, AuthenticatedView {
 
@@ -59,7 +56,8 @@ public class HDBOfficerManagedProjectsView implements PaginatedView, Authenticat
 
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
 
-        this.managedProjects = projectManager.getManagingProjects(user.getId());
+        this.managedProjects = new ArrayList<>(projectManager.getManagingProjects(user.getId()));
+        this.managedProjects.sort(Comparator.comparing(BTOProject::getName));
 
         return showOptions();
     }
@@ -171,8 +169,7 @@ public class HDBOfficerManagedProjectsView implements PaginatedView, Authenticat
                             break;
                         }
                         final BTOProject project = projectOpt.get();
-                        final List<BTOEnquiry> enquiries = project.getEnquiries();
-                        return new ApplicantProjectEnquiryView(project, enquiries, true);
+                        return new ApplicantProjectEnquiryView(project, project::getEnquiries, true);
                     }
                 case "w":
                     if (permissions.canApproveWithdrawal()) {
@@ -250,7 +247,7 @@ public class HDBOfficerManagedProjectsView implements PaginatedView, Authenticat
             }
 
             BTOProject project = projectOpt.get();
-            if (!project.isManagingOfficer(user.getId())) {
+            if (!project.isManagedBy(user.getId())) {
                 System.out.println(BashColors.format(
                         "You are not managing this project.",
                         BashColors.RED));
@@ -306,6 +303,9 @@ public class HDBOfficerManagedProjectsView implements PaginatedView, Authenticat
                 continue;
             }
             System.out.println(BashColors.format("Project has been deleted.", BashColors.GREEN));
+            // Refresh the managed projects list.
+            this.managedProjects = projectManager.getManagingProjects(user.getId());
+            return;
         }
     }
 

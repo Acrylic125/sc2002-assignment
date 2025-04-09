@@ -5,13 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
-import com.group6.btoproject.BTOApplication;
-import com.group6.btoproject.BTOApplicationStatus;
-import com.group6.btoproject.BTOApplicationWithdrawal;
-import com.group6.btoproject.BTOEnquiry;
-import com.group6.btoproject.BTOProject;
-import com.group6.btoproject.BTOProjectManager;
-import com.group6.btoproject.BTOProjectType;
+import com.group6.btoproject.*;
 import com.group6.btoproject.BTOProjectManager.BTOFullApplication;
 import com.group6.users.User;
 import com.group6.users.UserManager;
@@ -56,6 +50,18 @@ public class ApplicantViewMyApplicationsView implements PaginatedView, Authentic
                 return BashColors.format("Pending", BashColors.YELLOW);
             case BOOKED:
                 return BashColors.format("Booked", BashColors.BLUE);
+            case SUCCESSFUL:
+                return BashColors.format("Successful", BashColors.GREEN);
+            case UNSUCCESSFUL:
+                return BashColors.format("Unsuccessful", BashColors.RED);
+        }
+        return BashColors.format("(Unknown)", BashColors.LIGHT_GRAY);
+    }
+
+    private String stringifyWithdrawalStatus(BTOApplicationWithdrawalStatus status) {
+        switch (status) {
+            case PENDING:
+                return BashColors.format("Pending", BashColors.YELLOW);
             case SUCCESSFUL:
                 return BashColors.format("Successful", BashColors.GREEN);
             case UNSUCCESSFUL:
@@ -128,27 +134,27 @@ public class ApplicantViewMyApplicationsView implements PaginatedView, Authentic
                     .findFirst();
 
             if (typeOpt.isEmpty()) {
-                System.out.println(
-                        "No. of Units: (Unknown)");
-                System.out.println("Price: (Unknown)");
+                System.out.println(BashColors.format("Type: (Unknown)", BashColors.RED));
+                System.out.println("  No. of Units: (Unknown)");
+                System.out.println("  Price: (Unknown)");
                 System.out.println(BashColors.format(
                         "  Type " + application.getTypeId().getName() + " does not exist in project.", BashColors.RED));
             } else {
                 BTOProjectType type = typeOpt.get();
-                System.out.println(
-                        "No. of Units: " + project.getBookedCountForType(type.getId()) + " / " + type.getMaxQuantity());
-                System.out.println("Price: $" + Utils.formatMoney(type.getPrice()));
+                System.out.println("Type: " + type.getId().getName());
+                System.out.println("  No. of Units: " + project.getBookedCountForType(type.getId()) + " / " + type.getMaxQuantity());
+                System.out.println("  Price: $" + Utils.formatMoney(type.getPrice()));
             }
 
             System.out.println("Application period: " + Utils.formatToDDMMYYYY(project.getApplicationOpenDate())
                     + " to " + Utils.formatToDDMMYYYY(project.getApplicationCloseDate()));
             System.out.println("Manager / Officers: " + managerName + " / " + officerNames);
             if (withdrawalOpt.isPresent()) {
-                System.out.println("Withdrawal Status: " + withdrawalOpt.get().getStatus());
+                System.out.println("Withdrawal Status: " + stringifyWithdrawalStatus(withdrawalOpt.get().getStatus()));
             } else {
-                System.out.println("Withdrawal Status: N/A");
+                System.out.println("Withdrawal Status: " + BashColors.format("N/A", BashColors.LIGHT_GRAY));
             }
-            System.out.println("");
+            System.out.println();
         }
         System.out.println("Showing " + (lastIndex - firstIndex) + " of " + applications.size());
     }
@@ -169,12 +175,9 @@ public class ApplicantViewMyApplicationsView implements PaginatedView, Authentic
                         break;
                     }
                     final BTOProject project = projectOpt.get();
-                    final List<BTOEnquiry> enquiries = project.getEnquiries().stream()
-                            .filter((enquiry) -> {
-                                return enquiry.getSenderMessage().getSenderUserId().equals(user.getId());
-                            })
-                            .toList();
-                    return new ApplicantProjectEnquiryView(project, enquiries);
+                    return new ApplicantProjectEnquiryView(project, () -> project.getEnquiries().stream()
+                            .filter((enquiry) -> enquiry.getSenderMessage().getSenderUserId().equals(user.getId()))
+                            .toList());
                 case "w":
                     return new ApplicantApplicationWithdrawalView();
                 case "f":

@@ -15,20 +15,20 @@ public class BTOProjectTests {
         BTOProjectManager projectManager = new BTOProjectManager();
         BTOProject project = new BTOProject(UUID.randomUUID().toString(), UUID.randomUUID().toString());
         project.setName("A");
-        project.addProjectType(new BTOProjectType(BTOProjectTypeID.S_2_ROOM, 15_000, 2));
-        project.addProjectType(new BTOProjectType(BTOProjectTypeID.S_3_ROOM, 40_000, 1));
+        project.setProjectType(new BTOProjectType(BTOProjectTypeID.S_2_ROOM, 15_000, 2));
+        project.setProjectType(new BTOProjectType(BTOProjectTypeID.S_3_ROOM, 40_000, 1));
         project.setOfficerLimit(1);
 
         BTOProject project2 = new BTOProject(UUID.randomUUID().toString(), UUID.randomUUID().toString());
         project2.setName("B");
-        project2.addProjectType(new BTOProjectType(BTOProjectTypeID.S_2_ROOM, 15_000, 2));
-        project2.addProjectType(new BTOProjectType(BTOProjectTypeID.S_3_ROOM, 40_000, 1));
+        project2.setProjectType(new BTOProjectType(BTOProjectTypeID.S_2_ROOM, 15_000, 2));
+        project2.setProjectType(new BTOProjectType(BTOProjectTypeID.S_3_ROOM, 40_000, 1));
         project2.setOfficerLimit(1);
 
         BTOProject project3 = new BTOProject(UUID.randomUUID().toString(), UUID.randomUUID().toString());
         project3.setName("C");
-        project3.addProjectType(new BTOProjectType(BTOProjectTypeID.S_2_ROOM, 15_000, 2));
-        project3.addProjectType(new BTOProjectType(BTOProjectTypeID.S_3_ROOM, 40_000, 1));
+        project3.setProjectType(new BTOProjectType(BTOProjectTypeID.S_2_ROOM, 15_000, 2));
+        project3.setProjectType(new BTOProjectType(BTOProjectTypeID.S_3_ROOM, 40_000, 1));
         project3.setOfficerLimit(1);
 
         Date today = new Date(System.currentTimeMillis());

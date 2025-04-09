@@ -39,7 +39,7 @@ public class ApplicantApplyProjectView implements AuthenticatedView {
             activeProjects.forEach((project) -> {
                 System.out.println(" - " + project.getName());
             });
-            System.out.println("");
+            System.out.println();
             System.out.println("Consider withdrawing your application before applying for a new project.");
             System.out.println("Type anything to continue.");
             scanner.nextLine();
@@ -51,6 +51,23 @@ public class ApplicantApplyProjectView implements AuthenticatedView {
             return null;
         }
         final BTOProject project = projectOpt.get();
+
+        if (project.getActiveApplication(user.getId()).isPresent()) {
+            System.out.println(BashColors.format(
+                    "You have already applied for this project.",
+                    BashColors.RED));
+            System.out.println("Type anything to continue.");
+            scanner.nextLine();
+            return null;
+        }
+        if (project.isManagedBy(user.getId())) {
+            System.out.println(BashColors.format(
+                    "You are managing this project. You may not apply for it.",
+                    BashColors.RED));
+            System.out.println("Type anything to continue.");
+            scanner.nextLine();
+            return null;
+        }
 
         final Optional<BTOProjectTypeID> typeOpt = showRequestProjectType(project);
         if (typeOpt.isEmpty()) {

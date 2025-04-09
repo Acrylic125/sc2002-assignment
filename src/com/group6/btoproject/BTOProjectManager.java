@@ -138,8 +138,8 @@ public class BTOProjectManager {
         projects.values().forEach(project -> {
             project.getApplications().forEach(application -> {
                 if (application.getApplicantUserId().equals(userId)) {
-                    Optional<BTOApplicationWithdrawal> wotjdrawaOpt = project.getActiveWithdrawal(application.getId());
-                    result.add(new BTOFullApplication(project, application, wotjdrawaOpt.orElse(null)));
+                    Optional<BTOApplicationWithdrawal> withdrawalOpt = project.getActiveWithdrawal(application.getId());
+                    result.add(new BTOFullApplication(project, application, withdrawalOpt.orElse(null)));
                 }
             });
         });
@@ -220,8 +220,8 @@ public class BTOProjectManager {
             throw new RuntimeException("Project type, " + typeId.getName() + " has no availability.");
         }
 
-        if (project.isManagingOfficer(applicantUserId)) {
-            throw new RuntimeException("Project registered officers cannot apply for this project.");
+        if (project.isManagedBy(applicantUserId)) {
+            throw new RuntimeException("User is already managing this project and thus cannot apply for this project..");
         }
 
         final BTOApplication application = new BTOApplication(
@@ -305,8 +305,8 @@ public class BTOProjectManager {
                 throw new RuntimeException("Application window is closed.");
             }
 
-            if (project.isManagingOfficer(application.getApplicantUserId())) {
-                throw new RuntimeException("Project registered officers cannot apply for this project.");
+            if (project.isManagedBy(application.getApplicantUserId())) {
+                throw new RuntimeException("User is already managing this project and thus cannot apply for this project..");
             }
 
             if (status == BTOApplicationStatus.BOOKED) {

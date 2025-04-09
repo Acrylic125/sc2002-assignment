@@ -68,8 +68,8 @@ public class Main {
         BTOProject acaciaBreezeYishun = new BTOProject("hello world", jessica.getId());
         acaciaBreezeYishun.setName("Acacia Breeze");
         acaciaBreezeYishun.setNeighbourhood("Yishun");
-        acaciaBreezeYishun.addProjectType(new BTOProjectType(BTOProjectTypeID.S_2_ROOM, 350_000, 2));
-        acaciaBreezeYishun.addProjectType(new BTOProjectType(BTOProjectTypeID.S_3_ROOM, 450_000, 3));
+        acaciaBreezeYishun.setProjectType(new BTOProjectType(BTOProjectTypeID.S_2_ROOM, 350_000, 2));
+        acaciaBreezeYishun.setProjectType(new BTOProjectType(BTOProjectTypeID.S_3_ROOM, 450_000, 3));
         LocalDate start = LocalDate.of(2025, 2, 15);
         LocalDate end = LocalDate.of(2025, 3, 20);
 
@@ -86,8 +86,8 @@ public class Main {
         BTOProject someBtoProject = new BTOProject(UUID.randomUUID().toString(), jessica.getId());
         someBtoProject.setName("Some BTO Project");
         someBtoProject.setNeighbourhood("Palau NTU");
-        someBtoProject.addProjectType(new BTOProjectType(BTOProjectTypeID.S_2_ROOM, 350_000, 2));
-        someBtoProject.addProjectType(new BTOProjectType(BTOProjectTypeID.S_3_ROOM, 450_000, 2));
+        someBtoProject.setProjectType(new BTOProjectType(BTOProjectTypeID.S_2_ROOM, 350_000, 2));
+        someBtoProject.setProjectType(new BTOProjectType(BTOProjectTypeID.S_3_ROOM, 450_000, 2));
 
         someBtoProject.setApplicationWindow(
                 Date.from(LocalDate.of(2025, 2, 15).atStartOfDay(ZoneId.systemDefault()).toInstant()),

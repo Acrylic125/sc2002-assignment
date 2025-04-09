@@ -77,14 +77,12 @@ public class EditProjectView implements AuthenticatedView {
                     project.setNeighbourhood(neighbourhood);
                     break;
                 case "3":
-                    Optional<Collection<BTOProjectType>> projectTypesOpt = showRequestProjectTypes();
+                    Optional<Map<BTOProjectTypeID, BTOProjectType>> projectTypesOpt = showRequestProjectTypes();
                     if (projectTypesOpt.isEmpty()) {
                         break;
                     }
-                    Collection<BTOProjectType> projectTypes = projectTypesOpt.get();
-                    for (BTOProjectType projectType : projectTypes) {
-                        project.addProjectType(projectType);
-                    }
+                    Map<BTOProjectTypeID, BTOProjectType> projectTypes = projectTypesOpt.get();
+                    project.setProjectTypes(projectTypes);
                     break;
                 case "4":
                     Optional<Integer> officerLimitOpt = showRequestOfficerLimit();
@@ -116,7 +114,6 @@ public class EditProjectView implements AuthenticatedView {
                     System.out.println(BashColors.format("Invalid option.", BashColors.RED));
                     System.out.println("Type anything to continue.");
                     scanner.nextLine();
-                    continue;
             }
         }
     }
@@ -153,23 +150,22 @@ public class EditProjectView implements AuthenticatedView {
     private Optional<String> showRequestProjectNeighbourhood() {
         final Scanner scanner = ctx.getScanner();
 
-        while (true) {
-            System.out.println(BashColors.format(
-                    "Enter neighbourhood or leave empty ('') to cancel:", BashColors.BOLD));
-            final String neighbourhood = scanner.nextLine().trim();
-            if (neighbourhood.isEmpty()) {
-                return Optional.empty();
-            }
-
-            return Optional.of(neighbourhood);
+        System.out.println(BashColors.format(
+                "Enter neighbourhood or leave empty ('') to cancel:", BashColors.BOLD));
+        final String neighbourhood = scanner.nextLine().trim();
+        if (neighbourhood.isEmpty()) {
+            return Optional.empty();
         }
+
+        return Optional.of(neighbourhood);
     }
 
-    private Optional<Collection<BTOProjectType>> showRequestProjectTypes() {
+    private Optional<Map<BTOProjectTypeID, BTOProjectType>> showRequestProjectTypes() {
         final Scanner scanner = ctx.getScanner();
 
         final BTOProjectTypeID[] allAvailableTypes = BTOProjectTypeID.values();
         final Map<BTOProjectTypeID, BTOProjectType> projectTypeMap = new HashMap<>();
+        project.getProjectTypes().forEach((type) -> projectTypeMap.put(type.getId(), type));
 
         while (true) {
             System.out.println(BashColors.format("Specify project types", BashColors.BOLD));
@@ -184,19 +180,18 @@ public class EditProjectView implements AuthenticatedView {
             for (BTOProjectTypeID typeID : allAvailableTypes) {
                 final BTOProjectType projectType = projectTypeMap.get(typeID);
                 if (projectType == null) {
-                    System.out.println("  " + typeID.getName() + " 0 / $0.00");
+                    System.out.println("  " + typeID.getName() + ": 0 / $0.00");
                 } else {
-                    System.out.println("  " + typeID.getName() + " " + projectType.getMaxQuantity() + " / $"
+                    System.out.println("  " + typeID.getName() + ": " + projectType.getMaxQuantity() + " / $"
                             + Utils.formatMoney(projectType.getPrice()));
                 }
             }
 
-            System.out.println("Type the type (e.g. '" + allAvailableTypes[0].getName()
-                    + "') or leave empty ('') to cancel:");
+            System.out.println("Type the type (e.g. '" + allAvailableTypes[0].getName() + "') or leave empty ('') to save and go back:");
 
             final String selectedTypeStr = scanner.nextLine().trim();
             if (selectedTypeStr.isEmpty()) {
-                return Optional.empty();
+                return Optional.of(projectTypeMap);
             }
 
             final BTOProjectTypeID selectedType = Arrays.stream(allAvailableTypes)
@@ -246,10 +241,12 @@ public class EditProjectView implements AuthenticatedView {
             System.out.println(BashColors.format(
                     "NOTE: You can set both quantity and price to 0 (i.e. 0, 0) to remove the project type.",
                     BashColors.LIGHT_GRAY));
-            System.out.println(BashColors.format(
-                    "NOTE: There are already applicants booked into this project type! You must minimally set the quantity to "
-                            + count + ".",
-                    BashColors.LIGHT_GRAY));
+            if (count > 0) {
+                System.out.println(BashColors.format(
+                        "NOTE: There are already applicants booked into this project type! You must minimally set the quantity to "
+                                + count + ".",
+                        BashColors.LIGHT_GRAY));
+            }
             final String input = scanner.nextLine().trim();
             if (input.isEmpty()) {
                 return Optional.empty();
@@ -273,6 +270,8 @@ public class EditProjectView implements AuthenticatedView {
             }
 
             final int quantity = quantityResult.getData().get();
+            final double price = priceResult.getData().get();
+
             if (quantity < count) {
                 System.out.println(BashColors.format(
                         "There are already " + count
@@ -282,9 +281,18 @@ public class EditProjectView implements AuthenticatedView {
                 scanner.nextLine();
                 continue;
             }
+            if (quantity < 0) {
+                System.out.println(BashColors.format("Invalid quantity, quantity must be >= 0.", BashColors.RED));
+                System.out.println("Type anything to continue.");
+                scanner.nextLine();
+            }
+            if (price < 0) {
+                System.out.println(BashColors.format("Invalid price, price must be >= 0.", BashColors.RED));
+                System.out.println("Type anything to continue.");
+                scanner.nextLine();
+            }
 
-            final BTOProjectType projectType = new BTOProjectType(_projectType.getId(), priceResult.getData().get(),
-                    quantity);
+            final BTOProjectType projectType = new BTOProjectType(_projectType.getId(), price, quantity);
             return Optional.of(projectType);
         }
     }
@@ -316,6 +324,13 @@ public class EditProjectView implements AuthenticatedView {
                 continue;
             }
             final int officerLimit = result.getData().get();
+            if (officerLimit < 0 || officerLimit > BTOProject.OFFICER_LIMIT) {
+                System.out.println(
+                        BashColors.format("Officer slots must be between 0 and 10 inclusive.", BashColors.RED));
+                System.out.println("Type anything to continue.");
+                scanner.nextLine();
+                continue;
+            }
             if (officerLimit < count) {
                 System.out.println(BashColors.format(
                         "There are already " + count
@@ -335,10 +350,10 @@ public class EditProjectView implements AuthenticatedView {
 
         while (true) {
             System.out.println(BashColors.format(
-                    "Enter the openning and closing date of the project in DD/MM/YYYY format, separated by a comma (e.g. 1/1/2025, 2/2/2025) or leave empty ('') tp cancel.",
+                    "Enter the opening and closing date of the project in DD/MM/YYYY format, separated by a comma (e.g. 1/1/2025, 2/2/2025) or leave empty ('') tp cancel.",
                     BashColors.BOLD));
             System.out.println(BashColors.format(
-                    "NOTE: openning and closing date are inclusive meaning openning starts at 00:00 of the day and closing ends at 23:59 of the day.",
+                    "NOTE: opening and closing date are inclusive meaning opening starts at 00:00 of the day and closing ends at 23:59 of the day.",
                     BashColors.LIGHT_GRAY));
             final String input = scanner.nextLine().trim();
             if (input.isEmpty()) {
@@ -347,7 +362,7 @@ public class EditProjectView implements AuthenticatedView {
             final String[] parts = input.split(",");
             if (parts.length != 2) {
                 System.out.println(BashColors.format(
-                        "Invalid input, please type in the openning and closing date separated by a comma.",
+                        "Invalid input, please type in the opening and closing date separated by a comma.",
                         BashColors.RED));
                 System.out.println("Type anything to continue.");
                 scanner.nextLine();
@@ -367,7 +382,7 @@ public class EditProjectView implements AuthenticatedView {
                         closeDate.getTime() + (24 * 60 * 60 * 1000) - closeDate.getTime() % (24 * 60 * 60 * 1000));
             } catch (Exception e) {
                 System.out.println(BashColors.format(
-                        "Invalid input, please type in the openning and closing date in DD/MM/YYYY format separated by a comma.",
+                        "Invalid input, please type in the opening and closing date in DD/MM/YYYY format separated by a comma.",
                         BashColors.RED));
                 System.out.println("Type anything to continue.");
                 scanner.nextLine();
@@ -375,7 +390,7 @@ public class EditProjectView implements AuthenticatedView {
             }
             if (openDate.after(closeDate)) {
                 System.out.println(BashColors.format(
-                        "Invalid input, please make sure that the openning date is before the closing date.",
+                        "Invalid input, please make sure that the opening date is before the closing date.",
                         BashColors.RED));
                 System.out.println("Type anything to continue.");
                 scanner.nextLine();

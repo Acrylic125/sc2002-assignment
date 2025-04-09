@@ -36,9 +36,9 @@ public class CreateBTOProjectView implements AuthenticatedView {
         BTOSystem system = ctx.getBtoSystem();
 
         List<BTOProject> activeManagerProjects = system.getProjects().getProjects().values().stream()
-                .filter(p -> p.isApplicationWindowOpen())
+                .filter(BTOProject::isApplicationWindowOpen)
                 .toList();
-        if (activeManagerProjects.size() >= 1) {
+        if (!activeManagerProjects.isEmpty()) {
             System.out.println(BashColors.format(
                     "You are currently managing projects that are open, you may not create projects.", BashColors.RED));
             System.out.println("Type anything to continue.");
@@ -65,11 +65,11 @@ public class CreateBTOProjectView implements AuthenticatedView {
         }
         int officerLimit = officerLimitOpt.get();
 
-        Optional<Collection<BTOProjectType>> projectTypesOpt = showRequestProjectTypes();
+        Optional<Map<BTOProjectTypeID, BTOProjectType>> projectTypesOpt = showRequestProjectTypes();
         if (projectTypesOpt.isEmpty()) {
             return null;
         }
-        Collection<BTOProjectType> projectTypes = projectTypesOpt.get();
+        Map<BTOProjectTypeID, BTOProjectType> projectTypes = projectTypesOpt.get();
 
         Optional<Date[]> applicationWindowOpt = requestApplicationWindow();
         if (applicationWindowOpt.isEmpty()) {
@@ -91,9 +91,7 @@ public class CreateBTOProjectView implements AuthenticatedView {
         project.setName(projectName);
         project.setNeighbourhood(neighbourhood);
         project.setOfficerLimit(officerLimit);
-        for (BTOProjectType type : projectTypes) {
-            project.addProjectType(type);
-        }
+        project.setProjectTypes(projectTypes);
         project.setApplicationWindow(openDate, closeDate);
         project.setVisibleToPublic(false);
 
@@ -141,16 +139,14 @@ public class CreateBTOProjectView implements AuthenticatedView {
     private Optional<String> showRequestProjectNeighbourhood() {
         final Scanner scanner = ctx.getScanner();
 
-        while (true) {
-            System.out.println(BashColors.format(
-                    "Enter neighbourhood or leave empty ('') to cancel:", BashColors.BOLD));
-            final String neighbourhood = scanner.nextLine().trim();
-            if (neighbourhood.isEmpty()) {
-                return Optional.empty();
-            }
-
-            return Optional.of(neighbourhood);
+        System.out.println(BashColors.format(
+                "Enter neighbourhood or leave empty ('') to cancel:", BashColors.BOLD));
+        final String neighbourhood = scanner.nextLine().trim();
+        if (neighbourhood.isEmpty()) {
+            return Optional.empty();
         }
+
+        return Optional.of(neighbourhood);
     }
 
     private Optional<Integer> showRequestOfficerLimit() {
@@ -172,11 +168,20 @@ public class CreateBTOProjectView implements AuthenticatedView {
                 continue;
             }
 
-            return result.getData();
+            final int officerLimit = result.getData().get();
+            if (officerLimit < 0 || officerLimit > BTOProject.OFFICER_LIMIT) {
+                System.out.println(
+                        BashColors.format("Officer slots must be between 0 and 10 inclusive.", BashColors.RED));
+                System.out.println("Type anything to continue.");
+                scanner.nextLine();
+                continue;
+            }
+
+            return Optional.of(officerLimit);
         }
     }
 
-    private Optional<Collection<BTOProjectType>> showRequestProjectTypes() {
+    private Optional<Map<BTOProjectTypeID, BTOProjectType>> showRequestProjectTypes() {
         final Scanner scanner = ctx.getScanner();
 
         final BTOProjectTypeID[] allAvailableTypes = BTOProjectTypeID.values();
@@ -203,11 +208,14 @@ public class CreateBTOProjectView implements AuthenticatedView {
             }
 
             System.out.println("Type the type (e.g. '" + allAvailableTypes[0].getName()
-                    + "') or leave empty ('') to cancel:");
+                    + "'), 'next' to continue or leave empty ('') to cancel:");
 
             final String selectedTypeStr = scanner.nextLine().trim();
             if (selectedTypeStr.isEmpty()) {
                 return Optional.empty();
+            }
+            if (selectedTypeStr.equals("next")) {
+                return Optional.of(projectTypeMap);
             }
 
             final BTOProjectTypeID selectedType = Arrays.stream(allAvailableTypes)
@@ -278,8 +286,20 @@ public class CreateBTOProjectView implements AuthenticatedView {
                 continue;
             }
 
-            final BTOProjectType projectType = new BTOProjectType(_projectType.getId(), priceResult.getData().get(),
-                    quantityResult.getData().get());
+            int quantity = quantityResult.getData().get();
+            double price = priceResult.getData().get();
+            if (quantity < 0) {
+                System.out.println(BashColors.format("Invalid quantity, quantity must be >= 0.", BashColors.RED));
+                System.out.println("Type anything to continue.");
+                scanner.nextLine();
+            }
+            if (price < 0) {
+                System.out.println(BashColors.format("Invalid price, price must be >= 0.", BashColors.RED));
+                System.out.println("Type anything to continue.");
+                scanner.nextLine();
+            }
+
+            final BTOProjectType projectType = new BTOProjectType(_projectType.getId(), price, quantity);
             return Optional.of(projectType);
         }
     }
@@ -289,10 +309,10 @@ public class CreateBTOProjectView implements AuthenticatedView {
 
         while (true) {
             System.out.println(BashColors.format(
-                    "Enter the openning and closing date of the project in DD/MM/YYYY format, separated by a comma (e.g. 1/1/2025, 2/2/2025) or leave empty ('') tp cancel.",
+                    "Enter the opening and closing date of the project in DD/MM/YYYY format, separated by a comma (e.g. 1/1/2025, 2/2/2025) or leave empty ('') tp cancel.",
                     BashColors.BOLD));
             System.out.println(BashColors.format(
-                    "NOTE: openning and closing date are inclusive meaning openning starts at 00:00 of the day and closing ends at 23:59 of the day.",
+                    "NOTE: opening and closing date are inclusive meaning opening starts at 00:00 of the day and closing ends at 23:59 of the day.",
                     BashColors.LIGHT_GRAY));
             final String input = scanner.nextLine().trim();
             if (input.isEmpty()) {
@@ -301,7 +321,7 @@ public class CreateBTOProjectView implements AuthenticatedView {
             final String[] parts = input.split(",");
             if (parts.length != 2) {
                 System.out.println(BashColors.format(
-                        "Invalid input, please type in the openning and closing date separated by a comma.",
+                        "Invalid input, please type in the opening and closing date separated by a comma.",
                         BashColors.RED));
                 System.out.println("Type anything to continue.");
                 scanner.nextLine();
@@ -321,7 +341,7 @@ public class CreateBTOProjectView implements AuthenticatedView {
                         closeDate.getTime() + (24 * 60 * 60 * 1000) - closeDate.getTime() % (24 * 60 * 60 * 1000));
             } catch (Exception e) {
                 System.out.println(BashColors.format(
-                        "Invalid input, please type in the openning and closing date in DD/MM/YYYY format separated by a comma.",
+                        "Invalid input, please type in the opening and closing date in DD/MM/YYYY format separated by a comma.",
                         BashColors.RED));
                 System.out.println("Type anything to continue.");
                 scanner.nextLine();
@@ -329,7 +349,7 @@ public class CreateBTOProjectView implements AuthenticatedView {
             }
             if (openDate.after(closeDate)) {
                 System.out.println(BashColors.format(
-                        "Invalid input, please make sure that the openning date is before the closing date.",
+                        "Invalid input, please make sure that the opening date is before the closing date.",
                         BashColors.RED));
                 System.out.println("Type anything to continue.");
                 scanner.nextLine();

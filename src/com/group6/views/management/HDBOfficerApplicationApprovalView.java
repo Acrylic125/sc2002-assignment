@@ -82,7 +82,7 @@ public class HDBOfficerApplicationApprovalView implements PaginatedView, Authent
         final UserManager userManager = ctx.getBtoSystem().getUsers();
         System.out.println(BashColors.format(
                 "Applications for " + project.getName() + ", " + project.getNeighbourhood(), BashColors.BOLD));
-        System.out.println("Application ID | Applicant | Status");
+        System.out.println("Application ID | Applicant | Type | Status");
         final int lastIndex = Math.min(page * PAGE_SIZE, applications.size());
         final int firstIndex = (page - 1) * PAGE_SIZE;
         // Render the projects in the page.
@@ -93,6 +93,7 @@ public class HDBOfficerApplicationApprovalView implements PaginatedView, Authent
             String statusStr = stringifyApplicationStatus(application.getStatus());
             System.out.println(application.getId() + " | " + userStr + " ("
                     + BashColors.format(application.getApplicantUserId(), BashColors.LIGHT_GRAY) + ")" + " | "
+                    + application.getTypeId().getName() + " | "
                     + statusStr);
         }
     }

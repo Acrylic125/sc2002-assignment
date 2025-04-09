@@ -15,6 +15,8 @@ import java.util.*;
  */
 public class BTOProject {
 
+    public static final int OFFICER_LIMIT = 10;
+
     private final String id;
     private String name;
     private String neighbourhood;
@@ -182,11 +184,21 @@ public class BTOProject {
     }
 
     /**
-     * Add a project type to the project.
+     * Sets ALL project types to the project.
+     *
+     * @param projectTypes project type to add.
+     */
+    public void setProjectTypes(Map<BTOProjectTypeID, BTOProjectType> projectTypes) {
+        this.projectTypes.clear();
+        this.projectTypes.putAll(projectTypes);
+    }
+
+    /**
+     * Add/Update a project type to the project.
      *
      * @param projectType project type to add.
      */
-    public void addProjectType(BTOProjectType projectType) {
+    public void setProjectType(BTOProjectType projectType) {
         projectTypes.put(projectType.getId(), projectType);
     }
 
@@ -319,6 +331,15 @@ public class BTOProject {
     }
 
     /**
+     * Check if the user is managing this project.
+     * @param userId user id.
+     * @return true if the user is managing this project.
+     */
+    public boolean isManagedBy(String userId) {
+        return managerUserId.equals(userId) || isManagingOfficer(userId);
+    }
+
+    /**
      * Get all managing officer registrations that are successful.
      *
      * @return list of managing officer registrations that are successful.
@@ -418,6 +439,9 @@ public class BTOProject {
     public void setOfficerLimit(int officerLimit) throws RuntimeException {
         if (officerLimit < 0) {
             throw new IllegalArgumentException("Officer limit cannot be negative.");
+        }
+        if (officerLimit > OFFICER_LIMIT) {
+            throw new IllegalArgumentException("Officer limit cannot exceed " + OFFICER_LIMIT + ".");
         }
         this.officerLimit = officerLimit;
     }

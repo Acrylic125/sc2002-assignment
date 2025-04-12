@@ -144,12 +144,12 @@ public class BTOProjectManager {
     public static class BTOFullApplication {
         private final BTOProject project;
         private final BTOApplication application;
-        private final BTOApplicationWithdrawal withdrawal;
+        private final List<BTOApplicationWithdrawal> withdrawals;
 
-        public BTOFullApplication(BTOProject project, BTOApplication application, BTOApplicationWithdrawal withdrawal) {
+        public BTOFullApplication(BTOProject project, BTOApplication application, List<BTOApplicationWithdrawal> withdrawals) {
             this.project = project;
             this.application = application;
-            this.withdrawal = withdrawal;
+            this.withdrawals = withdrawals;
         }
 
         public BTOProject getProject() {
@@ -160,8 +160,8 @@ public class BTOProjectManager {
             return application;
         }
 
-        public Optional<BTOApplicationWithdrawal> getWithdrawal() {
-            return Optional.ofNullable(withdrawal);
+        public List<BTOApplicationWithdrawal> getWithdrawals() {
+            return withdrawals;
         }
     }
 
@@ -176,8 +176,8 @@ public class BTOProjectManager {
         projects.values().forEach(project -> {
             project.getApplications().forEach(application -> {
                 if (application.getApplicantUserId().equals(userId)) {
-                    Optional<BTOApplicationWithdrawal> withdrawalOpt = project.getActiveWithdrawal(application.getId());
-                    result.add(new BTOFullApplication(project, application, withdrawalOpt.orElse(null)));
+                    final List<BTOApplicationWithdrawal> withdrawals = project.getWithdrawals(application.getId());
+                    result.add(new BTOFullApplication(project, application, withdrawals));
                 }
             });
         });
@@ -194,8 +194,8 @@ public class BTOProjectManager {
         LinkedList<BTOFullApplication> result = new LinkedList<>();
         projects.values().forEach(project -> {
             project.getActiveApplication(userId).ifPresent(application -> {
-                Optional<BTOApplicationWithdrawal> withdrawalOpt = project.getActiveWithdrawal(application.getId());
-                result.add(new BTOFullApplication(project, application, withdrawalOpt.orElse(null)));
+                final List<BTOApplicationWithdrawal> withdrawals = project.getWithdrawals(application.getId());
+                result.add(new BTOFullApplication(project, application, withdrawals));
             });
         });
         return result;
@@ -418,6 +418,11 @@ public class BTOProjectManager {
             }
         }
 
+        final int officerLimit = project.getOfficerLimit();
+        if (project.getManagingOfficerRegistrations().size() >= officerLimit) {
+            throw new RuntimeException("Officer limit of " + officerLimit + " for this project has been reached.");
+        }
+
         final HDBOfficerRegistration registration = new HDBOfficerRegistration(
                 UUID.randomUUID().toString(),
                 userId,
@@ -540,7 +545,8 @@ public class BTOProjectManager {
         final BTOApplicationWithdrawal withdrawal = new BTOApplicationWithdrawal(
                 UUID.randomUUID().toString(),
                 applicationOpt.get().getId(),
-                BTOApplicationWithdrawalStatus.PENDING);
+                BTOApplicationWithdrawalStatus.PENDING,
+                System.currentTimeMillis());
         project.addWithdrawal(withdrawal);
     }
 
@@ -637,16 +643,16 @@ public class BTOProjectManager {
     }
 
     public List<BTOFullOfficerRegistration> getAllOfficerRegistrations(String officerUserId) {
-        return projects.values().stream()
-                .map(project -> {
-                    Optional<HDBOfficerRegistration> registrationOpt = project
-                            .getActiveOfficerRegistration(officerUserId);
-                    return registrationOpt.map(
-                            hdbOfficerRegistration -> new BTOFullOfficerRegistration(project, hdbOfficerRegistration))
-                            .orElse(null);
-                })
-                .filter(Objects::nonNull)
-                .toList();
+        List<BTOFullOfficerRegistration> result = new LinkedList<>();
+        projects.values().forEach(project -> {
+            project.getHdbOfficerRegistrations()
+                    .forEach((registration) -> {
+                        if (registration.getOfficerUserId().equals(officerUserId)) {
+                            result.add(new BTOFullOfficerRegistration(project, registration));
+                        }
+                    });
+        });
+        return result;
     }
 
     public List<BTOProject> getManagerManagingProjects(String managerUserId) {

@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.Scanner;
 import java.util.Set;
 
-import com.group6.btoproject.BTOApplicationStatus;
 import com.group6.btoproject.BTOProject;
 import com.group6.btoproject.BTOProjectManager;
 import com.group6.btoproject.HDBOfficerRegistration;
@@ -78,6 +77,12 @@ public class OfficerRegistrationApprovalView implements AuthenticatedView, Pagin
         System.out.println(BashColors.format(
                 "Officer Registrations for " + project.getName() + ", " + project.getNeighbourhood(), BashColors.BOLD));
         System.out.println("Registration ID | Registrant | Status");
+        if (registrations.isEmpty()) {
+            System.out.println(BashColors.format("(No Registrations)", BashColors.LIGHT_GRAY));
+            System.out.println();
+            return;
+        }
+
         final int lastIndex = Math.min(page * PAGE_SIZE, registrations.size());
         final int firstIndex = (page - 1) * PAGE_SIZE;
         // Render the projects in the page.

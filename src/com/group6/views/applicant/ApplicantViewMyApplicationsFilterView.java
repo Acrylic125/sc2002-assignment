@@ -2,7 +2,6 @@ package com.group6.views.applicant;
 
 import com.group6.btoproject.BTOApplicationStatus;
 
-import com.group6.btoproject.BTOProjectManager;
 import com.group6.utils.BashColors;
 
 import java.util.*;
@@ -122,6 +121,7 @@ public class ApplicantViewMyApplicationsFilterView extends ProjectsViewFiltersVi
 
             String statusFilterRaw = scanner.nextLine().trim();
             if (statusFilterRaw.isEmpty()) {
+                filters.setApplicationStatusesFilter(new HashSet<>());
                 break;
             }
             String[] statusFilter = statusFilterRaw.split(",");

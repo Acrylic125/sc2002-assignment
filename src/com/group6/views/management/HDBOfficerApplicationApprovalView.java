@@ -85,6 +85,12 @@ public class HDBOfficerApplicationApprovalView implements PaginatedView, Authent
         System.out.println(BashColors.format(
                 "Applications for " + project.getName() + ", " + project.getNeighbourhood(), BashColors.BOLD));
         System.out.println("Application ID | Applicant | Type | Status");
+        if (applications.isEmpty()) {
+            System.out.println(BashColors.format("(No Applications)", BashColors.LIGHT_GRAY));
+            System.out.println();
+            return;
+        }
+
         final int lastIndex = Math.min(page * PAGE_SIZE, applications.size());
         final int firstIndex = (page - 1) * PAGE_SIZE;
         // Render the projects in the page.

@@ -114,6 +114,15 @@ public class OfficerRegistrationView implements AuthenticatedView {
                 }
             }
 
+            final int officerLimit = project.getOfficerLimit();
+            if (project.getManagingOfficerRegistrations().size() >= officerLimit) {
+                System.out.println(BashColors.format(
+                        "The project has reached the maximum number of officers. You may not register to manage this project.",
+                        BashColors.RED));
+                System.out.println("Type anything to continue.");
+                scanner.nextLine();
+            }
+
             Utils.tryCatch(() -> {
                 projectManager.requestRegisterOfficer(projectId, user.getId());
             }).getErr().ifPresentOrElse((err) -> {

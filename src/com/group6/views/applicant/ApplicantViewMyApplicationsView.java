@@ -1,9 +1,6 @@
 package com.group6.views.applicant;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Scanner;
+import java.util.*;
 
 import com.group6.btoproject.*;
 import com.group6.btoproject.BTOProjectManager.BTOFullApplication;
@@ -27,7 +24,7 @@ public class ApplicantViewMyApplicationsView implements PaginatedView, Authentic
 
     @Override
     public int getLastPage() {
-        int size = applications.size();
+        int size = filteredApplications.size();
         if (size % PAGE_SIZE == 0) {
             return size / PAGE_SIZE;
         }
@@ -88,7 +85,7 @@ public class ApplicantViewMyApplicationsView implements PaginatedView, Authentic
         System.out.println(BashColors.format("My Applications", BashColors.BOLD));
         if (applications.isEmpty()) {
             System.out.println(BashColors.format("(No Projects Applied/Found)", BashColors.LIGHT_GRAY));
-            System.out.println("");
+            System.out.println();
             return;
         }
         final UserManager userManager = ctx.getBtoSystem().getUsers();
@@ -100,7 +97,7 @@ public class ApplicantViewMyApplicationsView implements PaginatedView, Authentic
             final BTOFullApplication fullApplication = applications.get(i);
             final BTOProject project = fullApplication.getProject();
             final BTOApplication application = fullApplication.getApplication();
-            final Optional<BTOApplicationWithdrawal> withdrawalOpt = fullApplication.getWithdrawal();
+            final List<BTOApplicationWithdrawal> withdrawals = fullApplication.getWithdrawals();
             final List<BTOProjectType> types = new ArrayList<>(project.getProjectTypes());
 
             Optional<User> managerOpt = userManager.getUser(project.getManagerUserId());
@@ -142,17 +139,25 @@ public class ApplicantViewMyApplicationsView implements PaginatedView, Authentic
             } else {
                 BTOProjectType type = typeOpt.get();
                 System.out.println("Type: " + type.getId().getName());
-                System.out.println("  No. of Units: " + project.getBookedCountForType(type.getId()) + " / " + type.getMaxQuantity());
+                System.out.println("  No. of Units: " + project.getBookedCountForType(type.getId()) + " / "
+                        + type.getMaxQuantity());
                 System.out.println("  Price: $" + Utils.formatMoney(type.getPrice()));
             }
 
             System.out.println("Application period: " + Utils.formatToDDMMYYYY(project.getApplicationOpenDate())
                     + " to " + Utils.formatToDDMMYYYY(project.getApplicationCloseDate()));
             System.out.println("Manager / Officers: " + managerName + " / " + officerNames);
-            if (withdrawalOpt.isPresent()) {
-                System.out.println("Withdrawal Status: " + stringifyWithdrawalStatus(withdrawalOpt.get().getStatus()));
+            if (withdrawals.isEmpty()) {
+                System.out
+                        .println("Withdrawal Status: " + BashColors.format("(No Withdrawals)", BashColors.LIGHT_GRAY));
             } else {
-                System.out.println("Withdrawal Status: " + BashColors.format("N/A", BashColors.LIGHT_GRAY));
+                System.out.println("Withdrawal Status: ");
+                withdrawals.forEach((withdrawal) -> {
+                    String withdrawalStatus = stringifyWithdrawalStatus(withdrawal.getStatus());
+                    System.out.println(
+                            "  " + withdrawalStatus + BashColors.format(" requested on: ", BashColors.LIGHT_GRAY)
+                                    + Utils.formatToDDMMYYYY(new Date(withdrawal.getRequestedOn())));
+                });
             }
             System.out.println();
         }
@@ -175,7 +180,7 @@ public class ApplicantViewMyApplicationsView implements PaginatedView, Authentic
                         break;
                     }
                     final BTOProject project = projectOpt.get();
-                    return new ApplicantProjectEnquiryView(project, () -> project.getEnquiries().stream()
+                    return new ProjectEnquiryView(project, () -> project.getEnquiries().stream()
                             .filter((enquiry) -> enquiry.getSenderMessage().getSenderUserId().equals(user.getId()))
                             .toList());
                 case "w":

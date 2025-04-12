@@ -69,6 +69,21 @@ public class Utils {
         return formatter.format(date);
     }
 
+    /**
+     * Formats a Date object to DD/MM/YYYY HH:mm:ss pattern.
+     *
+     * @param date The Date object to format
+     * @return A string representation of the date in DD/MM/YYYY HH:mm:ss format
+     */
+    public static String formatToDDMMYYYYWithTime(Date date) {
+        if (date == null) {
+            return null;
+        }
+
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        return formatter.format(date);
+    }
+
     public static String joinStringDelimiter(List<String> options, String delimiter, String lastDelimiter) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < options.size(); i++) {

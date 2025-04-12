@@ -13,6 +13,7 @@ public class BTOApplicationWithdrawal implements Serializable {
     private final String id;
     private final String applicationId;
     private BTOApplicationWithdrawalStatus status;
+    private final long requestedOn;
 
     /**
      * Constructor for BTOApplicationWithdrawal.
@@ -20,11 +21,13 @@ public class BTOApplicationWithdrawal implements Serializable {
      * @param id            id of the withdrawal.
      * @param applicationId application id tied to this withdrawal request.
      * @param status        status of this withdrawal request.
+     * @param requestedOn   timestamp of when the withdrawal was requested.
      */
-    protected BTOApplicationWithdrawal(String id, String applicationId, BTOApplicationWithdrawalStatus status) {
+    protected BTOApplicationWithdrawal(String id, String applicationId, BTOApplicationWithdrawalStatus status, long requestedOn) {
         this.id = id;
         this.applicationId = applicationId;
         this.status = status;
+        this.requestedOn = requestedOn;
     }
 
     /**
@@ -63,4 +66,12 @@ public class BTOApplicationWithdrawal implements Serializable {
         this.status = status;
     }
 
+    /**
+     * RequestedOn getter.
+     *
+     * @return {@link #requestedOn}
+     */
+    public long getRequestedOn() {
+        return requestedOn;
+    }
 }

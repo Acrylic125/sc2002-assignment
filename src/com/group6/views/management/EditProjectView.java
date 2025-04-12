@@ -48,13 +48,24 @@ public class EditProjectView implements AuthenticatedView {
         final Scanner scanner = ctx.getScanner();
 
         while (true) {
+            boolean isWindowOpen = project.isApplicationWindowOpen();
+            String projectOpenWindowStr = Utils.formatToDDMMYYYY(project.getApplicationOpenDate())
+                    + " to " + Utils.formatToDDMMYYYY(project.getApplicationCloseDate());
+            boolean isVisibleToPublic = project.isVisibleToPublic();
+
             System.out.println(BashColors.format("Edit Project Options", BashColors.BOLD));
-            System.out.println("1. Edit Project Name");
-            System.out.println("2. Edit Project Neighbourhood");
-            System.out.println("3. Edit Project Type");
-            System.out.println("4. Edit Project Officer Limit");
-            System.out.println("5. Edit Project Application Window");
-            System.out.println("6. Edit Project Visibility");
+            System.out.println("Option | Current Value");
+            System.out.println("1. Edit Project Name | " + project.getName());
+            System.out.println("2. Edit Project Neighbourhood | " + project.getNeighbourhood());
+            System.out.println(
+                    "3. Edit Project Type | " + BashColors.format("(Select option to view)", BashColors.LIGHT_GRAY));
+            System.out.println("4. Edit Project Officer Limit | " + project.getOfficerLimit());
+            System.out.println("5. Edit Project Application Window | " + BashColors.format(projectOpenWindowStr,
+                    isWindowOpen
+                            ? BashColors.GREEN
+                            : BashColors.RED));
+            System.out.println("6. Edit Project Visibility | " + BashColors.format(isVisibleToPublic ? "YES" : "NO",
+                    isVisibleToPublic ? BashColors.GREEN : BashColors.RED));
             System.out.println("");
             System.out.println("Type the option (e.g. 1, 2, 3) you want to select or leave empty ('') to cancel.");
 
@@ -378,11 +389,24 @@ public class EditProjectView implements AuthenticatedView {
             try {
                 openDate = sdf.parse(parts[0].trim());
                 closeDate = sdf.parse(parts[1].trim());
-                // Set open date to 00:00 of the day
-                openDate = new Date(openDate.getTime() - openDate.getTime() % (24 * 60 * 60 * 1000));
-                // Set close date to 23:59 of the day
-                closeDate = new Date(
-                        closeDate.getTime() + (24 * 60 * 60 * 1000) - closeDate.getTime() % (24 * 60 * 60 * 1000));
+
+                // Set openDate to 00:00
+                Calendar openCal = Calendar.getInstance();
+                openCal.setTime(openDate);
+                openCal.set(Calendar.HOUR_OF_DAY, 0);
+                openCal.set(Calendar.MINUTE, 0);
+                openCal.set(Calendar.SECOND, 0);
+                openCal.set(Calendar.MILLISECOND, 0);
+                openDate = openCal.getTime();
+
+                // Set closeDate to 23:59:59.999
+                Calendar closeCal = Calendar.getInstance();
+                closeCal.setTime(closeDate);
+                closeCal.set(Calendar.HOUR_OF_DAY, 23);
+                closeCal.set(Calendar.MINUTE, 59);
+                closeCal.set(Calendar.SECOND, 59);
+                closeCal.set(Calendar.MILLISECOND, 999);
+                closeDate = closeCal.getTime();
             } catch (Exception e) {
                 System.out.println(BashColors.format(
                         "Invalid input, please type in the opening and closing date in DD/MM/YYYY format separated by a comma.",

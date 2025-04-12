@@ -2,9 +2,11 @@ package com.group6.users;
 
 public enum UserRole {
     APPLICANT(
+            "Applicant",
             new UserPermissions()
                     .setApply(true)),
     OFFICER(
+            "Officer",
             new UserPermissions()
                     .setApply(true)
                     .setRegisterForProject(true)
@@ -14,6 +16,7 @@ public enum UserRole {
                     .setViewNonVisibleProjects(true)
                     .setViewClosedProjects(true)),
     MANAGER(
+            "Manager",
             new UserPermissions()
                     .setApproveApplications(true)
                     .setApproveWithdrawal(true)
@@ -26,12 +29,28 @@ public enum UserRole {
                     .setViewClosedProjects(true)
                     .setGenerateApplicantsReport(true));
 
+    private final String name;
     private final UserPermissions permissions;
 
-    UserRole(UserPermissions permissions) {
+    UserRole(String name, UserPermissions permissions) {
+        this.name = name;
         this.permissions = permissions;
     }
 
+    /**
+     * User role name getter.
+     *
+     * @return {@link #name}
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * User role permissions getter.
+     *
+     * @return {@link #permissions}
+     */
     public UserPermissions getPermissions() {
         return permissions;
     }

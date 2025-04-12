@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.Scanner;
 
 import com.group6.btoproject.*;
+import com.group6.btoproject.BTOProjectManager.BTOFullApplication;
 import com.group6.users.User;
 import com.group6.utils.BashColors;
 import com.group6.utils.Utils;
@@ -31,13 +32,13 @@ public class ApplicantApplyProjectView implements AuthenticatedView {
         final Scanner scanner = ctx.getScanner();
 
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
-        List<BTOProject> activeProjects = projectManager.getActiveProjectsForUser(user.getId());
-        if (!projectManager.getBookedApplicationsForUser(user.getId()).isEmpty()) {
+        List<BTOFullApplication> bookedProjects = projectManager.getBookedApplicationsForUser(user.getId());
+        if (!bookedProjects.isEmpty()) {
             System.out.println(BashColors.format(
                     "You are already booked for the following projects. You may not apply for another project.",
                     BashColors.RED));
-            activeProjects.forEach((project) -> {
-                System.out.println(" - " + project.getName());
+            bookedProjects.forEach((application) -> {
+                System.out.println(" - " + application.getProject().getName());
             });
             System.out.println();
             System.out.println("Consider withdrawing your application before applying for a new project.");

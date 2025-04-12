@@ -18,11 +18,14 @@ public class RegisterView implements View {
     private ViewContext ctx;
 
     /**
-     * Runs the registration process, prompting the user for necessary details and creating the user.
-     * It will ask the user to input their personal details, and then create the appropriate user.
+     * Runs the registration process, prompting the user for necessary details and
+     * creating the user.
+     * It will ask the user to input their personal details, and then create the
+     * appropriate user.
      * After successful registration, it returns to the main menu.
      *
-     * @return A MenuView instance, which represents the main menu after registration.
+     * @return A MenuView instance, which represents the main menu after
+     *         registration.
      */
     @Override
     public View render(ViewContext ctx) {
@@ -61,17 +64,19 @@ public class RegisterView implements View {
         }
 
         User user = new RoleBasedUser(
-                role, UUID.randomUUID().toString(), nameOpt.get(), nricOpt.get(), ageOpt.get(), maritalStatusOpt.get(), passwordOpt.get()
-        );
+                role, UUID.randomUUID().toString(), nameOpt.get(), nricOpt.get(), ageOpt.get(), maritalStatusOpt.get(),
+                passwordOpt.get());
         userManager.registerUser(user);
-        System.out.println(BashColors.format("✅ Registration successful as applicant! You can now log in.", BashColors.GREEN));
+        System.out.println(
+                BashColors.format("✅ Registration successful as applicant! You can now log in.", BashColors.GREEN));
 
         return null;
     }
 
     private Optional<String> requestName() {
         final Scanner scanner = ctx.getScanner();
-        System.out.println(BashColors.format("Type in your account name or leave empty ('') to cancel.", BashColors.BOLD));
+        System.out.println(
+                BashColors.format("Type in your account name or leave empty ('') to cancel.", BashColors.BOLD));
 
         String value = scanner.nextLine().trim();
         if (value.isEmpty()) {
@@ -84,7 +89,8 @@ public class RegisterView implements View {
         final Scanner scanner = ctx.getScanner();
         final UserManager userManager = ctx.getBtoSystem().getUserManager();
         while (true) {
-            System.out.println(BashColors.format("Type in your NRIC (e.g. S1234567A) or leave empty ('') to cancel.", BashColors.BOLD));
+            System.out.println(BashColors.format("Type in your NRIC (e.g. S1234567A) or leave empty ('') to cancel.",
+                    BashColors.BOLD));
 
             String value = scanner.nextLine().trim();
             if (value.isEmpty()) {
@@ -92,13 +98,16 @@ public class RegisterView implements View {
             }
 
             if (!ValidateUtils.isValidNRIC(value)) {
-                System.out.println(BashColors.format("Invalid NRIC. Format must start with S or T then 7 digits, and ending with a capital letter.", BashColors.RED));
+                System.out.println(BashColors.format(
+                        "Invalid NRIC. Format must start with S or T then 7 digits, and ending with a capital letter.",
+                        BashColors.RED));
                 System.out.println("Type anything to continue.");
                 scanner.nextLine();
                 continue;
             }
             if (userManager.getUserByNRIC(value).isPresent()) {
-                System.out.println(BashColors.format("Invalid NRIC. User with the same NRIC is already registered.", BashColors.RED));
+                System.out.println(BashColors.format("Invalid NRIC. User with the same NRIC is already registered.",
+                        BashColors.RED));
                 System.out.println("Type anything to continue.");
                 scanner.nextLine();
                 continue;
@@ -111,7 +120,8 @@ public class RegisterView implements View {
     private Optional<UserMaritalStatus> requestMaritalStatus() {
         final Scanner scanner = ctx.getScanner();
         while (true) {
-            System.out.println(BashColors.format("Type in your marital status (SINGLE or MARRIED) or leave empty ('') to cancel.", BashColors.BOLD));
+            System.out.println(BashColors.format(
+                    "Type in your marital status (SINGLE or MARRIED) or leave empty ('') to cancel.", BashColors.BOLD));
 
             String value = scanner.nextLine().trim().toUpperCase();
             if (value.equals("SINGLE")) {
@@ -120,7 +130,8 @@ public class RegisterView implements View {
             if (value.equals("MARRIED")) {
                 return Optional.of(UserMaritalStatus.MARRIED);
             }
-            System.out.println(BashColors.format("Invalid Marital status. Marital status must be either 'SINGLE' or 'MARRIED'.", BashColors.RED));
+            System.out.println(BashColors.format(
+                    "Invalid Marital status. Marital status must be either 'SINGLE' or 'MARRIED'.", BashColors.RED));
             System.out.println("Type anything to continue.");
             scanner.nextLine();
         }
@@ -139,7 +150,16 @@ public class RegisterView implements View {
                 scanner.nextLine();
                 continue;
             }
-            return result.getData();
+
+            int age = result.getData().get();
+            if (age < 0 || age > 120) {
+                System.out.println(BashColors.format("Invalid age. Age must be between 0 and 120.", BashColors.RED));
+                System.out.println("Type anything to continue.");
+                scanner.nextLine();
+                continue;
+            }
+
+            return Optional.of(age);
         }
     }
 

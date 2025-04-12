@@ -1,9 +1,12 @@
 package com.group6.btoproject;
 
+import java.io.Serializable;
+
 /**
  * Represents a {@link BTOEnquiry} message for sender and response.
  */
-public class BTOEnquiryMessage {
+public class BTOEnquiryMessage implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     private final String senderUserId;
     private final String message;
@@ -14,7 +17,7 @@ public class BTOEnquiryMessage {
      * @param senderUserId sender user id.
      * @param message      message content.
      */
-    public BTOEnquiryMessage( String senderUserId, String message) {
+    public BTOEnquiryMessage(String senderUserId, String message) {
         this.senderUserId = senderUserId;
         this.message = message;
     }

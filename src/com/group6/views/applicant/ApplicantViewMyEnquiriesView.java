@@ -1,6 +1,5 @@
 package com.group6.views.applicant;
 
-import com.group6.btoproject.BTOEnquiry;
 import com.group6.btoproject.BTOProject;
 import com.group6.btoproject.BTOProjectManager;
 import com.group6.users.User;
@@ -134,7 +133,7 @@ public class ApplicantViewMyEnquiriesView implements PaginatedView, Authenticate
             final Optional<BTOProject> projectOpt = projectManager.getProject(projectId);
             if (projectOpt.isEmpty()) {
                 System.out.println(
-                        BashColors.format("Project not found, please type in a valid project id.", BashColors.BOLD));
+                        BashColors.format("Project not found, please type in a valid project id.", BashColors.RED));
                 System.out.println("Type anything to continue.");
                 scanner.nextLine();
                 continue;

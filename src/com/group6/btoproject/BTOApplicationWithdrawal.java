@@ -1,10 +1,14 @@
 package com.group6.btoproject;
 
+import java.io.Serializable;
+
 /**
  * Represents an applicant's request to withdraw from a BTO Application.
  * See {@link BTOApplicationWithdrawalStatus} for possible statuses.
  */
-public class BTOApplicationWithdrawal {
+public class BTOApplicationWithdrawal implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private final String id;
     private final String applicationId;

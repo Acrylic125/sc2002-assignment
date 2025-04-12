@@ -147,6 +147,23 @@ public class BTOProjectManager {
     }
 
     /**
+     * Get all ACTIVE project applications applied by a user.
+     *
+     * @param userId id of the user.
+     * @return list of projects applied by the user.
+     */
+    public List<BTOFullApplication> getAllActiveApplicationsForUser(String userId) {
+        LinkedList<BTOFullApplication> result = new LinkedList<>();
+        projects.values().forEach(project -> {
+            project.getActiveApplication(userId).ifPresent(application -> {
+                Optional<BTOApplicationWithdrawal> withdrawalOpt = project.getActiveWithdrawal(application.getId());
+                result.add(new BTOFullApplication(project, application, withdrawalOpt.orElse(null)));
+            });
+        });
+        return result;
+    }
+
+    /**
      * Get all booked applications for a user.
      *
      * @param userId id of the user.

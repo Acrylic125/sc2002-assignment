@@ -43,7 +43,7 @@ public class ManagementView implements AuthenticatedView {
             options.add(new ViewOption("Register to Manage Project", HDBOfficerRegisterProjectsView::new));
             options.add(new ViewOption("View My Registrations", HDBOfficerViewRegistrationsView::new));
         }
-        options.add(new ViewOption("View My managed projects", HDBOfficerManagedProjectsView::new));
+        options.add(new ViewOption("View My Managed Projects", HDBOfficerManagedProjectsView::new));
         if (userPermissions.canGenerateApplicantsReport()) {
             options.add(new ViewOption("Generate Applicants Report", () -> {
                 final List<User> applicants = ctx.getBtoSystem().getUsers().getUsers().values().stream()
@@ -72,7 +72,7 @@ public class ManagementView implements AuthenticatedView {
                     }
                 }
             }
-            System.out.println("");
+            System.out.println();
             if (!isRootView) {
                 System.out.println("Type the option (e.g. 1, 2, 3) you want to select or leave empty ('') to cancel.");
             } else {
@@ -85,9 +85,11 @@ public class ManagementView implements AuthenticatedView {
             }
             try {
                 int optionIndex = Integer.parseInt(_optionIndex) - 1;
-                ViewOption option = options.get(optionIndex);
-                if (option != null) {
-                    return option.getCallback().get();
+                if (optionIndex >= 0 && optionIndex < options.size()) {
+                    ViewOption option = options.get(optionIndex);
+                    if (option != null) {
+                        return option.getCallback().get();
+                    }
                 }
             } catch (NumberFormatException _) {
             }

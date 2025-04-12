@@ -187,7 +187,8 @@ public class EditProjectView implements AuthenticatedView {
                 }
             }
 
-            System.out.println("Type the type (e.g. '" + allAvailableTypes[0].getName() + "') or leave empty ('') to save and go back:");
+            System.out.println("Type the type (e.g. '" + allAvailableTypes[0].getName()
+                    + "') or leave empty ('') to save and go back:");
 
             final String selectedTypeStr = scanner.nextLine().trim();
             if (selectedTypeStr.isEmpty()) {
@@ -285,11 +286,13 @@ public class EditProjectView implements AuthenticatedView {
                 System.out.println(BashColors.format("Invalid quantity, quantity must be >= 0.", BashColors.RED));
                 System.out.println("Type anything to continue.");
                 scanner.nextLine();
+                continue;
             }
             if (price < 0) {
                 System.out.println(BashColors.format("Invalid price, price must be >= 0.", BashColors.RED));
                 System.out.println("Type anything to continue.");
                 scanner.nextLine();
+                continue;
             }
 
             final BTOProjectType projectType = new BTOProjectType(_projectType.getId(), price, quantity);

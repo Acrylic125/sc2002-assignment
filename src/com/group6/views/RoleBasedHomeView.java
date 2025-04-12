@@ -59,15 +59,17 @@ public class RoleBasedHomeView implements AuthenticatedView {
                     }
                 }
             }
-            System.out.println("");
+            System.out.println();
             System.out.println("Type the option (e.g. 1, 2, 3) you want to select.");
 
             String _optionIndex = scanner.nextLine().trim();
             try {
                 int optionIndex = Integer.parseInt(_optionIndex) - 1;
-                ViewOption option = options.get(optionIndex);
-                if (option != null) {
-                    return option.getCallback().get();
+                if (optionIndex >= 0 && optionIndex < options.size()) {
+                    ViewOption option = options.get(optionIndex);
+                    if (option != null) {
+                        return option.getCallback().get();
+                    }
                 }
             } catch (NumberFormatException _) {}
             System.out.println(BashColors.format("Invalid option.", BashColors.RED));

@@ -10,7 +10,6 @@ public enum UserRole {
                     .setRegisterForProject(true)
                     .setApproveApplications(true)
                     .setApproveWithdrawal(true)
-                    .setApproveOfficerRegistrations(true)
                     .setRespondEnquiries(1)
                     .setViewNonVisibleProjects(true)
                     .setViewClosedProjects(true)),

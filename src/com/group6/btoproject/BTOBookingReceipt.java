@@ -1,9 +1,13 @@
 package com.group6.btoproject;
 
+import java.io.Serializable;
+
 /**
  * Represents a booking receipt generated upon a booking.
  */
-public class BTOBookingReceipt {
+public class BTOBookingReceipt implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private final String id;
     private final String applicationId;

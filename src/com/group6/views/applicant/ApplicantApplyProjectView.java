@@ -164,7 +164,7 @@ public class ApplicantApplyProjectView implements AuthenticatedView {
             final List<BTOProjectType> types = new ArrayList<>(project.getProjectTypes());
 
             System.out.println(BashColors.format("What type would you like to apply for?", BashColors.BOLD));
-            System.out.println("Types (No. Units Available / Total No. Units / Price):");
+            System.out.println("Types (No. Units Taken / Total No. Units / Price):");
             if (types.size() <= 0) {
                 System.out.println(BashColors.format("  (No types available)", BashColors.LIGHT_GRAY));
                 System.out.println("Type anything to continue.");

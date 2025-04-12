@@ -1,108 +1,119 @@
 package com.group6.views.management;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
-
 import com.group6.users.User;
 import com.group6.users.UserPermissions;
 import com.group6.utils.BashColors;
 import com.group6.views.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 public class ManagementHomeView implements AuthenticatedView {
-    private final boolean isRootView;
+  private final boolean isRootView;
 
-    private ViewContext ctx;
-    private User user;
+  private ViewContext ctx;
+  private User user;
 
-    public ManagementHomeView(boolean isRootView) {
-        this.isRootView = isRootView;
+  public ManagementHomeView(boolean isRootView) {
+    this.isRootView = isRootView;
+  }
+
+  @Override
+  public boolean isAuthorized(User user) {
+    return user.getPermissions().canManageProjects();
+  }
+
+  @Override
+  public View render(ViewContext ctx, User user) {
+    this.ctx = ctx;
+    this.user = user;
+    return showOptions();
+  }
+
+  private View showOptions() {
+    final Scanner scanner = ctx.getScanner();
+    final UserPermissions userPermissions = user.getPermissions();
+
+    List<ViewOption> options = new ArrayList<>();
+    if (userPermissions.canCreateProject()) {
+      options.add(
+          new ViewOption("Create New Project", CreateBTOProjectView::new));
+    }
+    if (userPermissions.canRegisterForProject()) {
+      options.add(new ViewOption("Register to Manage Project",
+                                 RegisterProjectsView::new));
+      options.add(new ViewOption("View My Registrations",
+                                 MyOfficerRegistrationsView::new));
+    }
+    options.add(
+        new ViewOption("View My Managed Projects", ManagedProjectsView::new));
+    if (userPermissions.canGenerateApplicantsReport()) {
+      options.add(new ViewOption("Generate Applicants Report", () -> {
+        final List<User> applicants =
+            ctx.getBtoSystem()
+                .getUserManager()
+                .getUsers()
+                .values()
+                .stream()
+                .filter(user -> user.getPermissions().canApply())
+                .toList();
+        return new ApplicantReportView(applicants);
+      }));
+    }
+    // options.add(new ViewOption("Approve Applicant Applications", () -> new
+    // HDBOfficerApplicationApprovalView()));
+    if (isRootView) {
+      options.add(new ViewOption("Logout", () -> {
+        logout();
+        return new MenuView();
+      }));
     }
 
-    @Override
-    public boolean isAuthorized(User user) {
-        return user.getPermissions().canManageProjects();
+    while (true) {
+      System.out.println(
+          BashColors.format("Applicant Home Menu", BashColors.BOLD));
+      int i = 1;
+      for (ViewOption option : options) {
+        String[] str = option.getOption();
+        if (str.length > 0) {
+          System.out.println(i++ + ". " + str[0]);
+          for (int j = 1; j < str.length; j++) {
+            System.out.println("   " + str[j]);
+          }
+        }
+      }
+      System.out.println();
+      if (!isRootView) {
+        System.out.println("Type the option (e.g. 1, 2, 3) you want to " +
+                           "select or leave empty ('') to cancel.");
+      } else {
+        System.out.println(
+            "Type the option (e.g. 1, 2, 3) you want to select.");
+      }
+
+      String _optionIndex = scanner.nextLine().trim();
+      if (!isRootView && _optionIndex.isEmpty()) {
+        return null;
+      }
+      try {
+        int optionIndex = Integer.parseInt(_optionIndex) - 1;
+        if (optionIndex >= 0 && optionIndex < options.size()) {
+          ViewOption option = options.get(optionIndex);
+          if (option != null) {
+            return option.getCallback().get();
+          }
+        }
+      } catch (NumberFormatException err) {
+      }
+      System.out.println(BashColors.format("Invalid option.", BashColors.RED));
+      System.out.println("Type anything to continue.");
+      scanner.nextLine();
     }
+  }
 
-    @Override
-    public View render(ViewContext ctx, User user) {
-        this.ctx = ctx;
-        this.user = user;
-        return showOptions();
-    }
-
-    private View showOptions() {
-        final Scanner scanner = ctx.getScanner();
-        final UserPermissions userPermissions = user.getPermissions();
-
-        List<ViewOption> options = new ArrayList<>();
-        if (userPermissions.canCreateProject()) {
-            options.add(new ViewOption("Create New Project", CreateBTOProjectView::new));
-        }
-        if (userPermissions.canRegisterForProject()) {
-            options.add(new ViewOption("Register to Manage Project", RegisterProjectsView::new));
-            options.add(new ViewOption("View My Registrations", MyOfficerRegistrationsView::new));
-        }
-        options.add(new ViewOption("View My Managed Projects", ManagedProjectsView::new));
-        if (userPermissions.canGenerateApplicantsReport()) {
-            options.add(new ViewOption("Generate Applicants Report", () -> {
-                final List<User> applicants = ctx.getBtoSystem().getUserManager().getUsers().values().stream()
-                        .filter(user -> user.getPermissions().canApply()).toList();
-                return new ApplicantReportView(applicants);
-            }));
-        }
-        // options.add(new ViewOption("Approve Applicant Applications", () -> new
-        // HDBOfficerApplicationApprovalView()));
-        if (isRootView) {
-            options.add(new ViewOption("Logout", () -> {
-                logout();
-                return new MenuView();
-            }));
-        }
-
-        while (true) {
-            System.out.println(BashColors.format("Applicant Home Menu", BashColors.BOLD));
-            int i = 1;
-            for (ViewOption option : options) {
-                String[] str = option.getOption();
-                if (str.length > 0) {
-                    System.out.println(i++ + ". " + str[0]);
-                    for (int j = 1; j < str.length; j++) {
-                        System.out.println("   " + str[j]);
-                    }
-                }
-            }
-            System.out.println();
-            if (!isRootView) {
-                System.out.println("Type the option (e.g. 1, 2, 3) you want to select or leave empty ('') to cancel.");
-            } else {
-                System.out.println("Type the option (e.g. 1, 2, 3) you want to select.");
-            }
-
-            String _optionIndex = scanner.nextLine().trim();
-            if (!isRootView && _optionIndex.isEmpty()) {
-                return null;
-            }
-            try {
-                int optionIndex = Integer.parseInt(_optionIndex) - 1;
-                if (optionIndex >= 0 && optionIndex < options.size()) {
-                    ViewOption option = options.get(optionIndex);
-                    if (option != null) {
-                        return option.getCallback().get();
-                    }
-                }
-            } catch (NumberFormatException _) {
-            }
-            System.out.println(BashColors.format("Invalid option.", BashColors.RED));
-            System.out.println("Type anything to continue.");
-            scanner.nextLine();
-        }
-    }
-
-    private void logout() {
-        ctx.clearViewStack();
-        ctx.setUser(null);
-        System.out.println(BashColors.format("Logged out!", BashColors.GREEN));
-    }
-
+  private void logout() {
+    ctx.clearViewStack();
+    ctx.setUser(null);
+    System.out.println(BashColors.format("Logged out!", BashColors.GREEN));
+  }
 }

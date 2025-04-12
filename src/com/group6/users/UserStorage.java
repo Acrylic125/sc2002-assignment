@@ -10,7 +10,8 @@ import java.util.*;
  * Handles the storage and retrieval of user data from text files.
  * <p>
  * This class loads users from role-specific files and provides methods
- * to save user data persistently. It supports Applicants, Officers, and Managers.
+ * to save user data persistently. It supports Applicants, Officers, and
+ * Managers.
  * </p>
  */
 public class UserStorage implements Storage<User> {
@@ -50,7 +51,8 @@ public class UserStorage implements Storage<User> {
      *
      * @param users    The map where loaded users will be stored.
      * @param filename The file from which users will be loaded.
-     * @param role     The role of the users being loaded (Applicant, Officer, or Manager).
+     * @param role     The role of the users being loaded (Applicant, Officer, or
+     *                 Manager).
      */
     private void loadUsersFromFile(List<User> users, String filename, UserRole role) {
         try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
@@ -60,7 +62,9 @@ public class UserStorage implements Storage<User> {
                 String[] parts = line.split(",");
 
                 if (parts.length != 6) {
-                    System.out.println(BashColors.format("⚠️ Skipping malformed line " + lineNumber + " in " + filename + ": Invalid data", BashColors.YELLOW));
+                    System.out.println(BashColors.format(
+                            "⚠️ Skipping malformed line " + lineNumber + " in " + filename + ": Invalid data",
+                            BashColors.YELLOW));
                     lineNumber++;
                     continue;
                 }
@@ -74,18 +78,18 @@ public class UserStorage implements Storage<User> {
                     String password = parts[5].trim();
 
                     User user = new RoleBasedUser(
-                            role, id, name, nric, age, maritalStatus, password
-                    );
+                            role, id, name, nric, age, maritalStatus, password);
                     users.add(user);
                 } catch (IllegalArgumentException e) {
-                    System.out.println(BashColors.format("⚠️ Skipping line " + lineNumber + " in " + filename + ": Invalid data", BashColors.YELLOW));
+                    System.out.println(BashColors.format(
+                            "Skipping line " + lineNumber + " in " + filename + ": Invalid data", BashColors.YELLOW));
                     System.out.println(BashColors.format("  " + e.getMessage(), BashColors.YELLOW));
                 }
 
                 lineNumber++;
             }
         } catch (IOException e) {
-            System.out.println(BashColors.format("❌ Error reading from file: " + filename, BashColors.RED));
+            System.out.println(BashColors.format("[Users] Error reading from file: " + filename, BashColors.RED));
             System.out.println(BashColors.format("  " + e.getMessage(), BashColors.RED));
         }
     }
@@ -100,7 +104,8 @@ public class UserStorage implements Storage<User> {
         Map<UserRole, Collection<User>> userRoleUsersMap = new HashMap<>();
         users.forEach(((_user) -> {
             if (!(_user instanceof RoleBasedUser)) {
-                System.out.println(BashColors.format("⚠️ Skipping user, " + _user.getId() + ". Unhandled user type for saving.", BashColors.YELLOW));
+                System.out.println(BashColors.format(
+                        "⚠️ Skipping user, " + _user.getId() + ". Unhandled user type for saving.", BashColors.YELLOW));
                 return;
             }
             RoleBasedUser user = (RoleBasedUser) _user;
@@ -108,8 +113,7 @@ public class UserStorage implements Storage<User> {
             usersFromRole.add(user); // Add by reference, no need to add back to map.
         }));
 
-        userRoleUsersMap.forEach(((userRole, _users) ->
-                saveUsersToFile(_users, getFilenameForROle(userRole))));
+        userRoleUsersMap.forEach(((userRole, _users) -> saveUsersToFile(_users, getFilenameForROle(userRole))));
     }
 
     private String getFilenameForROle(UserRole userRole) {
@@ -133,12 +137,13 @@ public class UserStorage implements Storage<User> {
                 writer.newLine();
             }
         } catch (IOException e) {
-            System.out.println(BashColors.format("❌ Error writing to file: " + filename, BashColors.RED));
+            System.out.println(BashColors.format("Error writing to file: " + filename, BashColors.RED));
         }
     }
 
     private String toFileString(User user) {
-        return user.getId() + "," + user.getName() + "," + user.getNric() + "," + user.getAge() + "," + user.getMaritalStatus().toString() + "," + user.getPassword();
+        return user.getId() + "," + user.getName() + "," + user.getNric() + "," + user.getAge() + ","
+                + user.getMaritalStatus().toString() + "," + user.getPassword();
     }
 
     /**
@@ -152,7 +157,8 @@ public class UserStorage implements Storage<User> {
             return;
         }
         if (!(_user instanceof RoleBasedUser)) {
-            System.out.println(BashColors.format("⚠️ Skipping user, " + _user.getId() + ". Unhandled user type for saving.", BashColors.YELLOW));
+            System.out.println(BashColors.format(
+                    "Skipping user, " + _user.getId() + ". Unhandled user type for saving.", BashColors.YELLOW));
             return;
         }
         RoleBasedUser user = (RoleBasedUser) _user;
@@ -162,7 +168,7 @@ public class UserStorage implements Storage<User> {
             writer.write(toFileString(user));
             writer.newLine();
         } catch (IOException e) {
-            System.out.println(BashColors.format("❌ Error writing to file: " + filename, BashColors.RED));
+            System.out.println(BashColors.format("Error writing to file: " + filename, BashColors.RED));
         }
     }
 }

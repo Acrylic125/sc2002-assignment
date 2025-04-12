@@ -526,10 +526,6 @@ public class BTOProjectManager {
                         _startDate, _endDate)) {
                     throw new RuntimeException("Officer is managing a project with an overlapping application window.");
                 }
-                // if (managedProject.isApplicationWindowOpen()) {
-                // throw new RuntimeException(
-                // "Officer is already managing another project that's currently open.");
-                // }
             }
         }
 

@@ -42,7 +42,7 @@ public class ProjectsView implements PaginatedView, AuthenticatedView {
 
     @Override
     public View render(ViewContext ctx, User user) {
-        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
         final ProjectsViewFilters filters = ctx.getViewAllProjectsFilters();
 
         this.ctx = ctx;
@@ -74,7 +74,7 @@ public class ProjectsView implements PaginatedView, AuthenticatedView {
             return;
         }
 
-        final UserManager userManager = ctx.getBtoSystem().getUsers();
+        final UserManager userManager = ctx.getBtoSystem().getUserManager();
 
         final int lastIndex = Math.min(page * PAGE_SIZE, projects.size());
         final int firstIndex = (page - 1) * PAGE_SIZE;
@@ -206,7 +206,7 @@ public class ProjectsView implements PaginatedView, AuthenticatedView {
 
     private Optional<BTOProject> showRequestProject() {
         final Scanner scanner = ctx.getScanner();
-        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
 
         while (true) {
             System.out.println(BashColors.format(

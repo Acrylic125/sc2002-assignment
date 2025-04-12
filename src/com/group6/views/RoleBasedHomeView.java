@@ -30,22 +30,26 @@ public class RoleBasedHomeView implements AuthenticatedView {
         final UserPermissions permissions = user.getPermissions();
         // Everyone can view applications.
         options.add(new ViewOption(
-                "Go to Applicant Portal (" + BashColors.format("View applications and enquire", BashColors.LIGHT_GRAY) + ")",
-                () -> new ApplicantHomeView(false)
-        ));
+                "Go to Applicant Portal (" + BashColors.format("View applications and enquire", BashColors.LIGHT_GRAY)
+                        + ")",
+                () -> new ApplicantHomeView(false)));
         if (permissions.canManageProjects()) {
             options.add(new ViewOption(
-                    "Go to Manager Portal (" + BashColors.format("Answer enquiries, Register for projects, Manage approved Projects", BashColors.LIGHT_GRAY) + ")",
-                    () -> new ManagementView(false)
-            ));
+                    "Go to Manager Portal ("
+                            + BashColors.format("Answer enquiries, Register for projects, Manage approved Projects",
+                                    BashColors.LIGHT_GRAY)
+                            + ")",
+                    () -> new ManagementHomeView(false)));
         }
+        options.add(new ViewOption(
+                "Go to Profile",
+                () -> new ProfileView()));
         options.add(new ViewOption(
                 "Logout",
                 () -> {
                     logout();
                     return new MenuView();
-                }
-        ));
+                }));
 
         while (true) {
             System.out.println(BashColors.format("Choose a dashboard to view", BashColors.BOLD));
@@ -71,7 +75,8 @@ public class RoleBasedHomeView implements AuthenticatedView {
                         return option.getCallback().get();
                     }
                 }
-            } catch (NumberFormatException _) {}
+            } catch (NumberFormatException _) {
+            }
             System.out.println(BashColors.format("Invalid option.", BashColors.RED));
             System.out.println("Type anything to continue.");
             scanner.nextLine();

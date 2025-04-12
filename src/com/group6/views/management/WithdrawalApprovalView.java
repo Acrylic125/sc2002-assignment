@@ -20,7 +20,7 @@ import java.util.Optional;
 import java.util.Scanner;
 import java.util.Set;
 
-public class HDBOfficerWithdrawalApprovalView implements PaginatedView, AuthenticatedView {
+public class WithdrawalApprovalView implements PaginatedView, AuthenticatedView {
 
     private static final int PAGE_SIZE = 3;
 
@@ -30,7 +30,7 @@ public class HDBOfficerWithdrawalApprovalView implements PaginatedView, Authenti
     private ViewContext ctx;
     private int page = 1;
 
-    public HDBOfficerWithdrawalApprovalView(BTOProject project) {
+    public WithdrawalApprovalView(BTOProject project) {
         this.project = project;
         this.applications = project.getWithdrawals();
     }
@@ -78,7 +78,7 @@ public class HDBOfficerWithdrawalApprovalView implements PaginatedView, Authenti
     }
 
     private void showWithdrawals() {
-        final UserManager userManager = ctx.getBtoSystem().getUsers();
+        final UserManager userManager = ctx.getBtoSystem().getUserManager();
 
         System.out.println(BashColors.format(
                 "Withdrawals for " + project.getName() + ", " + project.getNeighbourhood(), BashColors.BOLD));
@@ -162,7 +162,7 @@ public class HDBOfficerWithdrawalApprovalView implements PaginatedView, Authenti
             return;
         }
 
-        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
         final Scanner scanner = ctx.getScanner();
 
         Optional<Throwable> transitionErrOpt = Utils.tryCatch(() -> {
@@ -208,7 +208,7 @@ public class HDBOfficerWithdrawalApprovalView implements PaginatedView, Authenti
 
     private Optional<BTOApplicationWithdrawalStatus> requestWithdrawalStatus(BTOApplicationWithdrawal withdrawal) {
         final Scanner scanner = ctx.getScanner();
-        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
         final BTOApplicationWithdrawalStatus[] allStatuses = BTOApplicationWithdrawalStatus.values();
         final Set<BTOApplicationWithdrawalStatus> validStatuses = projectManager
                 .getValidWithdrawalStateTransitions(withdrawal.getStatus());

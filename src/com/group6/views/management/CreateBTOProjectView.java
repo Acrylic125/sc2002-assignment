@@ -35,7 +35,7 @@ public class CreateBTOProjectView implements AuthenticatedView {
         Scanner sc = ctx.getScanner();
         BTOSystem system = ctx.getBtoSystem();
 
-        List<BTOProject> activeManagerProjects = system.getProjects().getProjects().values().stream()
+        List<BTOProject> activeManagerProjects = system.getProjectManager().getProjects().values().stream()
                 .filter((project) -> {
                     return project.isApplicationWindowOpen() && project.getManagerUserId().equals(user.getId());
                 })
@@ -98,7 +98,7 @@ public class CreateBTOProjectView implements AuthenticatedView {
         project.setVisibleToPublic(false);
 
         if (Utils.tryCatch(() -> {
-            system.getProjects().addProject(project);
+            system.getProjectManager().addProject(project);
         }).getErr().isPresent()) {
             System.out
                     .println(BashColors.format("Failed to create project, unhandled. Falling back...", BashColors.RED));
@@ -115,7 +115,7 @@ public class CreateBTOProjectView implements AuthenticatedView {
 
     private Optional<String> showRequestProjectName() {
         final Scanner scanner = ctx.getScanner();
-        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
 
         while (true) {
             System.out.println(BashColors.format(

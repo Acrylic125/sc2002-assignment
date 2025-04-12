@@ -73,7 +73,7 @@ public class OfficerRegistrationApprovalView implements AuthenticatedView, Pagin
     }
 
     private void showRegistrations() {
-        final UserManager userManager = ctx.getBtoSystem().getUsers();
+        final UserManager userManager = ctx.getBtoSystem().getUserManager();
         System.out.println(BashColors.format(
                 "Officer Registrations for " + project.getName() + ", " + project.getNeighbourhood(), BashColors.BOLD));
         System.out.println("Registration ID | Registrant | Status");
@@ -141,10 +141,10 @@ public class OfficerRegistrationApprovalView implements AuthenticatedView, Pagin
             return;
         }
 
-        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
         final Scanner scanner = ctx.getScanner();
 
-        final Optional<User> applicantOpt = ctx.getBtoSystem().getUsers().getUser(application.getOfficerUserId());
+        final Optional<User> applicantOpt = ctx.getBtoSystem().getUserManager().getUser(application.getOfficerUserId());
         if (applicantOpt.isEmpty()) {
             System.out.println(BashColors.format("Applicant not found.", BashColors.RED));
             System.out.println("Type anything to continue.");
@@ -195,7 +195,7 @@ public class OfficerRegistrationApprovalView implements AuthenticatedView, Pagin
 
     private Optional<HDBOfficerRegistrationStatus> requestApplicationStatus(HDBOfficerRegistration application) {
         final Scanner scanner = ctx.getScanner();
-        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
         final HDBOfficerRegistrationStatus[] allStatuses = HDBOfficerRegistrationStatus.values();
         final Set<HDBOfficerRegistrationStatus> validStatuses = projectManager
                 .getValidOfficerRegistrationStateTransitions(application.getStatus());

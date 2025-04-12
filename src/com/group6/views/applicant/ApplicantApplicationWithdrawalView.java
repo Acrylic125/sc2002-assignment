@@ -33,7 +33,7 @@ public class ApplicantApplicationWithdrawalView implements AuthenticatedView {
 
     @Override
     public View render(ViewContext ctx, User user) {
-        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
 
         this.ctx = ctx;
 
@@ -45,7 +45,7 @@ public class ApplicantApplicationWithdrawalView implements AuthenticatedView {
 
     private void showRequestWithdrawal(List<BTOProjectManager.BTOFullApplication> fullApplications) {
         final Scanner scanner = ctx.getScanner();
-        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
         if (fullApplications.isEmpty()) {
             System.out.println(
                     BashColors.format("You do not have any active applications to withdraw from.", BashColors.RED));

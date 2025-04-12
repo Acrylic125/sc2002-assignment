@@ -43,7 +43,7 @@ public class ApplicantViewMyEnquiriesView implements PaginatedView, Authenticate
 
     @Override
     public View render(ViewContext ctx, User user) {
-        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
 
         this.ctx = ctx;
         this.user = user;
@@ -120,7 +120,7 @@ public class ApplicantViewMyEnquiriesView implements PaginatedView, Authenticate
 
     private Optional<BTOProject> showRequestProject() {
         final Scanner scanner = ctx.getScanner();
-        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
 
         while (true) {
             System.out.println(BashColors.format(

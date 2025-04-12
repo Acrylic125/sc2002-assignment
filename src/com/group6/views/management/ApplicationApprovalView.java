@@ -21,7 +21,7 @@ import com.group6.views.PaginatedView;
 import com.group6.views.ViewContext;
 import com.group6.views.View;
 
-public class HDBOfficerApplicationApprovalView implements PaginatedView, AuthenticatedView {
+public class ApplicationApprovalView implements PaginatedView, AuthenticatedView {
 
     private static final int PAGE_SIZE = 3;
 
@@ -31,7 +31,7 @@ public class HDBOfficerApplicationApprovalView implements PaginatedView, Authent
     private ViewContext ctx;
     private int page = 1;
 
-    public HDBOfficerApplicationApprovalView(BTOProject project) {
+    public ApplicationApprovalView(BTOProject project) {
         this.project = project;
         this.applications = project.getApplications();
     }
@@ -81,7 +81,7 @@ public class HDBOfficerApplicationApprovalView implements PaginatedView, Authent
     }
 
     private void showApplications() {
-        final UserManager userManager = ctx.getBtoSystem().getUsers();
+        final UserManager userManager = ctx.getBtoSystem().getUserManager();
         System.out.println(BashColors.format(
                 "Applications for " + project.getName() + ", " + project.getNeighbourhood(), BashColors.BOLD));
         System.out.println("Application ID | Applicant | Type | Status");
@@ -150,10 +150,10 @@ public class HDBOfficerApplicationApprovalView implements PaginatedView, Authent
             return;
         }
 
-        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
         final Scanner scanner = ctx.getScanner();
 
-        final Optional<User> applicantOpt = ctx.getBtoSystem().getUsers().getUser(application.getApplicantUserId());
+        final Optional<User> applicantOpt = ctx.getBtoSystem().getUserManager().getUser(application.getApplicantUserId());
         if (applicantOpt.isEmpty()) {
             System.out.println(BashColors.format("Applicant not found.", BashColors.RED));
             System.out.println("Type anything to continue.");
@@ -222,7 +222,7 @@ public class HDBOfficerApplicationApprovalView implements PaginatedView, Authent
 
     private Optional<BTOApplicationStatus> requestApplicationStatus(BTOApplication application) {
         final Scanner scanner = ctx.getScanner();
-        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
         final BTOApplicationStatus[] allStatuses = BTOApplicationStatus.values();
         final Set<BTOApplicationStatus> validStatuses = projectManager
                 .getValidApplicationStateTransitions(application.getStatus());

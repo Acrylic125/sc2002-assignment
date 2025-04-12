@@ -2,7 +2,6 @@ package com.group6.views;
 
 import com.group6.users.User;
 import com.group6.users.UserAuthenticator;
-import com.group6.users.UserManager;
 import com.group6.utils.BashColors;
 import com.group6.utils.ValidateUtils;
 
@@ -31,7 +30,7 @@ public class LoginView implements View {
         Scanner scanner = ctx.getScanner();
         System.out.println(BashColors.format("User Login", BashColors.BOLD));
 
-        final UserAuthenticator userAuthenticator = new UserAuthenticator(ctx.getBtoSystem().getUsers());
+        final UserAuthenticator userAuthenticator = new UserAuthenticator(ctx.getBtoSystem().getUserManager());
 
         int attempts = 0;
 

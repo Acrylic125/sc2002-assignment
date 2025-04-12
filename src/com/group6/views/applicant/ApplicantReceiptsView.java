@@ -41,7 +41,7 @@ public class ApplicantReceiptsView implements AuthenticatedView, PaginatedView {
     @Override
     public View render(ViewContext ctx, User user) {
         this.ctx = ctx;
-        this.receipts = ctx.getBtoSystem().getProjects().getBookingReceipts(user.getId());
+        this.receipts = ctx.getBtoSystem().getProjectManager().getBookingReceipts(user.getId());
 
         return showOptions();
     }

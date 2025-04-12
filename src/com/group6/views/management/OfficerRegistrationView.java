@@ -29,7 +29,7 @@ public class OfficerRegistrationView implements AuthenticatedView {
         this.user = user;
 
         final Scanner scanner = ctx.getScanner();
-        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
         // check if user is already registered for any project
         final List<BTOProject> managedByOfficer = projectManager.getOfficerManagingProjects(user.getId());
         for (BTOProject managedProject : managedByOfficer) {
@@ -49,7 +49,7 @@ public class OfficerRegistrationView implements AuthenticatedView {
     private View showRequestRegistration() {
         final Scanner scanner = ctx.getScanner();
 
-        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
 
         while (true) {
             System.out.println(BashColors.format(

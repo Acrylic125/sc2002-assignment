@@ -1,5 +1,6 @@
 package com.group6.views.management;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +29,7 @@ public class OfficerRegistrationApprovalView implements AuthenticatedView, Pagin
     private final List<HDBOfficerRegistration> registrations;
 
     private ViewContext ctx;
+    private User user;
     private int page = 1;
 
     public OfficerRegistrationApprovalView(BTOProject project) {
@@ -69,6 +71,8 @@ public class OfficerRegistrationApprovalView implements AuthenticatedView, Pagin
     @Override
     public View render(ViewContext ctx, User user) {
         this.ctx = ctx;
+        this.user = user;
+
         return showOptions();
     }
 
@@ -201,11 +205,21 @@ public class OfficerRegistrationApprovalView implements AuthenticatedView, Pagin
                 .getValidOfficerRegistrationStateTransitions(application.getStatus());
 
         final List<String> approvalIssues = new LinkedList<>();
-        if (!project.isApplicationWindowOpen()) {
-            approvalIssues.add("Application window is closed");
-        }
         if (project.getManagingOfficerRegistrations().size() >= project.getOfficerLimit()) {
             approvalIssues.add("Officer limit reached");
+        }
+        final Date startDate = project.getApplicationOpenDate();
+        final Date endDate = project.getApplicationCloseDate();
+        final List<BTOProject> managedByOfficer = projectManager
+                .getOfficerManagingProjects(application.getOfficerUserId());
+        for (BTOProject managedProject : managedByOfficer) {
+            Date _startDate = managedProject.getApplicationOpenDate();
+            Date _endDate = managedProject.getApplicationCloseDate();
+            if (Utils.isDateRangeIntersecting(
+                    startDate, endDate,
+                    _startDate, _endDate)) {
+                approvalIssues.add("Officer already managing another project in the same time period");
+            }
         }
 
         while (true) {

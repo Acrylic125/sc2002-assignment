@@ -22,6 +22,7 @@ public class EditProjectView implements AuthenticatedView {
     private final BTOProject project;
 
     private ViewContext ctx;
+    private User user;
 
     /**
      * Constructor for EditProjectView.
@@ -40,6 +41,7 @@ public class EditProjectView implements AuthenticatedView {
     @Override
     public View render(ViewContext ctx, User user) {
         this.ctx = ctx;
+        this.user = user;
 
         return showOptions();
     }
@@ -361,11 +363,30 @@ public class EditProjectView implements AuthenticatedView {
 
     private Optional<Date[]> requestApplicationWindow() {
         final Scanner scanner = ctx.getScanner();
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
+        final List<BTOProject> managingProjects = projectManager.getProjects().values().stream()
+                .filter((project) -> project.getManagerUserId().equals(user.getId()))
+                .toList();
 
         while (true) {
             System.out.println(BashColors.format(
                     "Enter the opening and closing date of the project in DD/MM/YYYY format, separated by a comma (e.g. 1/1/2025, 2/2/2025) or leave empty ('') tp cancel.",
                     BashColors.BOLD));
+
+            if (!managingProjects.isEmpty()) {
+                System.out.println(BashColors.format(
+                        "The application window MUST NOT overlap with any other projects you are a manager of.",
+                        BashColors.YELLOW));
+                for (BTOProject project : managingProjects) {
+                    if (this.project.getId().equals(project.getId())) {
+                        continue;
+                    }
+                    System.out.println("  " + project.getName() + " ("
+                            + Utils.formatToDDMMYYYY(project.getApplicationOpenDate()) + " to "
+                            + Utils.formatToDDMMYYYY(project.getApplicationCloseDate()) + ")");
+                }
+            }
+
             System.out.println(BashColors.format(
                     "NOTE: opening and closing date are inclusive meaning opening starts at 00:00 of the day and closing ends at 23:59 of the day.",
                     BashColors.LIGHT_GRAY));
@@ -421,6 +442,30 @@ public class EditProjectView implements AuthenticatedView {
                         BashColors.RED));
                 System.out.println("Type anything to continue.");
                 scanner.nextLine();
+                continue;
+            }
+
+            boolean isOverlapping = false;
+            for (BTOProject project : managingProjects) {
+                if (this.project.getId().equals(project.getId())) {
+                    continue;
+                }
+                if (Utils.isDateRangeIntersecting(
+                        openDate, closeDate,
+                        project.getApplicationOpenDate(), project.getApplicationCloseDate())) {
+                    isOverlapping = true;
+                    System.out.println(BashColors.format(
+                            "Invalid input, the application window overlaps with a project you are managing.",
+                            BashColors.RED));
+                    System.out.println(BashColors.format("Project " + project.getName().trim() + " with window "
+                            + Utils.formatToDDMMYYYY(project.getApplicationOpenDate()) + " to "
+                            + Utils.formatToDDMMYYYY(project.getApplicationCloseDate()), BashColors.RED));
+                    System.out.println("Type anything to continue.");
+                    scanner.nextLine();
+                    break;
+                }
+            }
+            if (isOverlapping) {
                 continue;
             }
 

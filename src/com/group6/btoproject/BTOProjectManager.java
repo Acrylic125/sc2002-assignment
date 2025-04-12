@@ -2,6 +2,7 @@ package com.group6.btoproject;
 
 import com.group6.users.User;
 import com.group6.utils.Storage;
+import com.group6.utils.Utils;
 
 import java.util.*;
 
@@ -97,20 +98,27 @@ public class BTOProjectManager {
      *
      * @param project project to be added.
      */
-    public void addProject(BTOProject project) throws RuntimeException {
+    public void addProject(BTOProject _project) throws RuntimeException {
         if (projects.values().stream()
-                .anyMatch((_project) -> project.getName().equals(_project.getName()))) {
+                .anyMatch((project) -> project.getName().equals(_project.getName()))) {
             throw new RuntimeException("Project with name already exists.");
         }
 
-        String managerId = project.getManagerUserId();
-        if (projects.values().stream()
-                .anyMatch((_project) -> _project.isApplicationWindowOpen()
-                        && _project.getManagerUserId().equals(managerId))) {
-            throw new RuntimeException("Manager already has an active project opened.");
+        String managerId = _project.getManagerUserId();
+        final List<BTOProject> managingProjects = getProjects().values().stream()
+                .filter((project) -> project.getManagerUserId().equals(managerId))
+                .toList();
+        final Date openDate = _project.getApplicationOpenDate();
+        final Date closeDate = _project.getApplicationCloseDate();
+        for (BTOProject project : managingProjects) {
+            if (Utils.isDateRangeIntersecting(
+                    openDate, closeDate,
+                    project.getApplicationOpenDate(), project.getApplicationCloseDate())) {
+                throw new RuntimeException("Manager already has a project with overlapping application window.");
+            }
         }
 
-        projects.put(project.getId(), project);
+        projects.put(_project.getId(), _project);
     }
 
     /**
@@ -146,7 +154,8 @@ public class BTOProjectManager {
         private final BTOApplication application;
         private final List<BTOApplicationWithdrawal> withdrawals;
 
-        public BTOFullApplication(BTOProject project, BTOApplication application, List<BTOApplicationWithdrawal> withdrawals) {
+        public BTOFullApplication(BTOProject project, BTOApplication application,
+                List<BTOApplicationWithdrawal> withdrawals) {
             this.project = project;
             this.application = application;
             this.withdrawals = withdrawals;
@@ -359,9 +368,10 @@ public class BTOProjectManager {
                         "Project type, " + application.getTypeId().getName() + " has no availability.");
             }
 
-            if (!project.isApplicationWindowOpen()) {
-                throw new RuntimeException("Application window is closed.");
-            }
+            // Ignore, refer to FAQ page 50.
+            // if (!project.isApplicationWindowOpen()) {
+            // throw new RuntimeException("Application window is closed.");
+            // }
 
             if (project.isManagedBy(application.getApplicantUserId())) {
                 throw new RuntimeException(
@@ -409,13 +419,26 @@ public class BTOProjectManager {
             throw new RuntimeException(
                     "Project Applicants with approved bookings may not register to manage this project.");
         }
+        //
+        // if (!project.isApplicationWindowOpen()) {
+        // throw new RuntimeException("Registration window is closed.");
+        // }
 
+        final Date startDate = project.getApplicationOpenDate();
+        final Date endDate = project.getApplicationCloseDate();
         final List<BTOProject> managedByOfficer = this.getOfficerManagingProjects(userId);
         for (BTOProject managedProject : managedByOfficer) {
-            if (managedProject.isApplicationWindowOpen()) {
-                throw new RuntimeException(
-                        "Officer is already managing another project that's currently open.");
+            Date _startDate = managedProject.getApplicationOpenDate();
+            Date _endDate = managedProject.getApplicationCloseDate();
+            if (Utils.isDateRangeIntersecting(
+                    startDate, endDate,
+                    _startDate, _endDate)) {
+                throw new RuntimeException("Officer is managing a project with an overlapping application window.");
             }
+            // if (managedProject.isApplicationWindowOpen()) {
+            // throw new RuntimeException(
+            // "Officer is already managing another project that's currently open.");
+            // }
         }
 
         final int officerLimit = project.getOfficerLimit();
@@ -492,12 +515,21 @@ public class BTOProjectManager {
                         "Project Applicants with approved bookings may not register to manage this project.");
             }
 
+            final Date startDate = project.getApplicationOpenDate();
+            final Date endDate = project.getApplicationCloseDate();
             final List<BTOProject> managedByOfficer = this.getOfficerManagingProjects(userId);
             for (BTOProject managedProject : managedByOfficer) {
-                if (managedProject.isApplicationWindowOpen()) {
-                    throw new RuntimeException(
-                            "Officer is already managing another project that's currently open.");
+                Date _startDate = managedProject.getApplicationOpenDate();
+                Date _endDate = managedProject.getApplicationCloseDate();
+                if (Utils.isDateRangeIntersecting(
+                        startDate, endDate,
+                        _startDate, _endDate)) {
+                    throw new RuntimeException("Officer is managing a project with an overlapping application window.");
                 }
+                // if (managedProject.isApplicationWindowOpen()) {
+                // throw new RuntimeException(
+                // "Officer is already managing another project that's currently open.");
+                // }
             }
         }
 

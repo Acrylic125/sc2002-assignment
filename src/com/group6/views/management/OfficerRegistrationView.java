@@ -1,5 +1,6 @@
 package com.group6.views.management;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
@@ -30,18 +31,20 @@ public class OfficerRegistrationView implements AuthenticatedView {
 
         final Scanner scanner = ctx.getScanner();
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
-        // check if user is already registered for any project
-        final List<BTOProject> managedByOfficer = projectManager.getOfficerManagingProjects(user.getId());
-        for (BTOProject managedProject : managedByOfficer) {
-            if (managedProject.isApplicationWindowOpen()) {
-                System.out.println(BashColors.format(
-                        "You are already registered to manage " + managedProject.getName() + ".",
-                        BashColors.RED));
-                System.out.println("Type anything to continue.");
-                scanner.nextLine();
-                return null;
-            }
-        }
+        // check if user is already registered for any project within the same period.
+
+        // final List<BTOProject> managedByOfficer =
+        // projectManager.getOfficerManagingProjects(user.getId());
+        // for (BTOProject managedProject : managedByOfficer) {
+        // if (managedProject.isApplicationWindowOpen()) {
+        // System.out.println(BashColors.format(
+        // "You are already registered to manage " + managedProject.getName() + ".",
+        // BashColors.RED));
+        // System.out.println("Type anything to continue.");
+        // scanner.nextLine();
+        // return null;
+        // }
+        // }
 
         return showRequestRegistration();
     }
@@ -70,13 +73,14 @@ public class OfficerRegistrationView implements AuthenticatedView {
             }
 
             final BTOProject project = projectOpt.get();
-            if (!project.isApplicationWindowOpen()) {
-                System.out.println(
-                        BashColors.format("The registration window for this project is closed.", BashColors.RED));
-                System.out.println("Type anything to continue.");
-                scanner.nextLine();
-                continue;
-            }
+            // if (!project.isApplicationWindowOpen()) {
+            // System.out.println(
+            // BashColors.format("The registration window for this project is closed.",
+            // BashColors.RED));
+            // System.out.println("Type anything to continue.");
+            // scanner.nextLine();
+            // continue;
+            // }
 
             // check if user already registered to manage this project:
             Optional<HDBOfficerRegistration> registrationOpt = project.getActiveOfficerRegistration(user.getId());
@@ -121,6 +125,31 @@ public class OfficerRegistrationView implements AuthenticatedView {
                         BashColors.RED));
                 System.out.println("Type anything to continue.");
                 scanner.nextLine();
+            }
+
+            final Date startDate = project.getApplicationOpenDate();
+            final Date endDate = project.getApplicationCloseDate();
+            final List<BTOProject> managingProjects = projectManager
+                    .getOfficerManagingProjects(user.getId());
+            boolean isOverlapping = false;
+            for (BTOProject _project : managingProjects) {
+                if (Utils.isDateRangeIntersecting(
+                        startDate, endDate,
+                        _project.getApplicationOpenDate(), _project.getApplicationCloseDate())) {
+                    isOverlapping = true;
+                    System.out.println(BashColors.format(
+                            "You are already managing another project that overlaps with this project.",
+                            BashColors.RED));
+                    System.out.println(BashColors.format("Project " + _project.getName().trim() + " with window "
+                            + Utils.formatToDDMMYYYY(_project.getApplicationOpenDate()) + " to "
+                            + Utils.formatToDDMMYYYY(_project.getApplicationCloseDate()), BashColors.RED));
+                    System.out.println("Type anything to continue.");
+                    scanner.nextLine();
+                    break;
+                }
+            }
+            if (isOverlapping) {
+                continue;
             }
 
             Utils.tryCatch(() -> {

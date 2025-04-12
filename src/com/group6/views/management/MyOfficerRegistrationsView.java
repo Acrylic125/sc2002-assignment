@@ -15,7 +15,7 @@ import com.group6.views.PaginatedView;
 import com.group6.views.View;
 import com.group6.views.ViewContext;
 
-public class HDBOfficerViewRegistrationsView implements AuthenticatedView, PaginatedView {
+public class MyOfficerRegistrationsView implements AuthenticatedView, PaginatedView {
 
     private static final int PAGE_SIZE = 3;
 

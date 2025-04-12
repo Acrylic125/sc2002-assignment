@@ -20,7 +20,7 @@ import java.util.Optional;
 import java.util.Scanner;
 import java.util.Set;
 
-public class HDBOfficerWithdrawalApprovalView implements PaginatedView, AuthenticatedView {
+public class WithdrawalApprovalView implements PaginatedView, AuthenticatedView {
 
     private static final int PAGE_SIZE = 3;
 
@@ -30,7 +30,7 @@ public class HDBOfficerWithdrawalApprovalView implements PaginatedView, Authenti
     private ViewContext ctx;
     private int page = 1;
 
-    public HDBOfficerWithdrawalApprovalView(BTOProject project) {
+    public WithdrawalApprovalView(BTOProject project) {
         this.project = project;
         this.applications = project.getWithdrawals();
     }

@@ -36,7 +36,7 @@ public class RoleBasedHomeView implements AuthenticatedView {
         if (permissions.canManageProjects()) {
             options.add(new ViewOption(
                     "Go to Manager Portal (" + BashColors.format("Answer enquiries, Register for projects, Manage approved Projects", BashColors.LIGHT_GRAY) + ")",
-                    () -> new ManagementView(false)
+                    () -> new ManagementHomeView(false)
             ));
         }
         options.add(new ViewOption(

@@ -9,13 +9,13 @@ import com.group6.users.UserPermissions;
 import com.group6.utils.BashColors;
 import com.group6.views.*;
 
-public class ManagementView implements AuthenticatedView {
+public class ManagementHomeView implements AuthenticatedView {
     private final boolean isRootView;
 
     private ViewContext ctx;
     private User user;
 
-    public ManagementView(boolean isRootView) {
+    public ManagementHomeView(boolean isRootView) {
         this.isRootView = isRootView;
     }
 
@@ -40,10 +40,10 @@ public class ManagementView implements AuthenticatedView {
             options.add(new ViewOption("Create New Project", CreateBTOProjectView::new));
         }
         if (userPermissions.canRegisterForProject()) {
-            options.add(new ViewOption("Register to Manage Project", HDBOfficerRegisterProjectsView::new));
-            options.add(new ViewOption("View My Registrations", HDBOfficerViewRegistrationsView::new));
+            options.add(new ViewOption("Register to Manage Project", RegisterProjectsView::new));
+            options.add(new ViewOption("View My Registrations", MyOfficerRegistrationsView::new));
         }
-        options.add(new ViewOption("View My Managed Projects", HDBOfficerManagedProjectsView::new));
+        options.add(new ViewOption("View My Managed Projects", ManagedProjectsView::new));
         if (userPermissions.canGenerateApplicantsReport()) {
             options.add(new ViewOption("Generate Applicants Report", () -> {
                 final List<User> applicants = ctx.getBtoSystem().getUserManager().getUsers().values().stream()

@@ -15,7 +15,7 @@ import com.group6.views.applicant.ProjectEnquiryView;
 
 import java.util.*;
 
-public class HDBOfficerManagedProjectsView implements PaginatedView, AuthenticatedView {
+public class ManagedProjectsView implements PaginatedView, AuthenticatedView {
 
     private static final int PAGE_SIZE = 3;
 
@@ -177,7 +177,7 @@ public class HDBOfficerManagedProjectsView implements PaginatedView, Authenticat
                             break;
                         }
 
-                        return new HDBOfficerWithdrawalApprovalView(projectOpt.get());
+                        return new WithdrawalApprovalView(projectOpt.get());
                     }
                 case "r":
                     if (permissions.canApproveOfficerRegistrations()) {
@@ -195,7 +195,7 @@ public class HDBOfficerManagedProjectsView implements PaginatedView, Authenticat
                             break;
                         }
 
-                        return new HDBOfficerApplicationApprovalView(projectOpt.get());
+                        return new ApplicationApprovalView(projectOpt.get());
                     }
                 case "edit":
                     if (permissions.canEditProject()) {

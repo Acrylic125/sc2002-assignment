@@ -15,7 +15,7 @@ import com.group6.utils.Utils;
 import com.group6.views.*;
 import com.group6.views.applicant.ProjectsViewFilters;
 
-public class HDBOfficerRegisterProjectsView implements PaginatedView, AuthenticatedView {
+public class RegisterProjectsView implements PaginatedView, AuthenticatedView {
 
     private static final int PAGE_SIZE = 3;
 

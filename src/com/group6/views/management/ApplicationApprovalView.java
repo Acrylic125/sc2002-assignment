@@ -21,7 +21,7 @@ import com.group6.views.PaginatedView;
 import com.group6.views.ViewContext;
 import com.group6.views.View;
 
-public class HDBOfficerApplicationApprovalView implements PaginatedView, AuthenticatedView {
+public class ApplicationApprovalView implements PaginatedView, AuthenticatedView {
 
     private static final int PAGE_SIZE = 3;
 
@@ -31,7 +31,7 @@ public class HDBOfficerApplicationApprovalView implements PaginatedView, Authent
     private ViewContext ctx;
     private int page = 1;
 
-    public HDBOfficerApplicationApprovalView(BTOProject project) {
+    public ApplicationApprovalView(BTOProject project) {
         this.project = project;
         this.applications = project.getApplications();
     }

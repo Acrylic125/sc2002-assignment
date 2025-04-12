@@ -1,6 +1,7 @@
 package com.group6.btoproject;
 
 import com.group6.users.User;
+import com.group6.utils.Storage;
 
 import java.util.*;
 
@@ -16,11 +17,18 @@ public class BTOProjectManager {
     // Map<String Id, BTOProject>
     private final Map<String, BTOProject> projects = new HashMap<>();
     private final List<BTOBookingReceipt> bookingReceipts = new LinkedList<>();
+    private final Storage<BTOProject> projectStorage;
+    private final Storage<BTOBookingReceipt> bookingReceiptStorage;
 
     /**
      * Constructor for BTOProjectManager.
+     *
+     * @param projectStorage        Storage for projects.
+     * @param bookingReceiptStorage Storage for booking receipts.
      */
-    public BTOProjectManager() {
+    public BTOProjectManager(Storage<BTOProject> projectStorage, Storage<BTOBookingReceipt> bookingReceiptStorage) {
+        this.projectStorage = projectStorage;
+        this.bookingReceiptStorage = bookingReceiptStorage;
     }
 
     /**
@@ -30,6 +38,36 @@ public class BTOProjectManager {
      */
     public Map<String, BTOProject> getProjects() {
         return projects;
+    }
+
+    /**
+     * Sets the projects map.
+     *
+     * @param projects The projects to set.
+     */
+    public void setProjects(List<BTOProject> projects) {
+        projects.forEach((project) -> {
+            this.projects.put(project.getId(), project);
+        });
+    }
+
+    /**
+     * Receipts getters.
+     *
+     * @return {@link #bookingReceipts}
+     */
+    public List<BTOBookingReceipt> getBookingReceipts() {
+        return Collections.unmodifiableList(bookingReceipts);
+    }
+
+    /**
+     * Sets the projects map.
+     *
+     * @param receipts The projects to set.
+     */
+    public void setReceipts(List<BTOBookingReceipt> receipts) {
+        this.bookingReceipts.clear();
+        this.bookingReceipts.addAll(receipts);
     }
 
     /**
@@ -147,6 +185,23 @@ public class BTOProjectManager {
     }
 
     /**
+     * Get all ACTIVE project applications applied by a user.
+     *
+     * @param userId id of the user.
+     * @return list of projects applied by the user.
+     */
+    public List<BTOFullApplication> getAllActiveApplicationsForUser(String userId) {
+        LinkedList<BTOFullApplication> result = new LinkedList<>();
+        projects.values().forEach(project -> {
+            project.getActiveApplication(userId).ifPresent(application -> {
+                Optional<BTOApplicationWithdrawal> withdrawalOpt = project.getActiveWithdrawal(application.getId());
+                result.add(new BTOFullApplication(project, application, withdrawalOpt.orElse(null)));
+            });
+        });
+        return result;
+    }
+
+    /**
      * Get all booked applications for a user.
      *
      * @param userId id of the user.
@@ -221,7 +276,8 @@ public class BTOProjectManager {
         }
 
         if (project.isManagedBy(applicantUserId)) {
-            throw new RuntimeException("User is already managing this project and thus cannot apply for this project..");
+            throw new RuntimeException(
+                    "User is already managing this project and thus cannot apply for this project..");
         }
 
         final BTOApplication application = new BTOApplication(
@@ -292,13 +348,15 @@ public class BTOProjectManager {
         if (status == BTOApplicationStatus.BOOKED || status == BTOApplicationStatus.SUCCESSFUL) {
             final Optional<BTOProjectType> projectTypeOpt = project.getProjectType(application.getTypeId());
             if (projectTypeOpt.isEmpty()) {
-                throw new RuntimeException("Project type, " + application.getTypeId() + " does not exist.");
+                throw new RuntimeException(
+                        "Project type, " + application.getTypeId().getName() + " does not exist in project.");
             }
 
             final BTOProjectType projectType = projectTypeOpt.get();
             int bookedCountForType = project.getBookedCountForType(application.getTypeId());
             if (bookedCountForType >= projectType.getMaxQuantity()) {
-                throw new RuntimeException("Project type, " + application.getTypeId() + " has no availability.");
+                throw new RuntimeException(
+                        "Project type, " + application.getTypeId().getName() + " has no availability.");
             }
 
             if (!project.isApplicationWindowOpen()) {
@@ -306,7 +364,8 @@ public class BTOProjectManager {
             }
 
             if (project.isManagedBy(application.getApplicantUserId())) {
-                throw new RuntimeException("User is already managing this project and thus cannot apply for this project..");
+                throw new RuntimeException(
+                        "User is already managing this project and thus cannot apply for this project..");
             }
 
             if (status == BTOApplicationStatus.BOOKED) {
@@ -628,7 +687,8 @@ public class BTOProjectManager {
 
         final Optional<BTOProjectType> typeOpt = project.getProjectType(application.getTypeId());
         if (typeOpt.isEmpty()) {
-            throw new RuntimeException("Type with type id, " + application.getId() + " does not exist in project.");
+            throw new RuntimeException(
+                    "Type with type id, " + application.getTypeId().getName() + " does not exist in project.");
         }
         final BTOProjectType type = typeOpt.get();
 
@@ -652,4 +712,11 @@ public class BTOProjectManager {
         return bookingReceipts.stream().filter((receipt) -> receipt.getUserId().equals(userId)).toList();
     }
 
+    public Storage<BTOProject> getProjectStorage() {
+        return projectStorage;
+    }
+
+    public Storage<BTOBookingReceipt> getBookingReceiptStorage() {
+        return bookingReceiptStorage;
+    }
 }

@@ -12,7 +12,13 @@ import java.util.UUID;
 public class BTOProjectTests {
 
     public static void main(String[] args) {
-        BTOProjectManager projectManager = new BTOProjectManager();
+        final BTOProjectStorage projectStorage = new BTOProjectStorage(
+                "projects.txt"
+        );
+        final BTOBookingReceiptStorage receiptsStorage = new BTOBookingReceiptStorage(
+                "booking-receipts.txt"
+        );
+        final BTOProjectManager projectManager = new BTOProjectManager(projectStorage, receiptsStorage);
         BTOProject project = new BTOProject(UUID.randomUUID().toString(), UUID.randomUUID().toString());
         project.setName("A");
         project.setProjectType(new BTOProjectType(BTOProjectTypeID.S_2_ROOM, 15_000, 2));

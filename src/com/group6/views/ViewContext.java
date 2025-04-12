@@ -5,6 +5,7 @@ import com.group6.users.User;
 import com.group6.views.applicant.ApplicantViewMyApplicationFilters;
 import com.group6.views.applicant.ProjectsView;
 import com.group6.views.applicant.ProjectsViewFilters;
+import com.group6.views.management.ApplicantReportFilters;
 
 import java.util.Optional;
 import java.util.Scanner;
@@ -21,6 +22,7 @@ public final class ViewContext {
     private User user;
     private final ProjectsViewFilters viewAllProjectsFilters = new ProjectsViewFilters();
     private final ApplicantViewMyApplicationFilters viewMyApplicationFilters = new ApplicantViewMyApplicationFilters();
+    private final ApplicantReportFilters applicantReportFilters = new ApplicantReportFilters();
 
     /**
      *
@@ -138,6 +140,24 @@ public final class ViewContext {
      */
     public ApplicantViewMyApplicationFilters getViewApplicationFilters() {
         return viewMyApplicationFilters;
+    }
+
+    /**
+     * Applicant report filters getter.
+     *
+     * @return {@link #applicantReportFilters}
+     */
+    public ApplicantViewMyApplicationFilters getViewMyApplicationFilters() {
+        return viewMyApplicationFilters;
+    }
+
+    /**
+     * Applicant report filters getter.
+     *
+     * @return {@link #applicantReportFilters}
+     */
+    public ApplicantReportFilters getApplicantReportFilters() {
+        return applicantReportFilters;
     }
 
 }

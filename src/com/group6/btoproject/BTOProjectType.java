@@ -1,11 +1,14 @@
 package com.group6.btoproject;
 
+import java.io.Serializable;
+
 /**
- * Represents a {@link  BTOProject} types
+ * Represents a {@link BTOProject} types
  * (i.e. 2 Room, 3 ROom).
  */
-public final class BTOProjectType {
+public final class BTOProjectType implements Serializable {
 
+    private static final long serialVersionUID = 1L;
     private final BTOProjectTypeID id;
     private final double price;
     private final int maxQuantity;
@@ -13,8 +16,8 @@ public final class BTOProjectType {
     /**
      * Constructor for BTOProjectType.
      *
-     * @param id     id of the project type.
-     * @param price    price of the project type.
+     * @param id          id of the project type.
+     * @param price       price of the project type.
      * @param maxQuantity quantity of the project type.
      */
     public BTOProjectType(BTOProjectTypeID id, double price, int maxQuantity) {

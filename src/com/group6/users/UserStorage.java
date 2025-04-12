@@ -1,12 +1,10 @@
 package com.group6.users;
 
 import com.group6.utils.BashColors;
+import com.group6.utils.Storage;
 
 import java.io.*;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Handles the storage and retrieval of user data from text files.
@@ -15,7 +13,7 @@ import java.util.Map;
  * to save user data persistently. It supports Applicants, Officers, and Managers.
  * </p>
  */
-public class UserStorage {
+public class UserStorage implements Storage<User> {
     private final String applicantsFilepath;
     private final String officersFilepath;
     private final String managersFilepath;
@@ -38,8 +36,9 @@ public class UserStorage {
      *
      * @return A map of users keyed by NRIC.
      */
-    public Map<String, User> loadAllUsers() {
-        Map<String, User> users = new HashMap<>();
+    @Override
+    public List<User> loadAll() {
+        List<User> users = new LinkedList<>();
         loadUsersFromFile(users, applicantsFilepath, UserRole.APPLICANT);
         loadUsersFromFile(users, officersFilepath, UserRole.OFFICER);
         loadUsersFromFile(users, managersFilepath, UserRole.MANAGER);
@@ -53,7 +52,7 @@ public class UserStorage {
      * @param filename The file from which users will be loaded.
      * @param role     The role of the users being loaded (Applicant, Officer, or Manager).
      */
-    private void loadUsersFromFile(Map<String, User> users, String filename, UserRole role) {
+    private void loadUsersFromFile(List<User> users, String filename, UserRole role) {
         try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
             String line;
             int lineNumber = 1;
@@ -77,7 +76,7 @@ public class UserStorage {
                     User user = new RoleBasedUser(
                             role, id, name, nric, age, maritalStatus, password
                     );
-                    users.put(id, user);
+                    users.add(user);
                 } catch (IllegalArgumentException e) {
                     System.out.println(BashColors.format("⚠️ Skipping line " + lineNumber + " in " + filename + ": Invalid data", BashColors.YELLOW));
                     System.out.println(BashColors.format("  " + e.getMessage(), BashColors.YELLOW));
@@ -96,9 +95,10 @@ public class UserStorage {
      *
      * @param users The map of users to be saved, keyed by NRIC.
      */
-    public void saveAllUsers(Map<String, User> users) {
+    @Override
+    public void saveAll(List<User> users) {
         Map<UserRole, Collection<User>> userRoleUsersMap = new HashMap<>();
-        users.forEach(((_, _user) -> {
+        users.forEach(((_user) -> {
             if (!(_user instanceof RoleBasedUser)) {
                 System.out.println(BashColors.format("⚠️ Skipping user, " + _user.getId() + ". Unhandled user type for saving.", BashColors.YELLOW));
                 return;
@@ -146,7 +146,8 @@ public class UserStorage {
      *
      * @param _user The user to save.
      */
-    public void saveUser(User _user) {
+    @Override
+    public void save(User _user) {
         if (_user == null) {
             return;
         }

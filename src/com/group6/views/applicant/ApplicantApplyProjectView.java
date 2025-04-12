@@ -139,11 +139,12 @@ public class ApplicantApplyProjectView implements AuthenticatedView {
                         System.out.println("Type anything to continue.");
                         scanner.nextLine();
                         return Optional.empty();
-                    } else {
+                    }
+                    if (officerReg.getStatus() == HDBOfficerRegistrationStatus.PENDING) {
                         System.out.println(BashColors.format(
-                                "WARNING: You are currently registering to be an officer for this project. You may still apply for this project but your officer registration cannot be accepted.",
+                                "WARNING: You are currently registering to be an officer for this project. You may still be booked for this project but your officer registration cannot be accepted.",
                                 BashColors.YELLOW));
-                        System.out.println("Type 'y' to continue, or anything else to cancel:");
+                        System.out.println("Type 'y' to confirm, or anything else to cancel:");
                         final String option = scanner.nextLine().trim();
                         if (!option.equals("y")) {
                             return Optional.empty();

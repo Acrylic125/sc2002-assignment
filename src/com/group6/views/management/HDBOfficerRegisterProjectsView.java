@@ -8,15 +8,11 @@ import java.util.Scanner;
 import com.group6.btoproject.BTOProject;
 import com.group6.btoproject.BTOProjectManager;
 import com.group6.btoproject.BTOProjectType;
-import com.group6.btoproject.HDBOfficerRegisterCheck;
 import com.group6.users.User;
 import com.group6.users.UserManager;
 import com.group6.utils.BashColors;
 import com.group6.utils.Utils;
-import com.group6.views.AuthenticatedView;
-import com.group6.views.PaginatedView;
-import com.group6.views.View;
-import com.group6.views.ViewContext;
+import com.group6.views.*;
 import com.group6.views.applicant.ProjectsViewFilters;
 
 public class HDBOfficerRegisterProjectsView implements PaginatedView, AuthenticatedView {
@@ -90,14 +86,16 @@ public class HDBOfficerRegisterProjectsView implements PaginatedView, Authentica
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .toList();
-            String managerName = managerOpt.isPresent() ? managerOpt.get().getName() : BashColors.format("(Unknown)", BashColors.LIGHT_GRAY);
+            String managerName = managerOpt.isPresent() ? managerOpt.get().getName()
+                    : BashColors.format("(Unknown)", BashColors.LIGHT_GRAY);
             String officerNames = !officers.isEmpty()
                     ? officers.stream().map(User::getName).reduce((a, b) -> {
-                if (a.isEmpty()) {
-                    return b;
-                }
-                return a + ", " + b;
-            }).get() : BashColors.format("(None)", BashColors.LIGHT_GRAY);
+                        if (a.isEmpty()) {
+                            return b;
+                        }
+                        return a + ", " + b;
+                    }).get()
+                    : BashColors.format("(None)", BashColors.LIGHT_GRAY);
 
             System.out.println("Project: " + project.getName() + ", " + project.getNeighbourhood());
             System.out.println("ID: " + project.getId());
@@ -117,9 +115,10 @@ public class HDBOfficerRegisterProjectsView implements PaginatedView, Authentica
             boolean isWindowOpen = project.isApplicationWindowOpen();
             String projectOpenWindowStr = Utils.formatToDDMMYYYY(project.getApplicationOpenDate())
                     + " to " + Utils.formatToDDMMYYYY(project.getApplicationCloseDate());
-            System.out.println("Application and Registration period: " + BashColors.format(projectOpenWindowStr, isWindowOpen
-                    ? BashColors.GREEN
-                    : BashColors.RED));
+            System.out.println("Application and Registration period: " + BashColors.format(projectOpenWindowStr,
+                    isWindowOpen
+                            ? BashColors.GREEN
+                            : BashColors.RED));
 
             String officerSlotsStr = officers.size() + " / " + project.getOfficerLimit();
             if (officers.size() >= project.getOfficerLimit()) {
@@ -140,12 +139,12 @@ public class HDBOfficerRegisterProjectsView implements PaginatedView, Authentica
         while (true) {
             showProjects();
             System.out.println("Page " + page + " / " + getLastPage() +
-                    " - Type 'a' to apply, 'n' to go to next page, 'p' to go to previous page, 'page' to go to a specific page,  or leave empty ('') to go back:");
+                    " - Type 'r' to register to manage, 'n' to go to next page, 'p' to go to previous page, 'page' to go to a specific page,  or leave empty ('') to go back:");
 
             String option = scanner.nextLine().trim();
             switch (option) {
-                case "a":
-                    return new HDBOfficerRegisterCheck();
+                case "r":
+                    return new OfficerRegistrationView();
                 case "n":
                     this.requestNextPage(scanner);
                     break;

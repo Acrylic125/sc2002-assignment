@@ -1,5 +1,7 @@
 package com.group6.btoproject;
 
+import java.io.Serializable;
+
 /**
  * Represents a HDB Officer's request to register as an officer
  * for this project.
@@ -8,7 +10,9 @@ package com.group6.btoproject;
  * {@link BTOProject} to avoid weird application states.
  * See {@link HDBOfficerRegistrationStatus} for possible statuses.
  */
-public class HDBOfficerRegistration {
+public class HDBOfficerRegistration implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private final String id;
     private final String officerUserId;

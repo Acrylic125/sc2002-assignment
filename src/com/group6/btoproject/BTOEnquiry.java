@@ -1,5 +1,6 @@
 package com.group6.btoproject;
 
+import java.io.Serializable;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -9,7 +10,10 @@ import java.util.UUID;
  * Message and response.
  * {@link BTOEnquiryMessage} message for sender and response.
  */
-public class BTOEnquiry {
+public class BTOEnquiry implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     /**
      *
      * @param senderMessage   sender message.

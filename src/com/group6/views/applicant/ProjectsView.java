@@ -11,10 +11,7 @@ import com.group6.users.UserManager;
 import com.group6.users.UserPermissions;
 import com.group6.utils.BashColors;
 import com.group6.utils.Utils;
-import com.group6.views.AuthenticatedView;
-import com.group6.views.PaginatedView;
-import com.group6.views.View;
-import com.group6.views.ViewContext;
+import com.group6.views.*;
 
 import static java.util.stream.Collectors.toList;
 

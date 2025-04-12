@@ -12,6 +12,7 @@ public class ApplicantHomeView implements AuthenticatedView {
     private final boolean isRootView;
 
     private ViewContext ctx;
+    private User user;
 
     public ApplicantHomeView(boolean isRootView) {
         this.isRootView = isRootView;
@@ -20,6 +21,7 @@ public class ApplicantHomeView implements AuthenticatedView {
     @Override
     public View render(ViewContext ctx, User user) {
         this.ctx = ctx;
+        this.user = user;
 
         return showOptions();
     }
@@ -29,9 +31,11 @@ public class ApplicantHomeView implements AuthenticatedView {
 
         List<ViewOption> options = new ArrayList<>();
         options.add(new ViewOption("View All Projects", ProjectsView::new));
-        options.add(new ViewOption("View My Applied Projects", ApplicantViewMyApplicationsView::new));
-        options.add(new ViewOption("View My Enquiries", ApplicantViewMyEnquiriesView::new));
-        options.add(new ViewOption("View My Booking Receipts", ApplicantReceiptsView::new));
+        if (user.getPermissions().canApply()) {
+            options.add(new ViewOption("View My Applied Projects", ApplicantViewMyApplicationsView::new));
+            options.add(new ViewOption("View My Enquiries", ApplicantViewMyEnquiriesView::new));
+            options.add(new ViewOption("View My Booking Receipts", ApplicantReceiptsView::new));
+        }
         if (this.isRootView) {
             options.add(new ViewOption("Logout", () -> {
                 logout();
@@ -51,7 +55,7 @@ public class ApplicantHomeView implements AuthenticatedView {
                     }
                 }
             }
-            System.out.println("");
+            System.out.println();
             if (!isRootView) {
                 System.out.println("Type the option (e.g. 1, 2, 3) you want to select or leave empty ('') to cancel.");
             } else {
@@ -64,11 +68,13 @@ public class ApplicantHomeView implements AuthenticatedView {
             }
             try {
                 int optionIndex = Integer.parseInt(_optionIndex) - 1;
-                ViewOption option = options.get(optionIndex);
-                if (option != null) {
-                    return option.getCallback().get();
+                if (optionIndex >= 0 && optionIndex < options.size()) {
+                    ViewOption option = options.get(optionIndex);
+                    if (option != null) {
+                        return option.getCallback().get();
+                    }
                 }
-            } catch (NumberFormatException _) {}
+            } catch (Throwable _) {}
             System.out.println(BashColors.format("Invalid option.", BashColors.RED));
             System.out.println("Type anything to continue.");
             scanner.nextLine();

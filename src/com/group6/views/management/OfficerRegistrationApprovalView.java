@@ -1,5 +1,6 @@
 package com.group6.views.management;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
@@ -145,10 +146,9 @@ public class OfficerRegistrationApprovalView implements AuthenticatedView, Pagin
             scanner.nextLine();
             return;
         }
-        final User applicant = applicantOpt.get();
 
         Optional<Throwable> transitionErrOpt = Utils.tryCatch(() -> {
-            projectManager.transitionOfficerRegistrationStatus(project.getId(), application.getId(),
+            projectManager.transitionOfficerRegistrationStatus(project.getId(), application.getOfficerUserId(),
                     statusOpt.get());
         }).getErr();
         if (transitionErrOpt.isPresent()) {
@@ -160,24 +160,7 @@ public class OfficerRegistrationApprovalView implements AuthenticatedView, Pagin
             return;
         }
 
-        System.out.println(BashColors.format("Successfully updated application status.", BashColors.GREEN));
-
-        if (statusOpt.get().equals(BTOApplicationStatus.BOOKED)) {
-            Optional<Throwable> receiptErrOpt = Utils.tryCatch(() -> {
-                projectManager.generateBookingReceipt(project.getId(), application.getId(), applicant);
-            }).getErr();
-
-            if (receiptErrOpt.isPresent()) {
-                System.out.println(BashColors.format(
-                        "Failed to generate receipt. The application status will remain as BOOKED.", BashColors.RED));
-                System.out.println(BashColors.format(
-                        receiptErrOpt.get().getMessage(), BashColors.RED));
-                System.out.println("Type anything to continue.");
-                scanner.nextLine();
-                return;
-            }
-            System.out.println(BashColors.format("Generated Receipt and sent to applicant.", BashColors.GREEN));
-        }
+        System.out.println(BashColors.format("Successfully updated registration status.", BashColors.GREEN));
         System.out.println("Type anything to continue.");
         scanner.nextLine();
     }
@@ -212,16 +195,28 @@ public class OfficerRegistrationApprovalView implements AuthenticatedView, Pagin
         final Set<HDBOfficerRegistrationStatus> validStatuses = projectManager
                 .getValidOfficerRegistrationStateTransitions(application.getStatus());
 
+        final List<String> approvalIssues = new LinkedList<>();
+        if (!project.isApplicationWindowOpen()) {
+            approvalIssues.add("Application window is closed");
+        }
+        if (project.getManagingOfficerRegistrations().size() >= project.getOfficerLimit()) {
+            approvalIssues.add("Officer limit reached");
+        }
+
         while (true) {
             System.out.println(BashColors.format("What status to change to?", BashColors.BOLD));
             System.out.println("Available statuses:");
             for (HDBOfficerRegistrationStatus status : allStatuses) {
                 boolean isStatusTransitionValid = validStatuses.contains(status);
 
-                if ((status == HDBOfficerRegistrationStatus.SUCCESSFUL) && !project.isApplicationWindowOpen()) {
-                    System.out.println("  "
-                            + BashColors.format(status.toString() + " (Application window closed)", BashColors.RED));
-                    continue;
+                if ((status == HDBOfficerRegistrationStatus.SUCCESSFUL)) {
+                    if (!approvalIssues.isEmpty()) {
+                        String reason = Utils.joinStringDelimiter(approvalIssues, ", ", " and ");
+                        System.out.println("  "
+                                + BashColors.format(status.toString() + " (" + reason + ")",
+                                        BashColors.RED));
+                        continue;
+                    }
                 }
                 if (!isStatusTransitionValid) {
                     System.out.println("  " + BashColors.format(status.toString(), BashColors.RED));
@@ -247,7 +242,7 @@ public class OfficerRegistrationApprovalView implements AuthenticatedView, Pagin
             HDBOfficerRegistrationStatus status = statusRes.getData().get();
             if (!validStatuses.contains(status)
                     || (status == HDBOfficerRegistrationStatus.SUCCESSFUL
-                            && !project.isApplicationWindowOpen())) {
+                            && !approvalIssues.isEmpty())) {
                 System.out.println(BashColors.format("Invalid status.", BashColors.RED));
                 System.out.println("Type anything to continue.");
                 scanner.nextLine();

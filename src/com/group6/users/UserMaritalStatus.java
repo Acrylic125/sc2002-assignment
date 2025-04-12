@@ -5,7 +5,17 @@ package com.group6.users;
  */
 public enum UserMaritalStatus {
 
-    MARRIED, SINGLE;
+    MARRIED("Married"), SINGLE("Single");
+
+    private final String name;
+
+    UserMaritalStatus(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
 
     /**
      * Converts a string to a UserMaritalStatus, case-insensitively.

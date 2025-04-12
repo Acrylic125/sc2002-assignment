@@ -3,6 +3,7 @@ package com.group6.btoproject;
 import com.group6.users.User;
 import com.group6.users.UserMaritalStatus;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -13,8 +14,9 @@ import java.util.*;
  * See {@link HDBOfficerRegistration}.
  * See {@link BTOApplicationWithdrawal}.
  */
-public class BTOProject {
+public class BTOProject implements Serializable {
 
+    private static final long serialVersionUID = 1L;
     public static final int OFFICER_LIMIT = 10;
 
     private final String id;
@@ -269,6 +271,7 @@ public class BTOProject {
 
     /**
      * Get an officer registration based on it's id.
+     * 
      * @param registrationId registration id.
      * @return the hdb officer registration tied to the registration id.
      */
@@ -332,6 +335,7 @@ public class BTOProject {
 
     /**
      * Check if the user is managing this project.
+     * 
      * @param userId user id.
      * @return true if the user is managing this project.
      */

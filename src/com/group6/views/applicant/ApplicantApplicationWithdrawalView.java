@@ -24,7 +24,7 @@ public class ApplicantApplicationWithdrawalView implements AuthenticatedView {
         this.ctx = ctx;
 
         List<BTOProjectManager.BTOFullApplication> applications = new ArrayList<>(
-                projectManager.getAllApplicationsForUser(user.getId()));
+                projectManager.getAllActiveApplicationsForUser(user.getId()));
         showRequestWithdrawal(applications);
         return null;
     }
@@ -41,46 +41,39 @@ public class ApplicantApplicationWithdrawalView implements AuthenticatedView {
         }
 
         BTOProjectManager.BTOFullApplication fullApplication;
-        // SHOULD NOT HAPPEN BUT IN CASE!
-        if (fullApplications.size() > 1) {
-            System.out
-                    .println(BashColors.format(
-                            "WARNING: It seems you have multiple active applications. This should not have happened.",
-                            BashColors.YELLOW));
+        System.out.println(
+                BashColors.format("Enter the application you want to withdraw from.", BashColors.BOLD));
+        System.out.println("Application ID | Project Name | Application Status | Withdrawal Status");
+        fullApplications.forEach((_fullApplication) -> {
+            final BTOProject project = _fullApplication.getProject();
+            final BTOApplication application = _fullApplication.getApplication();
+            final Optional<BTOApplicationWithdrawal> withdrawalOpt = _fullApplication.getWithdrawal();
+            String withdrawalStatus = withdrawalOpt.isPresent() ? withdrawalOpt.get().getStatus().toString()
+                    : "N/A";
             System.out.println(
-                    BashColors.format("Please select the application you want to withdraw from.", BashColors.BOLD));
-            System.out.println("Project ID | Project Name | Application Status | Withdrawal Status");
-            fullApplications.forEach((_fullApplication) -> {
-                final BTOProject project = _fullApplication.getProject();
-                final BTOApplication application = _fullApplication.getApplication();
-                final Optional<BTOApplicationWithdrawal> withdrawalOpt = _fullApplication.getWithdrawal();
-                String withdrawalStatus = withdrawalOpt.isPresent() ? withdrawalOpt.get().getStatus().toString()
-                        : "N/A";
-                System.out.println(project.getId() + " | " + project.getName() + " | " + application.getStatus() + " | "
-                        + withdrawalStatus);
-            });
+                    application.getId() + " | " + project.getName() + " | " + application.getStatus() + " | "
+                            + withdrawalStatus);
+        });
 
-            while (true) {
-                System.out.println("Type the project ID you want to withdraw from or leave empty ('') to cancel:");
-                String projectId = scanner.nextLine().trim();
-                if (projectId.isEmpty()) {
-                    return;
-                }
-                final Optional<BTOProjectManager.BTOFullApplication> fullApplicationOpt = fullApplications.stream()
-                        .filter((_fullApplication) -> _fullApplication.getProject().getId().equals(projectId))
-                        .findFirst();
-                if (fullApplicationOpt.isEmpty()) {
-                    System.out.println(
-                            BashColors.format("Project not found. Please type in a valid project ID.", BashColors.RED));
-                    System.out.println("Type anything to continue.");
-                    scanner.nextLine();
-                    continue;
-                }
-                fullApplication = fullApplicationOpt.get();
-                break;
+        while (true) {
+            System.out.println("Type the application ID you want to withdraw from or leave empty ('') to cancel:");
+            String applicationId = scanner.nextLine().trim();
+            if (applicationId.isEmpty()) {
+                return;
             }
-        } else {
-            fullApplication = fullApplications.getFirst();
+            final Optional<BTOProjectManager.BTOFullApplication> fullApplicationOpt = fullApplications.stream()
+                    .filter((_fullApplication) -> _fullApplication.getApplication().getId().equals(applicationId))
+                    .findFirst();
+            if (fullApplicationOpt.isEmpty()) {
+                System.out.println(
+                        BashColors.format("Application not found. Please type in a valid application ID.",
+                                BashColors.RED));
+                System.out.println("Type anything to continue.");
+                scanner.nextLine();
+                continue;
+            }
+            fullApplication = fullApplicationOpt.get();
+            break;
         }
 
         final Optional<BTOApplicationWithdrawal> withdrawalOpt = fullApplication.getWithdrawal();

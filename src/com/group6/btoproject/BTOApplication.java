@@ -1,10 +1,14 @@
 package com.group6.btoproject;
 
+import java.io.Serializable;
+
 /**
  * Represents an applicant's BTO application.
  * See {@link BTOApplicationStatus} for possible statuses.
  */
-public class BTOApplication {
+public class BTOApplication implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private final String id;
     private final String applicantUserId;

@@ -30,7 +30,7 @@ public class ApplicantApplyProjectView implements AuthenticatedView {
 
         final Scanner scanner = ctx.getScanner();
 
-        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
         List<BTOProject> activeProjects = projectManager.getActiveProjectsForUser(user.getId());
         if (!projectManager.getBookedApplicationsForUser(user.getId()).isEmpty()) {
             System.out.println(BashColors.format(
@@ -90,7 +90,7 @@ public class ApplicantApplyProjectView implements AuthenticatedView {
 
     private Optional<BTOProject> showRequestProject() {
         final Scanner scanner = ctx.getScanner();
-        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
 
         while (true) {
             System.out.println(BashColors.format(

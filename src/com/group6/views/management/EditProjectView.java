@@ -131,7 +131,7 @@ public class EditProjectView implements AuthenticatedView {
 
     private Optional<String> showRequestProjectName() {
         final Scanner scanner = ctx.getScanner();
-        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
 
         while (true) {
             System.out.println(BashColors.format(

@@ -159,7 +159,7 @@ public class ProjectEnquiryView implements PaginatedView, AuthenticatedView {
     }
 
     private void showViewEnquiry() {
-        final UserManager userManager = ctx.getBtoSystem().getUsers();
+        final UserManager userManager = ctx.getBtoSystem().getUserManager();
         final Scanner scanner = ctx.getScanner();
 
         BTOEnquiry enquiry;

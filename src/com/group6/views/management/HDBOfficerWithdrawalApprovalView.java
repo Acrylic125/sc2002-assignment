@@ -78,7 +78,7 @@ public class HDBOfficerWithdrawalApprovalView implements PaginatedView, Authenti
     }
 
     private void showWithdrawals() {
-        final UserManager userManager = ctx.getBtoSystem().getUsers();
+        final UserManager userManager = ctx.getBtoSystem().getUserManager();
 
         System.out.println(BashColors.format(
                 "Withdrawals for " + project.getName() + ", " + project.getNeighbourhood(), BashColors.BOLD));
@@ -162,7 +162,7 @@ public class HDBOfficerWithdrawalApprovalView implements PaginatedView, Authenti
             return;
         }
 
-        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
         final Scanner scanner = ctx.getScanner();
 
         Optional<Throwable> transitionErrOpt = Utils.tryCatch(() -> {
@@ -208,7 +208,7 @@ public class HDBOfficerWithdrawalApprovalView implements PaginatedView, Authenti
 
     private Optional<BTOApplicationWithdrawalStatus> requestWithdrawalStatus(BTOApplicationWithdrawal withdrawal) {
         final Scanner scanner = ctx.getScanner();
-        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
         final BTOApplicationWithdrawalStatus[] allStatuses = BTOApplicationWithdrawalStatus.values();
         final Set<BTOApplicationWithdrawalStatus> validStatuses = projectManager
                 .getValidWithdrawalStateTransitions(withdrawal.getStatus());

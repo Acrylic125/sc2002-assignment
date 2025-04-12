@@ -46,7 +46,7 @@ public class ManagementView implements AuthenticatedView {
         options.add(new ViewOption("View My Managed Projects", HDBOfficerManagedProjectsView::new));
         if (userPermissions.canGenerateApplicantsReport()) {
             options.add(new ViewOption("Generate Applicants Report", () -> {
-                final List<User> applicants = ctx.getBtoSystem().getUsers().getUsers().values().stream()
+                final List<User> applicants = ctx.getBtoSystem().getUserManager().getUsers().values().stream()
                         .filter(user -> user.getPermissions().canApply()).toList();
                 return new ApplicantReportView(applicants);
             }));

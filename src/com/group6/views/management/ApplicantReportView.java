@@ -54,7 +54,7 @@ public class ApplicantReportView implements AuthenticatedView, PaginatedView {
         this.ctx = ctx;
 
         final ApplicantReportFilters filters = ctx.getApplicantReportFilters();
-        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
         this.filteredApplicants = filters.applyFilters(projectManager, applicants, user);
 
         return showOptions();
@@ -110,7 +110,7 @@ public class ApplicantReportView implements AuthenticatedView, PaginatedView {
             return;
         }
 
-        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
 
         final int lastIndex = Math.min(page * PAGE_SIZE, filteredApplicants.size());
         final int firstIndex = (page - 1) * PAGE_SIZE;

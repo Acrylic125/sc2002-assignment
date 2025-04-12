@@ -44,7 +44,7 @@ public class HDBOfficerRegisterProjectsView implements PaginatedView, Authentica
 
     @Override
     public View render(ViewContext ctx, User user) {
-        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
         final ProjectsViewFilters filters = ctx.getViewAllProjectsFilters();
 
         this.ctx = ctx;
@@ -69,7 +69,7 @@ public class HDBOfficerRegisterProjectsView implements PaginatedView, Authentica
             return;
         }
 
-        final UserManager userManager = ctx.getBtoSystem().getUsers();
+        final UserManager userManager = ctx.getBtoSystem().getUserManager();
 
         final int lastIndex = Math.min(page * PAGE_SIZE, projects.size());
         final int firstIndex = (page - 1) * PAGE_SIZE;

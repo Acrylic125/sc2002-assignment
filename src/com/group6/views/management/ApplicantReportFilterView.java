@@ -101,7 +101,7 @@ public class ApplicantReportFilterView implements AuthenticatedView {
         this.user = user;
 
         final BTOSystem btoSystem = ctx.getBtoSystem();
-        this.projectTypes = new ArrayList<>(btoSystem.getProjects().getAllProjectTypes());
+        this.projectTypes = new ArrayList<>(btoSystem.getProjectManager().getAllProjectTypes());
         this.projectTypes.sort(Comparator.comparing(BTOProjectTypeID::getName));
         showOptions();
         return null;

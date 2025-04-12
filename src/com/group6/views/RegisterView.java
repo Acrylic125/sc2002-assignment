@@ -28,7 +28,7 @@ public class RegisterView implements View {
     public View render(ViewContext ctx) {
         this.ctx = ctx;
 
-        final UserManager userManager = ctx.getBtoSystem().getUsers();
+        final UserManager userManager = ctx.getBtoSystem().getUserManager();
         System.out.println(BashColors.format("User Registration", BashColors.BOLD));
 
         // 1. Choose role
@@ -82,7 +82,7 @@ public class RegisterView implements View {
 
     private Optional<String> requestNric() {
         final Scanner scanner = ctx.getScanner();
-        final UserManager userManager = ctx.getBtoSystem().getUsers();
+        final UserManager userManager = ctx.getBtoSystem().getUserManager();
         while (true) {
             System.out.println(BashColors.format("Type in your NRIC (e.g. S1234567A) or leave empty ('') to cancel.", BashColors.BOLD));
 

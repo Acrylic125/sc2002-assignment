@@ -44,7 +44,7 @@ public class DefaultFileGenerator {
     }
 
     public static void loadUsers(BTOSystem btoSystem) {
-        final UserManager userManager = btoSystem.getUsers();
+        final UserManager userManager = btoSystem.getUserManager();
 
         User john = new RoleBasedUser(UserRole.APPLICANT, UUID.randomUUID().toString(), "John", "S1234567A", 35, UserMaritalStatus.SINGLE, "password");
         User sarah = new RoleBasedUser(UserRole.APPLICANT, UUID.randomUUID().toString(), "Sarah", "T7654321B", 40, UserMaritalStatus.MARRIED, "password");
@@ -70,8 +70,8 @@ public class DefaultFileGenerator {
     }
 
     public static void loadProjects(BTOSystem btoSystem) {
-        final UserManager userManager = btoSystem.getUsers();
-        final BTOProjectManager btoProjectManager = btoSystem.getProjects();
+        final UserManager userManager = btoSystem.getUserManager();
+        final BTOProjectManager btoProjectManager = btoSystem.getProjectManager();
 
         User jessica = userManager.getUserByNRIC("S5678901G").get();
         User daniel = userManager.getUserByNRIC("T1234567J").get();

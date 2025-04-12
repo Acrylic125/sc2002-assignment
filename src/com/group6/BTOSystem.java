@@ -10,30 +10,30 @@ import com.group6.users.UserManager;
  */
 public class BTOSystem {
 
-    private final BTOProjectManager projects;
-    private final UserManager users;
+    private final BTOProjectManager projectManager;
+    private final UserManager userManager;
 
-    public BTOSystem(BTOProjectManager projects, UserManager users) {
-        this.projects = projects;
-        this.users = users;
+    public BTOSystem(BTOProjectManager projectManager, UserManager userManager) {
+        this.projectManager = projectManager;
+        this.userManager = userManager;
     }
 
     /**
      * Project manager getter.
      *
-     * @return {@link #projects}
+     * @return {@link #projectManager}
      */
-    public BTOProjectManager getProjects() {
-        return projects;
+    public BTOProjectManager getProjectManager() {
+        return projectManager;
     }
 
     /**
      * User manager getter.
      *
-     * @return {@link #users}
+     * @return {@link #userManager}
      */
-    public UserManager getUsers() {
-        return users;
+    public UserManager getUserManager() {
+        return userManager;
     }
 
 }

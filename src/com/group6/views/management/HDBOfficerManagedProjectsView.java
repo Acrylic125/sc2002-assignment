@@ -53,7 +53,7 @@ public class HDBOfficerManagedProjectsView implements PaginatedView, Authenticat
         this.ctx = ctx;
         this.user = user;
 
-        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
 
         this.managedProjects = new ArrayList<>(projectManager.getManagingProjects(user.getId()));
         this.managedProjects.sort(Comparator.comparing(BTOProject::getName));
@@ -62,7 +62,7 @@ public class HDBOfficerManagedProjectsView implements PaginatedView, Authenticat
     }
 
     private void showManagedProjects() {
-        final UserManager userManager = ctx.getBtoSystem().getUsers();
+        final UserManager userManager = ctx.getBtoSystem().getUserManager();
 
         System.out.println(BashColors.format("My Managed Projects", BashColors.BOLD));
         if (managedProjects.isEmpty()) {
@@ -234,7 +234,7 @@ public class HDBOfficerManagedProjectsView implements PaginatedView, Authenticat
                 return Optional.empty();
             }
 
-            final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+            final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
             final Optional<BTOProject> projectOpt = projectManager.getProject(projectId);
             if (projectOpt.isEmpty()) {
                 System.out.println(BashColors.format(
@@ -270,7 +270,7 @@ public class HDBOfficerManagedProjectsView implements PaginatedView, Authenticat
             return;
         }
 
-        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
 
         while (true) {
             System.out.println(BashColors.format(

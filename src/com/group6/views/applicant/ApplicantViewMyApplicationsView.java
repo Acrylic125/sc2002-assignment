@@ -72,7 +72,7 @@ public class ApplicantViewMyApplicationsView implements PaginatedView, Authentic
         this.ctx = ctx;
         this.user = user;
 
-        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
         this.applications = new ArrayList<>(
                 projectManager.getAllApplicationsForUser(user.getId()));
         this.filteredApplications = ctx.getViewApplicationFilters().applyFilters(this.applications, user);
@@ -88,7 +88,7 @@ public class ApplicantViewMyApplicationsView implements PaginatedView, Authentic
             System.out.println();
             return;
         }
-        final UserManager userManager = ctx.getBtoSystem().getUsers();
+        final UserManager userManager = ctx.getBtoSystem().getUserManager();
 
         final int firstIndex = (page - 1) * PAGE_SIZE;
         final int lastIndex = Math.min(page * PAGE_SIZE, applications.size());
@@ -208,7 +208,7 @@ public class ApplicantViewMyApplicationsView implements PaginatedView, Authentic
 
     private Optional<BTOProject> showRequestProject() {
         final Scanner scanner = ctx.getScanner();
-        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
 
         while (true) {
             System.out.println(BashColors.format(

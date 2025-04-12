@@ -54,7 +54,7 @@ public class HDBOfficerViewRegistrationsView implements AuthenticatedView, Pagin
     @Override
     public View render(ViewContext ctx, User user) {
         this.ctx = ctx;
-        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
 
         this.officerRegistrations = projectManager.getAllOfficerRegistrations(user.getId());
 
@@ -62,7 +62,7 @@ public class HDBOfficerViewRegistrationsView implements AuthenticatedView, Pagin
     }
 
     private void showRegistrations() {
-        final UserManager userManager = ctx.getBtoSystem().getUsers();
+        final UserManager userManager = ctx.getBtoSystem().getUserManager();
 
         System.out.println(BashColors.format("My Officer Registrations", BashColors.BOLD));
         if (officerRegistrations.isEmpty()) {

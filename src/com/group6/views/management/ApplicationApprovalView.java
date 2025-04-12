@@ -153,7 +153,8 @@ public class ApplicationApprovalView implements PaginatedView, AuthenticatedView
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
         final Scanner scanner = ctx.getScanner();
 
-        final Optional<User> applicantOpt = ctx.getBtoSystem().getUserManager().getUser(application.getApplicantUserId());
+        final Optional<User> applicantOpt = ctx.getBtoSystem().getUserManager()
+                .getUser(application.getApplicantUserId());
         if (applicantOpt.isEmpty()) {
             System.out.println(BashColors.format("Applicant not found.", BashColors.RED));
             System.out.println("Type anything to continue.");
@@ -236,9 +237,10 @@ public class ApplicationApprovalView implements PaginatedView, AuthenticatedView
         final BTOProjectType projectType = projectTypeOpt.get();
 
         final List<String> approvalIssues = new LinkedList<>();
-        if (!project.isApplicationWindowOpen()) {
-            approvalIssues.add("Application window is closed");
-        }
+        // Ignore, refer to FAQ page 50.
+        // if (!project.isApplicationWindowOpen()) {
+        // approvalIssues.add("Application window is closed");
+        // }
         if (project.getBookedCountForType(projectType.getId()) >= projectType.getMaxQuantity()) {
             approvalIssues.add("Quantity limit for type reached");
         }

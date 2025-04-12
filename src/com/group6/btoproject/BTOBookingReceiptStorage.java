@@ -1,5 +1,6 @@
 package com.group6.btoproject;
 
+import com.group6.utils.BashColors;
 import com.group6.utils.Storage;
 
 import java.io.*;
@@ -34,6 +35,8 @@ public class BTOBookingReceiptStorage implements Storage<BTOBookingReceipt> {
                 System.err.println("Error loading booking receipts: " + e.getMessage());
                 e.printStackTrace();
             }
+        } else {
+            System.out.println(BashColors.format("[Booking Receipts] No data found in " + filename, BashColors.RED));
         }
 
         return receipts;

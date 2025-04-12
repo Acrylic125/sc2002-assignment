@@ -103,7 +103,7 @@ public class ProjectsView implements PaginatedView, AuthenticatedView {
 
             System.out.println("Project: " + project.getName() + ", " + project.getNeighbourhood());
             System.out.println("ID: " + project.getId());
-            System.out.println("Types (No. Units Available / Total No. Units / Price):");
+            System.out.println("Types (No. Units Taken / Total No. Units / Price):");
             if (types.isEmpty()) {
                 System.out.println("  (No types available)");
             } else {

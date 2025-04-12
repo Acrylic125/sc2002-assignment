@@ -52,7 +52,7 @@ public class DefaultFileGenerator {
         User james = new RoleBasedUser(UserRole.APPLICANT, UUID.randomUUID().toString(), "James", "T2345678D", 30, UserMaritalStatus.MARRIED, "password");
         User rachel = new RoleBasedUser(UserRole.APPLICANT, UUID.randomUUID().toString(), "Rachel", "S3456789E", 25, UserMaritalStatus.SINGLE, "password");
         User emily = new RoleBasedUser(UserRole.OFFICER, UUID.randomUUID().toString(), "Emily", "S6543210I", 28, UserMaritalStatus.SINGLE, "password");
-        User daniel = new RoleBasedUser(UserRole.OFFICER, UUID.randomUUID().toString(), "Daniel", "T1234567J", 29, UserMaritalStatus.MARRIED, "password");
+        User daniel = new RoleBasedUser(UserRole.OFFICER, UUID.randomUUID().toString(), "Daniel", "T2109876H", 36, UserMaritalStatus.SINGLE, "password");
         User david = new RoleBasedUser(UserRole.OFFICER, UUID.randomUUID().toString(), "David", "T1234567J", 29, UserMaritalStatus.MARRIED, "password");
         User michael = new RoleBasedUser(UserRole.MANAGER, UUID.randomUUID().toString(), "Michael", "T8765432F", 36, UserMaritalStatus.SINGLE, "password");
         User jessica = new RoleBasedUser(UserRole.MANAGER, UUID.randomUUID().toString(), "Jessica", "S5678901G", 26, UserMaritalStatus.MARRIED, "password");

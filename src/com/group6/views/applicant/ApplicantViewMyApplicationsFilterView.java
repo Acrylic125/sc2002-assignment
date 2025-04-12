@@ -122,6 +122,7 @@ public class ApplicantViewMyApplicationsFilterView extends ProjectsViewFiltersVi
 
             String statusFilterRaw = scanner.nextLine().trim();
             if (statusFilterRaw.isEmpty()) {
+                filters.setApplicationStatusesFilter(new HashSet<>());
                 break;
             }
             String[] statusFilter = statusFilterRaw.split(",");

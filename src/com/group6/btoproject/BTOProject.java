@@ -374,6 +374,20 @@ public class BTOProject implements Serializable {
     }
 
     /**
+     * Get the all withdrawals for the application.
+     *
+     * @param applicationId application id.
+     * @return withdrawals for application.
+     */
+    public List<BTOApplicationWithdrawal> getWithdrawals(String applicationId) {
+        return withdrawals.stream()
+                .filter(withdrawal -> {
+                    return withdrawal.getApplicationId().equals(applicationId);
+                })
+                .toList();
+    }
+
+    /**
      * Add a withdrawal to the project.
      *
      * @param withdrawal withdrawal to add.

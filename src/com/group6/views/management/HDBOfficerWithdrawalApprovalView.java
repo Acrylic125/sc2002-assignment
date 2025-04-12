@@ -83,6 +83,12 @@ public class HDBOfficerWithdrawalApprovalView implements PaginatedView, Authenti
         System.out.println(BashColors.format(
                 "Withdrawals for " + project.getName() + ", " + project.getNeighbourhood(), BashColors.BOLD));
         System.out.println("Withdrawal ID | Application ID | Applicant | Type | Status");
+        if (applications.isEmpty()) {
+            System.out.println(BashColors.format("(No Withdrawals)", BashColors.LIGHT_GRAY));
+            System.out.println();
+            return;
+        }
+
         final int lastIndex = Math.min(page * PAGE_SIZE, applications.size());
         final int firstIndex = (page - 1) * PAGE_SIZE;
         // Render the projects in the page.

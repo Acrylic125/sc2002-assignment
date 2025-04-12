@@ -36,7 +36,9 @@ public class CreateBTOProjectView implements AuthenticatedView {
         BTOSystem system = ctx.getBtoSystem();
 
         List<BTOProject> activeManagerProjects = system.getProjects().getProjects().values().stream()
-                .filter(BTOProject::isApplicationWindowOpen)
+                .filter((project) -> {
+                    return project.isApplicationWindowOpen() && project.getManagerUserId().equals(user.getId());
+                })
                 .toList();
         if (!activeManagerProjects.isEmpty()) {
             System.out.println(BashColors.format(
@@ -336,11 +338,24 @@ public class CreateBTOProjectView implements AuthenticatedView {
             try {
                 openDate = sdf.parse(parts[0].trim());
                 closeDate = sdf.parse(parts[1].trim());
-                // Set open date to 00:00 of the day
-                openDate = new Date(openDate.getTime() - openDate.getTime() % (24 * 60 * 60 * 1000));
-                // Set close date to 23:59 of the day
-                closeDate = new Date(
-                        closeDate.getTime() + (24 * 60 * 60 * 1000) - closeDate.getTime() % (24 * 60 * 60 * 1000));
+
+                // Set openDate to 00:00
+                Calendar openCal = Calendar.getInstance();
+                openCal.setTime(openDate);
+                openCal.set(Calendar.HOUR_OF_DAY, 0);
+                openCal.set(Calendar.MINUTE, 0);
+                openCal.set(Calendar.SECOND, 0);
+                openCal.set(Calendar.MILLISECOND, 0);
+                openDate = openCal.getTime();
+
+                // Set closeDate to 23:59:59.999
+                Calendar closeCal = Calendar.getInstance();
+                closeCal.setTime(closeDate);
+                closeCal.set(Calendar.HOUR_OF_DAY, 23);
+                closeCal.set(Calendar.MINUTE, 59);
+                closeCal.set(Calendar.SECOND, 59);
+                closeCal.set(Calendar.MILLISECOND, 999);
+                closeDate = closeCal.getTime();
             } catch (Exception e) {
                 System.out.println(BashColors.format(
                         "Invalid input, please type in the opening and closing date in DD/MM/YYYY format separated by a comma.",

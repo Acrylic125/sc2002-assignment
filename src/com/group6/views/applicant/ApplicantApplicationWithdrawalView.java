@@ -17,6 +17,20 @@ public class ApplicantApplicationWithdrawalView implements AuthenticatedView {
 
     private ViewContext ctx;
 
+    private String stringifyApplicationStatus(BTOApplicationStatus status) {
+        switch (status) {
+            case PENDING:
+                return BashColors.format("Pending", BashColors.YELLOW);
+            case BOOKED:
+                return BashColors.format("Booked", BashColors.BLUE);
+            case SUCCESSFUL:
+                return BashColors.format("Successful", BashColors.GREEN);
+            case UNSUCCESSFUL:
+                return BashColors.format("Unsuccessful", BashColors.RED);
+        }
+        return BashColors.format("(Unknown)", BashColors.LIGHT_GRAY);
+    }
+
     @Override
     public View render(ViewContext ctx, User user) {
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
@@ -43,16 +57,12 @@ public class ApplicantApplicationWithdrawalView implements AuthenticatedView {
         BTOProjectManager.BTOFullApplication fullApplication;
         System.out.println(
                 BashColors.format("Enter the application you want to withdraw from.", BashColors.BOLD));
-        System.out.println("Application ID | Project Name | Application Status | Withdrawal Status");
+        System.out.println("Application ID | Project Name | Application Status");
         fullApplications.forEach((_fullApplication) -> {
             final BTOProject project = _fullApplication.getProject();
             final BTOApplication application = _fullApplication.getApplication();
-            final Optional<BTOApplicationWithdrawal> withdrawalOpt = _fullApplication.getWithdrawal();
-            String withdrawalStatus = withdrawalOpt.isPresent() ? withdrawalOpt.get().getStatus().toString()
-                    : "N/A";
-            System.out.println(
-                    application.getId() + " | " + project.getName() + " | " + application.getStatus() + " | "
-                            + withdrawalStatus);
+            System.out.println(application.getId() + " | " + project.getName() + " | " +
+                    stringifyApplicationStatus(application.getStatus()));
         });
 
         while (true) {
@@ -76,18 +86,23 @@ public class ApplicantApplicationWithdrawalView implements AuthenticatedView {
             break;
         }
 
-        final Optional<BTOApplicationWithdrawal> withdrawalOpt = fullApplication.getWithdrawal();
-        if (withdrawalOpt.isPresent()) {
-            final BTOApplicationWithdrawal withdrawal = withdrawalOpt.get();
-            if (withdrawal.getStatus() == BTOApplicationWithdrawalStatus.SUCCESSFUL) {
+        final List<BTOApplicationWithdrawal> withdrawals = fullApplication.getWithdrawals();
+        if (!withdrawals.isEmpty()) {
+            if (withdrawals.stream()
+                    .anyMatch((withdrawal) -> withdrawal.getStatus() == BTOApplicationWithdrawalStatus.SUCCESSFUL)) {
                 System.out.println(BashColors.format("You have already withdrawn from this project.", BashColors.RED));
-            } else {
-                System.out.println(BashColors.format("You have already requesting to withdraw from this project.",
-                        BashColors.RED));
+                System.out.println("Type anything to continue.");
+                scanner.nextLine();
+                return;
             }
-            System.out.println("Type anything to continue.");
-            scanner.nextLine();
-            return;
+            if (withdrawals.stream()
+                    .anyMatch((withdrawal) -> withdrawal.getStatus() == BTOApplicationWithdrawalStatus.PENDING)) {
+                System.out.println(BashColors.format("You have already requested to withdraw from this project.",
+                        BashColors.RED));
+                System.out.println("Type anything to continue.");
+                scanner.nextLine();
+                return;
+            }
         }
 
         BTOProject project = fullApplication.getProject();
@@ -103,7 +118,7 @@ public class ApplicantApplicationWithdrawalView implements AuthenticatedView {
                 System.out.println(BashColors.format(err.getMessage(), BashColors.RED));
             }, () -> {
                 System.out.println(
-                        BashColors.format("Successfully requested to withdraw from the project.", BashColors.RED));
+                        BashColors.format("Successfully requested to withdraw from the project.", BashColors.GREEN));
             });
             System.out.println("Type anything to continue.");
             scanner.nextLine();

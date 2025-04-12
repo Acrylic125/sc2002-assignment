@@ -2,7 +2,6 @@ package com.group6.views.applicant;
 
 import java.util.*;
 
-import com.group6.btoproject.BTOEnquiry;
 import com.group6.btoproject.BTOProject;
 import com.group6.btoproject.BTOProjectManager;
 import com.group6.btoproject.BTOProjectType;
@@ -12,8 +11,6 @@ import com.group6.users.UserPermissions;
 import com.group6.utils.BashColors;
 import com.group6.utils.Utils;
 import com.group6.views.*;
-
-import static java.util.stream.Collectors.toList;
 
 public class ProjectsView implements PaginatedView, AuthenticatedView {
 
@@ -186,18 +183,18 @@ public class ProjectsView implements PaginatedView, AuthenticatedView {
             if (option.equals("a") && permissions.canApply()) {
                 return new ApplicantApplyProjectView();
             }
-            if (option.equals("e") && (
-                    permissions.canRespondEnquiries() || permissions.canApply())) {
+            if (option.equals("e") && (permissions.canRespondEnquiries() || permissions.canApply())) {
                 final Optional<BTOProject> projectOpt = this.showRequestProject();
                 if (projectOpt.isEmpty()) {
                     break;
                 }
                 final BTOProject project = projectOpt.get();
                 final int enquiryLevel = user.getPermissions().getRespondEnquiresLevel();
-                final boolean canRespondToProject = (enquiryLevel == 1 && project.isManagingOfficer(user.getId())) || enquiryLevel == 2;
+                final boolean canRespondToProject = (enquiryLevel == 1 && project.isManagingOfficer(user.getId()))
+                        || enquiryLevel == 2;
                 return new ApplicantProjectEnquiryView(project, () -> project.getEnquiries().stream()
-                        .filter((enquiry) ->
-                                canRespondToProject || enquiry.getSenderMessage().getSenderUserId().equals(user.getId()))
+                        .filter((enquiry) -> canRespondToProject
+                                || enquiry.getSenderMessage().getSenderUserId().equals(user.getId()))
                         .toList(), canRespondToProject);
             }
             System.out.println(BashColors.format("Invalid option.", BashColors.RED));

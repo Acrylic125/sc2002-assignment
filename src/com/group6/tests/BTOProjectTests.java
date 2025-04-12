@@ -255,7 +255,7 @@ public class BTOProjectTests {
         for (String userId : userIds) {
             project.addEnquiry(
                     BTOEnquiry.create(
-                            new BTOEnquiryMessage(userId, "How far from the nearest MRT? (" + userId + ")"),
+                            new BTOEnquiryMessage(userId, "How far from the nearest MRT? (" + userId + ")", System.currentTimeMillis()),
                             null));
         }
         project.getEnquiries().forEach((enquiry) -> {

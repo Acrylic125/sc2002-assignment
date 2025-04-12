@@ -11,7 +11,7 @@ import com.group6.views.AuthenticatedView;
 import com.group6.views.PaginatedView;
 import com.group6.views.View;
 import com.group6.views.ViewContext;
-import com.group6.views.applicant.ApplicantProjectEnquiryView;
+import com.group6.views.applicant.ProjectEnquiryView;
 
 import java.util.*;
 
@@ -168,7 +168,7 @@ public class HDBOfficerManagedProjectsView implements PaginatedView, Authenticat
                             break;
                         }
                         final BTOProject project = projectOpt.get();
-                        return new ApplicantProjectEnquiryView(project, project::getEnquiries, true);
+                        return new ProjectEnquiryView(project, project::getEnquiries, true);
                     }
                 case "w":
                     if (permissions.canApproveWithdrawal()) {

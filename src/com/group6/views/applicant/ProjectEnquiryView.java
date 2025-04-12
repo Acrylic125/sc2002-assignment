@@ -1,9 +1,6 @@
 package com.group6.views.applicant;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Scanner;
+import java.util.*;
 import java.util.function.Supplier;
 
 import com.group6.btoproject.BTOEnquiry;
@@ -18,7 +15,7 @@ import com.group6.views.PaginatedView;
 import com.group6.views.View;
 import com.group6.views.ViewContext;
 
-public class ApplicantProjectEnquiryView implements PaginatedView, AuthenticatedView {
+public class ProjectEnquiryView implements PaginatedView, AuthenticatedView {
 
     private static final int PAGE_SIZE = 3;
 
@@ -31,14 +28,14 @@ public class ApplicantProjectEnquiryView implements PaginatedView, Authenticated
     private int page = 1;
     private boolean canRespond;
 
-    public ApplicantProjectEnquiryView(BTOProject project, Supplier<List<BTOEnquiry>> enquiriesSupplier, boolean canRespond) {
+    public ProjectEnquiryView(BTOProject project, Supplier<List<BTOEnquiry>> enquiriesSupplier, boolean canRespond) {
         this.project = project;
         this.enquiriesSupplier = enquiriesSupplier;
         this.enquiries = enquiriesSupplier.get();
         this.canRespond = canRespond;
     }
 
-    public ApplicantProjectEnquiryView(BTOProject project, Supplier<List<BTOEnquiry>> enquiriesSupplier) {
+    public ProjectEnquiryView(BTOProject project, Supplier<List<BTOEnquiry>> enquiriesSupplier) {
         this.project = project;
         this.enquiriesSupplier = enquiriesSupplier;
         this.enquiries = enquiriesSupplier.get();
@@ -120,7 +117,7 @@ public class ApplicantProjectEnquiryView implements PaginatedView, Authenticated
                 " or ");
         while (true) {
             showEnquiries();
-            System.out.println("");
+            System.out.println();
             System.out.println("Page " + page + " / " + getLastPage() + " - " + optionsStr + ":");
 
             String opt = scanner.nextLine().trim();
@@ -195,19 +192,25 @@ public class ApplicantProjectEnquiryView implements PaginatedView, Authenticated
         }
 
         System.out.println("Enquiry ID: " + enquiry.getId());
+        System.out.println("Last Updated: " + Utils.formatToDDMMYYYYWithTime(new Date( enquiry.getSenderMessage().getLastUpdated())));
         System.out.println("Message: " + enquiry.getSenderMessage().getMessage());
-        Optional<BTOEnquiryMessage> response = enquiry.getResponseMessage();
-        if (response.isPresent()) {
-            System.out.println("Response: " + response.get().getMessage());
-            Optional<User> responderOpt = userManager.getUser(response.get().getSenderUserId());
+        Optional<BTOEnquiryMessage> responseOpt = enquiry.getResponseMessage();
+        if (responseOpt.isPresent()) {
+            BTOEnquiryMessage response = responseOpt.get();
+            System.out.println("Response: " + response.getMessage());
+            Optional<User> responderOpt = userManager.getUser(response.getSenderUserId());
             if (responderOpt.isPresent()) {
                 System.out.println("Responder: " + responderOpt.get().getName());
             } else {
                 System.out.println("Responder: " + BashColors.format("(Unknown)", BashColors.LIGHT_GRAY));
             }
+            System.out.println("Responded on: " + Utils.formatToDDMMYYYYWithTime(new Date(response.getLastUpdated())));
         } else {
             System.out.println("Response: " + BashColors.format("(No Response)", BashColors.LIGHT_GRAY));
         }
+        System.out.println();
+        System.out.println("Type anything to continue.");
+        scanner.nextLine();
     }
 
     private void showRespond() {
@@ -248,7 +251,7 @@ public class ApplicantProjectEnquiryView implements PaginatedView, Authenticated
         if (newMessage.isEmpty()) {
             return;
         }
-        enquiry.setResponseMessage(new BTOEnquiryMessage(user.getId(), newMessage));
+        enquiry.setResponseMessage(new BTOEnquiryMessage(user.getId(), newMessage, System.currentTimeMillis()));
         this.enquiries = enquiriesSupplier.get();
         System.out.println(BashColors.format("Message responded!", BashColors.GREEN));
         System.out.println("Type anything to continue.");
@@ -301,7 +304,7 @@ public class ApplicantProjectEnquiryView implements PaginatedView, Authenticated
         if (newMessage.isEmpty()) {
             return;
         }
-        enquiry.setSenderMessage(new BTOEnquiryMessage(user.getId(), newMessage));
+        enquiry.setSenderMessage(new BTOEnquiryMessage(user.getId(), newMessage, System.currentTimeMillis()));
         this.enquiries = enquiriesSupplier.get();
         System.out.println(BashColors.format("Message updated!", BashColors.GREEN));
         System.out.println("Type anything to continue.");
@@ -317,7 +320,7 @@ public class ApplicantProjectEnquiryView implements PaginatedView, Authenticated
             return;
         }
         project.addEnquiry(BTOEnquiry.create(
-                new BTOEnquiryMessage(user.getId(), opt),
+                new BTOEnquiryMessage(user.getId(), opt, System.currentTimeMillis()),
                 null));
         this.enquiries = enquiriesSupplier.get();
         System.out.println(BashColors.format("Message sent!", BashColors.GREEN));

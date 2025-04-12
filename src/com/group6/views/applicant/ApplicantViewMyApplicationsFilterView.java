@@ -2,7 +2,6 @@ package com.group6.views.applicant;
 
 import com.group6.btoproject.BTOApplicationStatus;
 
-import com.group6.btoproject.BTOProjectManager;
 import com.group6.utils.BashColors;
 
 import java.util.*;

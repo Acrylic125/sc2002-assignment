@@ -192,7 +192,7 @@ public class ProjectsView implements PaginatedView, AuthenticatedView {
                 final int enquiryLevel = user.getPermissions().getRespondEnquiresLevel();
                 final boolean canRespondToProject = (enquiryLevel == 1 && project.isManagingOfficer(user.getId()))
                         || enquiryLevel == 2;
-                return new ApplicantProjectEnquiryView(project, () -> project.getEnquiries().stream()
+                return new ProjectEnquiryView(project, () -> project.getEnquiries().stream()
                         .filter((enquiry) -> canRespondToProject
                                 || enquiry.getSenderMessage().getSenderUserId().equals(user.getId()))
                         .toList(), canRespondToProject);

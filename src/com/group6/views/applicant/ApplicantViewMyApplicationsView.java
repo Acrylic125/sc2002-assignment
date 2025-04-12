@@ -180,7 +180,7 @@ public class ApplicantViewMyApplicationsView implements PaginatedView, Authentic
                         break;
                     }
                     final BTOProject project = projectOpt.get();
-                    return new ApplicantProjectEnquiryView(project, () -> project.getEnquiries().stream()
+                    return new ProjectEnquiryView(project, () -> project.getEnquiries().stream()
                             .filter((enquiry) -> enquiry.getSenderMessage().getSenderUserId().equals(user.getId()))
                             .toList());
                 case "w":

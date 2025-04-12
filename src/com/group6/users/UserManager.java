@@ -1,6 +1,9 @@
 package com.group6.users;
 
+import com.group6.utils.Storage;
+
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -13,7 +16,7 @@ import java.util.Optional;
  */
 public class UserManager {
     private Map<String, User> users = new HashMap<>();
-    private final UserStorage userStorage; // Inject UserStorage instance
+    private final Storage<User> userStorage; // Inject UserStorage instance
 
     /**
      * Constructs a UserManager instance with a given UserStorage.
@@ -27,8 +30,24 @@ public class UserManager {
         this.userStorage = userStorage;
     }
 
+    /**
+     * Sets the users map.
+     *
+     * @param users The map of users to set.
+     */
     public void setUsers(Map<String, User> users) {
         this.users = users;
+    }
+
+    /**
+     * Sets the users map.
+     *
+     * @param users The users to set.
+     */
+    public void setUsers(List<User> users) {
+        users.forEach((user) -> {
+            this.users.put(user.getId(), user);
+        });
     }
 
     /**
@@ -93,8 +112,15 @@ public class UserManager {
             return false; // NRIC already exists
         }
         users.put(user.getId(), user);
-        userStorage.saveUser(user);
         return true;
     }
 
+    /**
+     * Saves the user to storage.
+     *
+     * @return {@link #userStorage}
+     */
+    public Storage<User> getUserStorage() {
+        return userStorage;
+    }
 }

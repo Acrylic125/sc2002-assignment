@@ -1,6 +1,7 @@
 package com.group6.btoproject;
 
 import com.group6.users.User;
+import com.group6.utils.Storage;
 
 import java.util.*;
 
@@ -16,11 +17,18 @@ public class BTOProjectManager {
     // Map<String Id, BTOProject>
     private final Map<String, BTOProject> projects = new HashMap<>();
     private final List<BTOBookingReceipt> bookingReceipts = new LinkedList<>();
+    private final Storage<BTOProject> projectStorage;
+    private final Storage<BTOBookingReceipt> bookingReceiptStorage;
 
     /**
      * Constructor for BTOProjectManager.
+     *
+     * @param projectStorage        Storage for projects.
+     * @param bookingReceiptStorage Storage for booking receipts.
      */
-    public BTOProjectManager() {
+    public BTOProjectManager(Storage<BTOProject> projectStorage, Storage<BTOBookingReceipt> bookingReceiptStorage) {
+        this.projectStorage = projectStorage;
+        this.bookingReceiptStorage = bookingReceiptStorage;
     }
 
     /**
@@ -30,6 +38,36 @@ public class BTOProjectManager {
      */
     public Map<String, BTOProject> getProjects() {
         return projects;
+    }
+
+    /**
+     * Sets the projects map.
+     *
+     * @param projects The projects to set.
+     */
+    public void setProjects(List<BTOProject> projects) {
+        projects.forEach((project) -> {
+            this.projects.put(project.getId(), project);
+        });
+    }
+
+    /**
+     * Receipts getters.
+     *
+     * @return {@link #bookingReceipts}
+     */
+    public List<BTOBookingReceipt> getBookingReceipts() {
+        return Collections.unmodifiableList(bookingReceipts);
+    }
+
+    /**
+     * Sets the projects map.
+     *
+     * @param receipts The projects to set.
+     */
+    public void setReceipts(List<BTOBookingReceipt> receipts) {
+        this.bookingReceipts.clear();
+        this.bookingReceipts.addAll(receipts);
     }
 
     /**
@@ -674,4 +712,11 @@ public class BTOProjectManager {
         return bookingReceipts.stream().filter((receipt) -> receipt.getUserId().equals(userId)).toList();
     }
 
+    public Storage<BTOProject> getProjectStorage() {
+        return projectStorage;
+    }
+
+    public Storage<BTOBookingReceipt> getBookingReceiptStorage() {
+        return bookingReceiptStorage;
+    }
 }

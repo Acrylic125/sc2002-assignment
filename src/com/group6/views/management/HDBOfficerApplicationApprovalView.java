@@ -1,5 +1,6 @@
 package com.group6.views.management;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
@@ -9,6 +10,7 @@ import com.group6.btoproject.BTOApplication;
 import com.group6.btoproject.BTOApplicationStatus;
 import com.group6.btoproject.BTOProject;
 import com.group6.btoproject.BTOProjectManager;
+import com.group6.btoproject.BTOProjectType;
 import com.group6.users.User;
 import com.group6.users.UserManager;
 import com.group6.utils.BashColors;
@@ -218,6 +220,22 @@ public class HDBOfficerApplicationApprovalView implements PaginatedView, Authent
         final BTOApplicationStatus[] allStatuses = BTOApplicationStatus.values();
         final Set<BTOApplicationStatus> validStatuses = projectManager
                 .getValidApplicationStateTransitions(application.getStatus());
+        final Optional<BTOProjectType> projectTypeOpt = project.getProjectType(application.getTypeId());
+        if (projectTypeOpt.isEmpty()) {
+            System.out.println(BashColors.format("Project type not found.", BashColors.RED));
+            System.out.println("Type anything to continue.");
+            scanner.nextLine();
+            return Optional.empty();
+        }
+        final BTOProjectType projectType = projectTypeOpt.get();
+
+        final List<String> approvalIssues = new LinkedList<>();
+        if (!project.isApplicationWindowOpen()) {
+            approvalIssues.add("Application window is closed");
+        }
+        if (project.getBookedCountForType(projectType.getId()) >= projectType.getMaxQuantity()) {
+            approvalIssues.add("Quantity limit for type reached");
+        }
 
         while (true) {
             System.out.println(BashColors.format("What status to change to?", BashColors.BOLD));
@@ -225,11 +243,14 @@ public class HDBOfficerApplicationApprovalView implements PaginatedView, Authent
             for (BTOApplicationStatus status : allStatuses) {
                 boolean isStatusTransitionValid = validStatuses.contains(status);
 
-                if ((status == BTOApplicationStatus.SUCCESSFUL || status == BTOApplicationStatus.BOOKED)
-                        && !project.isApplicationWindowOpen()) {
-                    System.out.println("  "
-                            + BashColors.format(status.toString() + " (Application window closed)", BashColors.RED));
-                    continue;
+                if ((status == BTOApplicationStatus.SUCCESSFUL || status == BTOApplicationStatus.BOOKED)) {
+                    if (!approvalIssues.isEmpty()) {
+                        String reason = Utils.joinStringDelimiter(approvalIssues, ", ", " and ");
+                        System.out.println("  "
+                                + BashColors.format(status.toString() + " (" + reason + ")",
+                                        BashColors.RED));
+                        continue;
+                    }
                 }
                 if (!isStatusTransitionValid) {
                     System.out.println("  " + BashColors.format(status.toString(), BashColors.RED));
@@ -255,7 +276,7 @@ public class HDBOfficerApplicationApprovalView implements PaginatedView, Authent
             BTOApplicationStatus status = statusRes.getData().get();
             if (!validStatuses.contains(status)
                     || ((status == BTOApplicationStatus.SUCCESSFUL || status == BTOApplicationStatus.BOOKED)
-                            && !project.isApplicationWindowOpen())) {
+                            && !approvalIssues.isEmpty())) {
                 System.out.println(BashColors.format("Invalid status.", BashColors.RED));
                 System.out.println("Type anything to continue.");
                 scanner.nextLine();

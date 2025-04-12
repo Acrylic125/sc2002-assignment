@@ -19,17 +19,20 @@ public class ApplicantReportView implements AuthenticatedView, PaginatedView {
 
     private static final int PAGE_SIZE = 3;
 
+    private final List<User> applicants;
+
     private ViewContext ctx;
     private int page = 1;
-    private final List<User> applicants;
+    private List<User> filteredApplicants = new ArrayList<>();
 
     public ApplicantReportView(List<User> applicants) {
         this.applicants = applicants;
+        this.filteredApplicants.addAll(applicants);
     }
 
     @Override
     public int getLastPage() {
-        int size = applicants.size();
+        int size = filteredApplicants.size();
         if (size % PAGE_SIZE == 0) {
             return size / PAGE_SIZE;
         }
@@ -50,16 +53,19 @@ public class ApplicantReportView implements AuthenticatedView, PaginatedView {
     public View render(ViewContext ctx, User user) {
         this.ctx = ctx;
 
-        showOptions();
+        final ApplicantReportFilters filters = ctx.getApplicantReportFilters();
+        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
+        this.filteredApplicants = filters.applyFilters(projectManager, applicants, user);
 
-        return null;
+        return showOptions();
     }
 
-    private void showOptions() {
+    private View showOptions() {
         final Scanner scanner = ctx.getScanner();
 
         Utils.joinStringDelimiter(new ArrayList<>(), ", ", " or ");
         final List<String> options = new ArrayList<>();
+        options.add("'f' to go to filters");
         options.add("'n' to go to next page");
         options.add("'p' to go to previous page");
         options.add("'page' to go to a specific page");
@@ -76,6 +82,8 @@ public class ApplicantReportView implements AuthenticatedView, PaginatedView {
 
             String opt = scanner.nextLine().trim();
             switch (opt) {
+                case "f":
+                    return new ApplicantReportFilterView();
                 case "n":
                     this.requestNextPage(scanner);
                     break;
@@ -86,7 +94,7 @@ public class ApplicantReportView implements AuthenticatedView, PaginatedView {
                     this.requestPage(scanner);
                     break;
                 case "":
-                    return;
+                    return null;
                 default:
                     System.out.println(BashColors.format("Invalid option.", BashColors.RED));
                     System.out.println("Type anything to continue.");
@@ -96,20 +104,19 @@ public class ApplicantReportView implements AuthenticatedView, PaginatedView {
     }
 
     private void showApplicants() {
-        System.out.println(BashColors.format("Projects", BashColors.BOLD));
-        if (applicants.isEmpty()) {
+        System.out.println(BashColors.format("Applicants", BashColors.BOLD));
+        if (filteredApplicants.isEmpty()) {
             System.out.println(BashColors.format("(No applicants found)", BashColors.LIGHT_GRAY));
-            System.out.println("");
             return;
         }
 
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
 
-        final int lastIndex = Math.min(page * PAGE_SIZE, applicants.size());
+        final int lastIndex = Math.min(page * PAGE_SIZE, filteredApplicants.size());
         final int firstIndex = (page - 1) * PAGE_SIZE;
         // Render the projects in the page.
         for (int i = firstIndex; i < lastIndex; i++) {
-            User applicant = applicants.get(i);
+            User applicant = filteredApplicants.get(i);
 
             System.out.println("Applicant Name: " + applicant.getName());
             System.out.println("ID: " + applicant.getId());
@@ -129,7 +136,7 @@ public class ApplicantReportView implements AuthenticatedView, PaginatedView {
 
             System.out.println();
         }
-        System.out.println("Showing " + (lastIndex - firstIndex) + " of " + applicants.size());
+        System.out.println("Showing " + (lastIndex - firstIndex) + " of " + filteredApplicants.size());
     }
 
 }

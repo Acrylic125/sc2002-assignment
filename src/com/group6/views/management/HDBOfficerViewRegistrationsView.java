@@ -22,21 +22,38 @@ public class HDBOfficerViewRegistrationsView implements AuthenticatedView, Pagin
     private int page = 1;
 
     private ViewContext ctx;
-    private User user;
     private List<BTOProjectManager.BTOFullOfficerRegistration> officerRegistrations = new ArrayList<>();
 
     private String stringifyOfficerStatus(HDBOfficerRegistrationStatus status) {
         return switch (status) {
-            case PENDING -> BashColors.format( "Pending", BashColors.YELLOW);
+            case PENDING -> BashColors.format("Pending", BashColors.YELLOW);
             case SUCCESSFUL -> BashColors.format("Successful", BashColors.GREEN);
             case UNSUCCESSFUL -> BashColors.format("Unsuccessful", BashColors.RED);
         };
     }
 
     @Override
+    public int getLastPage() {
+        int size = officerRegistrations.size();
+        if (size % PAGE_SIZE == 0) {
+            return size / PAGE_SIZE;
+        }
+        return size / PAGE_SIZE + 1;
+    }
+
+    @Override
+    public void setPage(int page) {
+        this.page = page;
+    }
+
+    @Override
+    public int getPage() {
+        return page;
+    }
+
+    @Override
     public View render(ViewContext ctx, User user) {
         this.ctx = ctx;
-        this.user = user;
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjects();
 
         this.officerRegistrations = projectManager.getAllOfficerRegistrations(user.getId());
@@ -68,14 +85,16 @@ public class HDBOfficerViewRegistrationsView implements AuthenticatedView, Pagin
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .toList();
-            String managerName = managerOpt.isPresent() ? managerOpt.get().getName() : BashColors.format("(Unknown)", BashColors.LIGHT_GRAY);
+            String managerName = managerOpt.isPresent() ? managerOpt.get().getName()
+                    : BashColors.format("(Unknown)", BashColors.LIGHT_GRAY);
             String officerNames = !officers.isEmpty()
                     ? officers.stream().map(User::getName).reduce((a, b) -> {
-                if (a.isEmpty()) {
-                    return b;
-                }
-                return a + ", " + b;
-            }).get() : BashColors.format("(None)", BashColors.LIGHT_GRAY);
+                        if (a.isEmpty()) {
+                            return b;
+                        }
+                        return a + ", " + b;
+                    }).get()
+                    : BashColors.format("(None)", BashColors.LIGHT_GRAY);
 
             System.out.println("Project: " + project.getName() + ", " + project.getNeighbourhood());
             System.out.println("ID: " + project.getId());
@@ -83,9 +102,10 @@ public class HDBOfficerViewRegistrationsView implements AuthenticatedView, Pagin
             boolean isWindowOpen = project.isApplicationWindowOpen();
             String projectOpenWindowStr = Utils.formatToDDMMYYYY(project.getApplicationOpenDate())
                     + " to " + Utils.formatToDDMMYYYY(project.getApplicationCloseDate());
-            System.out.println("Application and Registration period: " + BashColors.format(projectOpenWindowStr, isWindowOpen
-                    ? BashColors.GREEN
-                    : BashColors.RED));
+            System.out.println("Application and Registration period: " + BashColors.format(projectOpenWindowStr,
+                    isWindowOpen
+                            ? BashColors.GREEN
+                            : BashColors.RED));
             String officerSlotsStr = officers.size() + " / " + project.getOfficerLimit();
             if (officers.size() >= project.getOfficerLimit()) {
                 officerSlotsStr = BashColors.format(officerSlotsStr, BashColors.RED);
@@ -100,9 +120,10 @@ public class HDBOfficerViewRegistrationsView implements AuthenticatedView, Pagin
         final Scanner scanner = ctx.getScanner();
 
         while (true) {
-            showRegistrations();;
+            showRegistrations();
+            ;
             System.out.println("Page " + page + " / " + getLastPage() +
-                    " - 'n' to go to next page, 'p' to go to previous page, 'page' to go to a specific page,  or leave empty ('') to go back:");
+                    " - 'n' to go to next page, 'p' to go to previous page, 'page' to go to a specific page, or leave empty ('') to go back:");
 
             String option = scanner.nextLine().trim();
             switch (option) {
@@ -123,25 +144,6 @@ public class HDBOfficerViewRegistrationsView implements AuthenticatedView, Pagin
                     scanner.nextLine();
             }
         }
-    }
-
-    @Override
-    public int getLastPage() {
-        int size = officerRegistrations.size();
-        if (size % PAGE_SIZE == 0) {
-            return size / PAGE_SIZE;
-        }
-        return size / PAGE_SIZE + 1;
-    }
-
-    @Override
-    public void setPage(int page) {
-        this.page = page;
-    }
-
-    @Override
-    public int getPage() {
-        return page;
     }
 
 }

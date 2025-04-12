@@ -1,6 +1,5 @@
 package com.group6.views.management;
 
-import com.group6.btoproject.BTOEnquiry;
 import com.group6.btoproject.BTOProject;
 import com.group6.btoproject.BTOProjectManager;
 import com.group6.users.User;
@@ -125,7 +124,7 @@ public class HDBOfficerManagedProjectsView implements PaginatedView, Authenticat
             options.add("'w' to view Withdrawals");
         }
         if (permissions.canApproveOfficerRegistrations()) {
-            options.add("'w' to view Officer Registrations");
+            options.add("'r' to view Officer Registrations");
         }
         if (permissions.canRespondEnquiries()) {
             options.add("'e' to view Enquiries");

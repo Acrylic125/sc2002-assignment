@@ -243,7 +243,7 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
             System.out.println("  None");
             System.out.println("");
             System.out.println("Type the sort type you want to filter.");
-            String sort = scanner.nextLine();
+            String sort = scanner.nextLine().trim().toUpperCase();
 
             switch (sort) {
                 case "A-Z":

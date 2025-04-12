@@ -221,7 +221,8 @@ public class BTOProjectManager {
         }
 
         if (project.isManagedBy(applicantUserId)) {
-            throw new RuntimeException("User is already managing this project and thus cannot apply for this project..");
+            throw new RuntimeException(
+                    "User is already managing this project and thus cannot apply for this project..");
         }
 
         final BTOApplication application = new BTOApplication(
@@ -292,13 +293,15 @@ public class BTOProjectManager {
         if (status == BTOApplicationStatus.BOOKED || status == BTOApplicationStatus.SUCCESSFUL) {
             final Optional<BTOProjectType> projectTypeOpt = project.getProjectType(application.getTypeId());
             if (projectTypeOpt.isEmpty()) {
-                throw new RuntimeException("Project type, " + application.getTypeId() + " does not exist.");
+                throw new RuntimeException(
+                        "Project type, " + application.getTypeId().getName() + " does not exist in project.");
             }
 
             final BTOProjectType projectType = projectTypeOpt.get();
             int bookedCountForType = project.getBookedCountForType(application.getTypeId());
             if (bookedCountForType >= projectType.getMaxQuantity()) {
-                throw new RuntimeException("Project type, " + application.getTypeId() + " has no availability.");
+                throw new RuntimeException(
+                        "Project type, " + application.getTypeId().getName() + " has no availability.");
             }
 
             if (!project.isApplicationWindowOpen()) {
@@ -306,7 +309,8 @@ public class BTOProjectManager {
             }
 
             if (project.isManagedBy(application.getApplicantUserId())) {
-                throw new RuntimeException("User is already managing this project and thus cannot apply for this project..");
+                throw new RuntimeException(
+                        "User is already managing this project and thus cannot apply for this project..");
             }
 
             if (status == BTOApplicationStatus.BOOKED) {
@@ -628,7 +632,8 @@ public class BTOProjectManager {
 
         final Optional<BTOProjectType> typeOpt = project.getProjectType(application.getTypeId());
         if (typeOpt.isEmpty()) {
-            throw new RuntimeException("Type with type id, " + application.getId() + " does not exist in project.");
+            throw new RuntimeException(
+                    "Type with type id, " + application.getTypeId().getName() + " does not exist in project.");
         }
         final BTOProjectType type = typeOpt.get();
 

@@ -28,14 +28,14 @@ public class ProjectEnquiryView implements PaginatedView, AuthenticatedView {
     private int page = 1;
     private boolean canRespond;
 
-    public ProjectEnquiryView(BTOProject project, Supplier<List<BTOEnquiry>> enquiriesSupplier, boolean canRespond) {
+    public ProjectEnquiryView(BTOProject project, Supplier<List<BTOEnquiry>> enquiriesSupplier, boolean canRespond) { //A overloading Set of methods based on canRespond (Officer and Manager) or cannot (Applicant)
         this.project = project;
         this.enquiriesSupplier = enquiriesSupplier;
         this.enquiries = enquiriesSupplier.get();
         this.canRespond = canRespond;
     }
 
-    public ProjectEnquiryView(BTOProject project, Supplier<List<BTOEnquiry>> enquiriesSupplier) {
+    public ProjectEnquiryView(BTOProject project, Supplier<List<BTOEnquiry>> enquiriesSupplier) { //second overloaded method, this one for the users
         this.project = project;
         this.enquiriesSupplier = enquiriesSupplier;
         this.enquiries = enquiriesSupplier.get();
@@ -99,7 +99,7 @@ public class ProjectEnquiryView implements PaginatedView, AuthenticatedView {
 
         Utils.joinStringDelimiter(new ArrayList<>(), ", ", " or ");
         final List<String> options = new ArrayList<>();
-        if (canRespond) {
+        if (canRespond) { //response option only for Management team
             options.add("'r' to respond");
         }
         options.add("'v' to view");

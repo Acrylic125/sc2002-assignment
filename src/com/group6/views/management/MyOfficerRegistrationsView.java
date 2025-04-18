@@ -102,7 +102,7 @@ public class MyOfficerRegistrationsView implements AuthenticatedView, PaginatedV
             boolean isWindowOpen = project.isApplicationWindowOpen();
             String projectOpenWindowStr = Utils.formatToDDMMYYYY(project.getApplicationOpenDate())
                     + " to " + Utils.formatToDDMMYYYY(project.getApplicationCloseDate());
-            System.out.println("Application and Registration period: " + BashColors.format(projectOpenWindowStr,
+            System.out.println("Application period: " + BashColors.format(projectOpenWindowStr,
                     isWindowOpen
                             ? BashColors.GREEN
                             : BashColors.RED));

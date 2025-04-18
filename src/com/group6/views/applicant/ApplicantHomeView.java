@@ -74,7 +74,8 @@ public class ApplicantHomeView implements AuthenticatedView {
                         return option.getCallback().get();
                     }
                 }
-            } catch (Throwable _) {}
+            } catch (Throwable _e) {
+            }
             System.out.println(BashColors.format("Invalid option.", BashColors.RED));
             System.out.println("Type anything to continue.");
             scanner.nextLine();

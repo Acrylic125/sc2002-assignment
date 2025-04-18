@@ -1,0 +1,7 @@
+HDBManagerHomeView        CreateBTOProjectView        BTOProjectManager
+        |                         |                          |
+        |-- render() ------------>|                          |
+        |                         |-- render()---->|
+        |                         |                          |
+        |                         |-- addProject() --------->|
+        |                         |<-- success message ------|

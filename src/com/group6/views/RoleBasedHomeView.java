@@ -75,7 +75,7 @@ public class RoleBasedHomeView implements AuthenticatedView {
                         return option.getCallback().get();
                     }
                 }
-            } catch (NumberFormatException _) {
+            } catch (NumberFormatException _e) {
             }
             System.out.println(BashColors.format("Invalid option.", BashColors.RED));
             System.out.println("Type anything to continue.");

@@ -28,7 +28,7 @@ public class ValidateUtils {
     * This method checks if the given NRIC conforms to the standard format.
     * </p>
     *
-    * @params nric The NRIC to be validated.
+     * @param nric the NRIC number to validate.
     * @return {@code true} if NRIC is valid.
     */
     public static boolean isValidNRIC(String nric){

@@ -147,6 +147,7 @@ public class ProjectsView implements PaginatedView, AuthenticatedView {
         if (permissions.canApply()) {
             options.add("'a' to apply");
         }
+        options.add("'f' to filter");
         options.add("'n' to go to next page");
         options.add("'p' to go to previous page");
         options.add("'page' to go to a specific page");
@@ -209,7 +210,7 @@ public class ProjectsView implements PaginatedView, AuthenticatedView {
 
         while (true) {
             System.out.println(BashColors.format(
-                    "Type in the project id you or leave empty ('') to cancel:", BashColors.BOLD));
+                    "Type in the project id or leave empty ('') to cancel:", BashColors.BOLD));
             final String projectId = scanner.nextLine().trim();
             if (projectId.isEmpty()) {
                 return Optional.empty();

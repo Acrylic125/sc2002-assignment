@@ -130,10 +130,10 @@ public class ManagedProjectsView implements PaginatedView, AuthenticatedView {
             options.add("'e' to view Enquiries");
         }
         if (permissions.canEditProject()) {
-            options.add("'edit' to view Enquiries");
+            options.add("'edit' to Edit");
         }
         if (permissions.canDeleteProject()) {
-            options.add("'delete' to view Enquiries");
+            options.add("'delete' to Delete");
         }
         options.add("'n' to go to next page");
         options.add("'p' to go to previous page");

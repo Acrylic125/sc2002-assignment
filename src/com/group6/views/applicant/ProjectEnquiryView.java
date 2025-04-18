@@ -223,7 +223,7 @@ public class ProjectEnquiryView implements PaginatedView, AuthenticatedView {
             if (opt.isEmpty()) {
                 return;
             }
-            Optional<BTOEnquiry> enquiryOpt = project.getEnquiries().stream()
+            Optional<BTOEnquiry> enquiryOpt = project.getEnquiries().stream() //A stream of filtered enquiries which equal to the enquiry id (Returns only first)
                     .filter((_enquiry) -> _enquiry.getId().equals(opt))
                     .findFirst();
             if (enquiryOpt.isEmpty()) {
@@ -251,7 +251,7 @@ public class ProjectEnquiryView implements PaginatedView, AuthenticatedView {
         if (newMessage.isEmpty()) {
             return;
         }
-        enquiry.setResponseMessage(new BTOEnquiryMessage(user.getId(), newMessage, System.currentTimeMillis()));
+        enquiry.setResponseMessage(new BTOEnquiryMessage(user.getId(), newMessage, System.currentTimeMillis())); //Sets a Response Message to the enquiry
         this.enquiries = enquiriesSupplier.get();
         System.out.println(BashColors.format("Message responded!", BashColors.GREEN));
         System.out.println("Type anything to continue.");

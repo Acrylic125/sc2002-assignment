@@ -34,7 +34,7 @@ public class ManagementHomeView implements AuthenticatedView {
     final Scanner scanner = ctx.getScanner();
     final UserPermissions userPermissions = user.getPermissions();
 
-    List<ViewOption> options = new ArrayList<>();
+    List<ViewOption> options = new ArrayList<>(); //a ViewOption list that has all options based on user's Permissions (HDB Officer vs HDB Manager)
     if (userPermissions.canCreateProject()) {
       options.add(
           new ViewOption("Create New Project", CreateBTOProjectView::new));
@@ -48,7 +48,7 @@ public class ManagementHomeView implements AuthenticatedView {
     options.add(
         new ViewOption("View My Managed Projects", ManagedProjectsView::new));
     if (userPermissions.canGenerateApplicantsReport()) {
-      options.add(new ViewOption("Generate Applicants Report", () -> {
+      options.add(new ViewOption("Generate Applicants Report", () -> { //Lambda Expression with stream function to filter and obtain a list of applicants that canApply
         final List<User> applicants =
             ctx.getBtoSystem()
                 .getUserManager()
@@ -60,8 +60,7 @@ public class ManagementHomeView implements AuthenticatedView {
         return new ApplicantReportView(applicants);
       }));
     }
-    // options.add(new ViewOption("Approve Applicant Applications", () -> new
-    // HDBOfficerApplicationApprovalView()));
+
     if (isRootView) {
       options.add(new ViewOption("Logout", () -> {
         logout();

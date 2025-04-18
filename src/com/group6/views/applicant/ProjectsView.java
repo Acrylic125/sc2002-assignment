@@ -167,15 +167,15 @@ public class ProjectsView implements PaginatedView, AuthenticatedView {
             }
             if (option.equals("n")) {
                 this.requestNextPage(scanner);
-                break;
+                continue;
             }
             if (option.equals("p")) {
                 this.requestPrevPage(scanner);
-                break;
+                continue;
             }
             if (option.equals("page")) {
                 this.requestPage(scanner);
-                break;
+                continue;
             }
             if (option.isEmpty()) {
                 return null;
@@ -186,7 +186,7 @@ public class ProjectsView implements PaginatedView, AuthenticatedView {
             if (option.equals("e") && (permissions.canRespondEnquiries() || permissions.canApply())) {
                 final Optional<BTOProject> projectOpt = this.showRequestProject();
                 if (projectOpt.isEmpty()) {
-                    break;
+                    continue;
                 }
                 final BTOProject project = projectOpt.get();
                 final int enquiryLevel = user.getPermissions().getRespondEnquiresLevel();
@@ -201,7 +201,6 @@ public class ProjectsView implements PaginatedView, AuthenticatedView {
             System.out.println("Type anything to continue.");
             scanner.nextLine();
         }
-        return null;
     }
 
     private Optional<BTOProject> showRequestProject() {

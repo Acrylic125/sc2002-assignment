@@ -34,6 +34,8 @@ public class BTOProjectStorage implements Storage<BTOProject> {
             } catch (IOException | ClassNotFoundException e) {
                 System.err.println(BashColors.format("Error loading data: " + e.getMessage(), BashColors.RED));
             }
+        } else {
+            System.out.println(BashColors.format("[BTO Projects] No data found in " + filename, BashColors.RED));
         }
 
         return projects;
@@ -70,4 +72,3 @@ public class BTOProjectStorage implements Storage<BTOProject> {
         saveAll(existingProjects);
     }
 }
-

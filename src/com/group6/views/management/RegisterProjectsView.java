@@ -99,7 +99,7 @@ public class RegisterProjectsView implements PaginatedView, AuthenticatedView {
 
             System.out.println("Project: " + project.getName() + ", " + project.getNeighbourhood());
             System.out.println("ID: " + project.getId());
-            System.out.println("Types (No. Units Available / Total No. Units / Price):");
+            System.out.println("Types (No. Units Taken / Total No. Units / Price):");
             if (types.isEmpty()) {
                 System.out.println(BashColors.format("  (No types available)", BashColors.LIGHT_GRAY));
             } else {
@@ -115,7 +115,7 @@ public class RegisterProjectsView implements PaginatedView, AuthenticatedView {
             boolean isWindowOpen = project.isApplicationWindowOpen();
             String projectOpenWindowStr = Utils.formatToDDMMYYYY(project.getApplicationOpenDate())
                     + " to " + Utils.formatToDDMMYYYY(project.getApplicationCloseDate());
-            System.out.println("Application and Registration period: " + BashColors.format(projectOpenWindowStr,
+            System.out.println("Application period: " + BashColors.format(projectOpenWindowStr,
                     isWindowOpen
                             ? BashColors.GREEN
                             : BashColors.RED));

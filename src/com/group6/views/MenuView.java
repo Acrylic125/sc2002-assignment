@@ -29,7 +29,7 @@ public class MenuView implements View {
                 case "2":
                     return new RegisterView();
                 case "3":
-                    System.out.println("👋 Goodbye!");
+                    System.out.println(BashColors.format("Goodbye!", BashColors.BOLD));
                     return null;
                 default:
                     System.out.println(BashColors.format("Invalid option.", BashColors.RED));

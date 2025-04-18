@@ -9,8 +9,10 @@ import java.util.Optional;
 import java.util.Scanner;
 
 /**
- * Represents the login view where users can enter their NRIC and password to authenticate.
- * This view handles user authentication and redirects to the appropriate home view
+ * Represents the login view where users can enter their NRIC and password to
+ * authenticate.
+ * This view handles user authentication and redirects to the appropriate home
+ * view
  * based on the user's role.
  */
 public class LoginView implements View {
@@ -48,7 +50,8 @@ public class LoginView implements View {
             User user = userAuthenticator.authenticate(nricOpt.get(), passwordOpt.get());
             if (user != null) {
                 ctx.setUser(user);
-                System.out.println("✅ Login successful!");
+                System.out.println(BashColors.format("Login successful! You are logged in as " + user.getName() + ".",
+                        BashColors.GREEN));
                 return new RoleBasedHomeView();
             }
 
@@ -57,12 +60,13 @@ public class LoginView implements View {
             if (left <= 0) {
                 break;
             }
-            System.out.println(BashColors.format("❌ Incorrect NRIC or password. Attempts left: " + left, BashColors.RED));
+            System.out
+                    .println(BashColors.format("Incorrect NRIC or password. Attempts left: " + left, BashColors.RED));
             System.out.println("Type anything to continue.");
             scanner.nextLine();
         }
 
-        System.out.println(BashColors.format("🚫 Too many failed attempts. Cancelling...", BashColors.RED));
+        System.out.println(BashColors.format("Too many failed attempts. Cancelling...", BashColors.RED));
         System.out.println("Type anything to continue.");
         scanner.nextLine();
         return null;
@@ -71,7 +75,8 @@ public class LoginView implements View {
     private Optional<String> requestNric() {
         final Scanner scanner = ctx.getScanner();
         while (true) {
-            System.out.println(BashColors.format("Type in your NRIC (e.g. S1234567A) or leave empty ('') to cancel.", BashColors.BOLD));
+            System.out.println(BashColors.format("Type in your NRIC (e.g. S1234567A) or leave empty ('') to cancel.",
+                    BashColors.BOLD));
 
             String value = scanner.nextLine().trim();
             if (value.isEmpty()) {
@@ -79,7 +84,9 @@ public class LoginView implements View {
             }
 
             if (!ValidateUtils.isValidNRIC(value)) {
-                System.out.println(BashColors.format("Invalid NRIC. Format must start with S or T then 7 digits, and ending with a capital letter.", BashColors.RED));
+                System.out.println(BashColors.format(
+                        "Invalid NRIC. Format must start with S or T then 7 digits, and ending with a capital letter.",
+                        BashColors.RED));
                 System.out.println("Type anything to continue.");
                 scanner.nextLine();
                 continue;

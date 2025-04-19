@@ -96,7 +96,7 @@ public class BTOProjectManager {
     /**
      * Add a project to the manager.
      *
-     * @param project project to be added.
+     * @param _project project to be added.
      */
     public void addProject(BTOProject _project) throws RuntimeException {
         if (projects.values().stream()

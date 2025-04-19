@@ -15,6 +15,9 @@ import com.group6.views.PaginatedView;
 import com.group6.views.View;
 import com.group6.views.ViewContext;
 
+/**
+ * View for the management to view the applicants.
+ */
 public class ApplicantReportView implements AuthenticatedView, PaginatedView {
 
     private static final int PAGE_SIZE = 3;
@@ -25,11 +28,19 @@ public class ApplicantReportView implements AuthenticatedView, PaginatedView {
     private int page = 1;
     private List<User> filteredApplicants = new ArrayList<>();
 
+    /**
+     * Constructor.
+     *
+     * @param applicants the list of applicants
+     */
     public ApplicantReportView(List<User> applicants) {
         this.applicants = applicants;
         this.filteredApplicants.addAll(applicants);
     }
 
+    /**
+     * @return the last page
+     */
     @Override
     public int getLastPage() {
         int size = filteredApplicants.size();
@@ -39,16 +50,29 @@ public class ApplicantReportView implements AuthenticatedView, PaginatedView {
         return size / PAGE_SIZE + 1;
     }
 
+    /**
+     * Set page
+     */
     @Override
     public void setPage(int page) {
         this.page = page;
     }
 
+    /**
+     * @return the current page
+     */
     @Override
     public int getPage() {
         return page;
     }
 
+    /**
+     * View renderer.
+     *
+     * @param ctx  view context
+     * @param user authenticated user
+     * @return next view
+     */
     @Override
     public View render(ViewContext ctx, User user) {
         this.ctx = ctx;
@@ -60,6 +84,11 @@ public class ApplicantReportView implements AuthenticatedView, PaginatedView {
         return showOptions();
     }
 
+    /**
+     * Show the options for the user.
+     *
+     * @return next view
+     */
     private View showOptions() {
         final Scanner scanner = ctx.getScanner();
 
@@ -103,6 +132,9 @@ public class ApplicantReportView implements AuthenticatedView, PaginatedView {
         }
     }
 
+    /**
+     * Show the applicants.
+     */
     private void showApplicants() {
         System.out.println(BashColors.format("Applicants", BashColors.BOLD));
         if (filteredApplicants.isEmpty()) {

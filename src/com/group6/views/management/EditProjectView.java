@@ -33,11 +33,22 @@ public class EditProjectView implements AuthenticatedView {
         this.project = project;
     }
 
+    /**
+     * @param user the user to be checked.
+     * @return true if the user is authorized, false otherwise.
+     */
     @Override
     public boolean isAuthorized(User user) {
         return user.getPermissions().canEditProject();
     }
 
+    /**
+     * View renderer.
+     *
+     * @param ctx  view context
+     * @param user authenticated user
+     * @return next view
+     */
     @Override
     public View render(ViewContext ctx, User user) {
         this.ctx = ctx;
@@ -46,6 +57,11 @@ public class EditProjectView implements AuthenticatedView {
         return showOptions();
     }
 
+    /**
+     * Show the options for the project.
+     *
+     * @return next view
+     */
     private View showOptions() {
         final Scanner scanner = ctx.getScanner();
 
@@ -131,6 +147,11 @@ public class EditProjectView implements AuthenticatedView {
         }
     }
 
+    /**
+     * Show the request for project name.
+     *
+     * @return the project name
+     */
     private Optional<String> showRequestProjectName() {
         final Scanner scanner = ctx.getScanner();
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
@@ -160,6 +181,11 @@ public class EditProjectView implements AuthenticatedView {
         }
     }
 
+    /**
+     * Show the request for project neighbourhood.
+     *
+     * @return the project neighbourhood
+     */
     private Optional<String> showRequestProjectNeighbourhood() {
         final Scanner scanner = ctx.getScanner();
 
@@ -173,6 +199,11 @@ public class EditProjectView implements AuthenticatedView {
         return Optional.of(neighbourhood);
     }
 
+    /**
+     * Show the request for project types.
+     *
+     * @return the project types
+     */
     private Optional<Map<BTOProjectTypeID, BTOProjectType>> showRequestProjectTypes() {
         final Scanner scanner = ctx.getScanner();
 
@@ -244,6 +275,12 @@ public class EditProjectView implements AuthenticatedView {
         }
     }
 
+    /**
+     * Show the request for project type edit.
+     *
+     * @param _projectType the project type to be edited
+     * @return the project type
+     */
     private Optional<BTOProjectType> requestProjectTypeEdit(BTOProjectType _projectType) {
         final Scanner scanner = ctx.getScanner();
 
@@ -313,6 +350,11 @@ public class EditProjectView implements AuthenticatedView {
         }
     }
 
+    /**
+     * Show the request for officer limit.
+     *
+     * @return the officer limit
+     */
     private Optional<Integer> showRequestOfficerLimit() {
         final Scanner scanner = ctx.getScanner();
 
@@ -361,6 +403,11 @@ public class EditProjectView implements AuthenticatedView {
         }
     }
 
+    /**
+     * Show the request for application window.
+     *
+     * @return the application window
+     */
     private Optional<Date[]> requestApplicationWindow() {
         final Scanner scanner = ctx.getScanner();
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
@@ -473,6 +520,11 @@ public class EditProjectView implements AuthenticatedView {
         }
     }
 
+    /**
+     * Show the request for project visibility.
+     *
+     * @return the project visibility
+     */
     private Optional<Boolean> requestProjectVisibility() {
         final Scanner scanner = ctx.getScanner();
 

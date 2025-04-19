@@ -8,21 +8,41 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * Management portal view.
+ */
 public class ManagementHomeView implements AuthenticatedView {
     private final boolean isRootView;
 
     private ViewContext ctx;
     private User user;
 
+    /**
+     * Constructor for ManagementHomeView.
+     *
+     * @param isRootView whether this is the root view
+     */
     public ManagementHomeView(boolean isRootView) {
         this.isRootView = isRootView;
     }
 
+    /**
+     *
+     * @param user the user to be checked.
+     * @return true if the user is authorized to view this view.
+     */
     @Override
     public boolean isAuthorized(User user) {
         return user.getPermissions().canManageProjects();
     }
 
+    /**
+     * View renderer.
+     *
+     * @param ctx  view context
+     * @param user authenticated user
+     * @return next view
+     */
     @Override
     public View render(ViewContext ctx, User user) {
         this.ctx = ctx;
@@ -30,6 +50,11 @@ public class ManagementHomeView implements AuthenticatedView {
         return showOptions();
     }
 
+    /**
+     * Show the options for the management portal.
+     *
+     * @return next view
+     */
     private View showOptions() {
         final Scanner scanner = ctx.getScanner();
         final UserPermissions userPermissions = user.getPermissions();
@@ -110,9 +135,13 @@ public class ManagementHomeView implements AuthenticatedView {
         }
     }
 
+    /**
+     * Logout the user.
+     */
     private void logout() {
         ctx.clearViewStack();
         ctx.setUser(null);
+        ctx.resetFilters();
         System.out.println(BashColors.format("Logged out!", BashColors.GREEN));
     }
 }

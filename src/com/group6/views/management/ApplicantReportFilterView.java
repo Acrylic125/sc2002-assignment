@@ -30,6 +30,12 @@ public class ApplicantReportFilterView implements AuthenticatedView {
         return ctx.getApplicantReportFilters();
     }
 
+    /**
+     * Stringify the sort name.
+     *
+     * @param sortType the sort type
+     * @return the stringified sort name
+     */
     protected String stringifySortName(ViewSortType sortType) {
         switch (sortType) {
             case ASC:
@@ -41,6 +47,12 @@ public class ApplicantReportFilterView implements AuthenticatedView {
         }
     }
 
+    /**
+     * Stringify the search term.
+     *
+     * @param searchTerm the search term
+     * @return the stringified search term
+     */
     protected String stringifySearchTerm(String searchTerm) {
         if (searchTerm.isEmpty()) {
             return BashColors.format("(Empty)", BashColors.LIGHT_GRAY);
@@ -48,6 +60,12 @@ public class ApplicantReportFilterView implements AuthenticatedView {
         return searchTerm;
     }
 
+    /**
+     * Stringify the marital status.
+     *
+     * @param maritalStatus the marital status
+     * @return the stringified marital status
+     */
     protected String stringifyMaritalStatus(Set<UserMaritalStatus> maritalStatus) {
         if (maritalStatus.isEmpty()) {
             return BashColors.format("(All)", BashColors.LIGHT_GRAY);
@@ -57,7 +75,7 @@ public class ApplicantReportFilterView implements AuthenticatedView {
             sb.append(UserMaritalStatus.MARRIED.getName());
         }
         if (maritalStatus.contains(UserMaritalStatus.SINGLE)) {
-            if (sb.length() > 0) {
+            if (!sb.isEmpty()) {
                 sb.append(", ");
             }
             sb.append(UserMaritalStatus.SINGLE.getName());
@@ -65,6 +83,13 @@ public class ApplicantReportFilterView implements AuthenticatedView {
         return sb.toString();
     }
 
+    /**
+     * Stringify the age range.
+     *
+     * @param min the minimum age
+     * @param max the maximum age
+     * @return the stringified age range
+     */
     protected String stringifyAgeRange(int min, int max) {
         if (min == -1 && max == -1) {
             return BashColors.format("(All)", BashColors.LIGHT_GRAY);
@@ -79,6 +104,12 @@ public class ApplicantReportFilterView implements AuthenticatedView {
                 + BashColors.format(" (Inclusive)", BashColors.LIGHT_GRAY);
     }
 
+    /**
+     * Stringify the project types availability.
+     *
+     * @param projectTypes the project types
+     * @return the stringified project types availability
+     */
     protected String stringifyProjectTypesAvailability(Collection<BTOProjectTypeID> projectTypes) {
         String value = this.projectTypes.stream()
                 .filter(projectTypes::contains)
@@ -95,6 +126,13 @@ public class ApplicantReportFilterView implements AuthenticatedView {
         return value;
     }
 
+    /**
+     * View renderer.
+     *
+     * @param ctx  view context
+     * @param user authenticated user
+     * @return next view
+     */
     @Override
     public View render(ViewContext ctx, User user) {
         this.ctx = ctx;
@@ -107,6 +145,9 @@ public class ApplicantReportFilterView implements AuthenticatedView {
         return null;
     }
 
+    /**
+     * Show the options for the filters.
+     */
     protected void showOptions() {
         final ApplicantReportFilters filters = getFilters();
         while (true) {
@@ -155,6 +196,9 @@ public class ApplicantReportFilterView implements AuthenticatedView {
         }
     }
 
+    /**
+     * Show the filter by search term.
+     */
     protected void showFilterBySearchTerm() {
         final Scanner scanner = ctx.getScanner();
         final ApplicantReportFilters filters = this.getFilters();
@@ -169,6 +213,9 @@ public class ApplicantReportFilterView implements AuthenticatedView {
         scanner.nextLine();
     }
 
+    /**
+     * Show the filter by age range.
+     */
     protected void showFilterAgeRange() {
         final Scanner scanner = ctx.getScanner();
         final ApplicantReportFilters filters = this.getFilters();
@@ -254,6 +301,9 @@ public class ApplicantReportFilterView implements AuthenticatedView {
         }
     }
 
+    /**
+     * Show the filter by marital statuses.
+     */
     protected void showFilterByMaritalStatuses() {
         final Scanner scanner = ctx.getScanner();
         final ApplicantReportFilters filters = this.getFilters();
@@ -317,6 +367,9 @@ public class ApplicantReportFilterView implements AuthenticatedView {
         scanner.nextLine();
     }
 
+    /**
+     * Show the filter by project type.
+     */
     protected void showFilterByProjectType() {
         final Scanner scanner = ctx.getScanner();
         final ApplicantReportFilters filters = this.getFilters();
@@ -383,6 +436,9 @@ public class ApplicantReportFilterView implements AuthenticatedView {
         scanner.nextLine();
     }
 
+    /**
+     * Show the name sort.
+     */
     protected void showNameSort() {
         final Scanner scanner = ctx.getScanner();
         final ApplicantReportFilters filters = this.getFilters();
@@ -407,7 +463,7 @@ public class ApplicantReportFilterView implements AuthenticatedView {
                 case "Z-A":
                     filters.setSortByName(ViewSortType.DSC);
                     break;
-                case "None":
+                case "NONE":
                     filters.setSortByName(ViewSortType.NONE);
                     break;
                 default:

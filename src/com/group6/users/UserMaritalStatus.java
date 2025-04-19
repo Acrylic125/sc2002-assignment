@@ -9,10 +9,20 @@ public enum UserMaritalStatus {
 
     private final String name;
 
+    /**
+     * Constructor for UserMaritalStatus.
+     *
+     * @param name name of the marital status.
+     */
     UserMaritalStatus(String name) {
         this.name = name;
     }
 
+    /**
+     * Name getter.
+     *
+     * @return {@link #name}
+     */
     public String getName() {
         return name;
     }
@@ -31,6 +41,11 @@ public enum UserMaritalStatus {
         }
     }
 
+    /**
+     * Converts the enum value to a string.
+     *
+     * @return The string representation of the enum value.
+     */
     public String toString() {
         return name().charAt(0) + name().substring(1).toLowerCase();
     }

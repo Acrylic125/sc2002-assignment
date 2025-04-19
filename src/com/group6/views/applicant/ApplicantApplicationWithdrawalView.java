@@ -13,10 +13,19 @@ import com.group6.views.AuthenticatedView;
 import com.group6.views.View;
 import com.group6.views.ViewContext;
 
+/**
+ * View for the applicant to withdraw from an application.
+ */
 public class ApplicantApplicationWithdrawalView implements AuthenticatedView {
 
     private ViewContext ctx;
 
+    /**
+     * Stringify the application status.
+     *
+     * @param status the application status
+     * @return the stringified application status
+     */
     private String stringifyApplicationStatus(BTOApplicationStatus status) {
         switch (status) {
             case PENDING:
@@ -31,6 +40,10 @@ public class ApplicantApplicationWithdrawalView implements AuthenticatedView {
         return BashColors.format("(Unknown)", BashColors.LIGHT_GRAY);
     }
 
+    /**
+     * View renderer.
+     * @return next view
+     */
     @Override
     public View render(ViewContext ctx, User user) {
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
@@ -43,6 +56,11 @@ public class ApplicantApplicationWithdrawalView implements AuthenticatedView {
         return null;
     }
 
+    /**
+     * Show the request withdrawal view.
+     *
+     * @param fullApplications the list of full applications
+     */
     private void showRequestWithdrawal(List<BTOProjectManager.BTOFullApplication> fullApplications) {
         final Scanner scanner = ctx.getScanner();
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();

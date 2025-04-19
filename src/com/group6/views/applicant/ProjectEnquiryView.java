@@ -15,6 +15,9 @@ import com.group6.views.PaginatedView;
 import com.group6.views.View;
 import com.group6.views.ViewContext;
 
+/**
+ * View for the applicant to view their enquiries.
+ */
 public class ProjectEnquiryView implements PaginatedView, AuthenticatedView {
 
     private static final int PAGE_SIZE = 3;
@@ -28,6 +31,13 @@ public class ProjectEnquiryView implements PaginatedView, AuthenticatedView {
     private int page = 1;
     private boolean canRespond;
 
+    /**
+     * Constructor for the ProjectEnquiryView.
+     *
+     * @param project         the project
+     * @param enquiriesSupplier the supplier for the list of enquiries
+     * @param canRespond      whether the user can respond to enquiries
+     */
     public ProjectEnquiryView(BTOProject project, Supplier<List<BTOEnquiry>> enquiriesSupplier, boolean canRespond) {
         this.project = project;
         this.enquiriesSupplier = enquiriesSupplier;
@@ -35,12 +45,21 @@ public class ProjectEnquiryView implements PaginatedView, AuthenticatedView {
         this.canRespond = canRespond;
     }
 
+    /**
+     * Constructor for the ProjectEnquiryView.
+     *
+     * @param project         the project
+     * @param enquiriesSupplier the supplier for the list of enquiries
+     */
     public ProjectEnquiryView(BTOProject project, Supplier<List<BTOEnquiry>> enquiriesSupplier) {
         this.project = project;
         this.enquiriesSupplier = enquiriesSupplier;
         this.enquiries = enquiriesSupplier.get();
     }
 
+    /**
+     * @return the last page
+     */
     @Override
     public int getLastPage() {
         int size = enquiries.size();
@@ -50,16 +69,29 @@ public class ProjectEnquiryView implements PaginatedView, AuthenticatedView {
         return size / PAGE_SIZE + 1;
     }
 
+    /**
+     * Set page
+     */
     @Override
     public void setPage(int page) {
         this.page = page;
     }
 
+    /**
+     * @return the current page
+     */
     @Override
     public int getPage() {
         return page;
     }
 
+    /**
+     * View renderer.
+     *
+     * @param ctx  view context
+     * @param user authenticated user
+     * @return next view
+     */
     @Override
     public View render(ViewContext ctx, User user) {
         this.ctx = ctx;
@@ -69,6 +101,9 @@ public class ProjectEnquiryView implements PaginatedView, AuthenticatedView {
         return null;
     }
 
+    /**
+     * Show the enquiries.
+     */
     private void showEnquiries() {
         final Scanner scanner = ctx.getScanner();
         System.out.println(BashColors
@@ -94,6 +129,9 @@ public class ProjectEnquiryView implements PaginatedView, AuthenticatedView {
         }
     }
 
+    /**
+     * Show the options for the user.
+     */
     private void showOptions() {
         final Scanner scanner = ctx.getScanner();
 
@@ -158,6 +196,9 @@ public class ProjectEnquiryView implements PaginatedView, AuthenticatedView {
         }
     }
 
+    /**
+     * Show the view enquiry.
+     */
     private void showViewEnquiry() {
         final UserManager userManager = ctx.getBtoSystem().getUserManager();
         final Scanner scanner = ctx.getScanner();
@@ -213,6 +254,9 @@ public class ProjectEnquiryView implements PaginatedView, AuthenticatedView {
         scanner.nextLine();
     }
 
+    /**
+     * Show the respond enquiry.
+     */
     private void showRespond() {
         final Scanner scanner = ctx.getScanner();
         BTOEnquiry enquiry;
@@ -258,6 +302,9 @@ public class ProjectEnquiryView implements PaginatedView, AuthenticatedView {
         scanner.nextLine();
     }
 
+    /**
+     * Show the edit enquiry.
+     */
     private void showEditEnquiry() {
         final Scanner scanner = ctx.getScanner();
         BTOEnquiry enquiry;
@@ -311,6 +358,9 @@ public class ProjectEnquiryView implements PaginatedView, AuthenticatedView {
         scanner.nextLine();
     }
 
+    /**
+     * Show the add enquiry.
+     */
     private void showAddEnquiry() {
         final Scanner scanner = ctx.getScanner();
         System.out.println(
@@ -328,6 +378,9 @@ public class ProjectEnquiryView implements PaginatedView, AuthenticatedView {
         scanner.nextLine();
     }
 
+    /**
+     * Show the delete enquiry.
+     */
     private void showDeleteEnquiry() {
         final Scanner scanner = ctx.getScanner();
         BTOEnquiry enquiry;

@@ -10,11 +10,21 @@ import com.group6.users.UserMaritalStatus;
 import com.group6.utils.BashColors;
 import com.group6.utils.Utils;
 
+/**
+ * View for the applicant to view and edit their profile.
+ */
 public class ProfileView implements AuthenticatedView {
 
     private ViewContext ctx;
     private User user;
 
+    /**
+     * View renderer.
+     *
+     * @param ctx  view context
+     * @param user authenticated user
+     * @return next view
+     */
     @Override
     public View render(ViewContext ctx, User user) {
         this.ctx = ctx;
@@ -23,6 +33,9 @@ public class ProfileView implements AuthenticatedView {
         return showOptions();
     }
 
+    /**
+     * Show the profile.
+     */
     private void showProfile() {
         System.out.println(BashColors.format("My Profile", BashColors.BOLD));
         System.out.println("Id: " + user.getId());
@@ -36,6 +49,11 @@ public class ProfileView implements AuthenticatedView {
         System.out.println();
     }
 
+    /**
+     * Show the options for the profile view.
+     *
+     * @return next view
+     */
     private View showOptions() {
         final Scanner scanner = ctx.getScanner();
         final List<String> options = new ArrayList<>();
@@ -77,6 +95,11 @@ public class ProfileView implements AuthenticatedView {
         }
     }
 
+    /**
+     * Show the change password view.
+     *
+     * @return true if the user is logged out, false otherwise
+     */
     private boolean showChangePassword() {
         final Scanner scanner = ctx.getScanner();
         System.out.println(BashColors.format("Change Password", BashColors.BOLD));
@@ -96,6 +119,9 @@ public class ProfileView implements AuthenticatedView {
         return true;
     }
 
+    /**
+     * Show the change age view.
+     */
     private void showChangeAge() {
         final Scanner scanner = ctx.getScanner();
         while (true) {
@@ -127,6 +153,9 @@ public class ProfileView implements AuthenticatedView {
         }
     }
 
+    /**
+     * Show the change marital status view.
+     */
     private void showChangeMaritalStatus() {
         final Scanner scanner = ctx.getScanner();
         final UserMaritalStatus[] maritalStatuses = UserMaritalStatus.values();

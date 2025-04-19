@@ -14,6 +14,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
+/**
+ * View for the applicant to view their enquiries.
+ */
 public class ApplicantViewMyEnquiriesView implements PaginatedView, AuthenticatedView {
     private static final int PAGE_SIZE = 3;
 
@@ -22,6 +25,9 @@ public class ApplicantViewMyEnquiriesView implements PaginatedView, Authenticate
     private int page = 1;
     private List<BTOProject> projects = new ArrayList<>();
 
+    /**
+     * @return the last page
+     */
     @Override
     public int getLastPage() {
         int size = projects.size();
@@ -31,16 +37,29 @@ public class ApplicantViewMyEnquiriesView implements PaginatedView, Authenticate
         return size / PAGE_SIZE + 1;
     }
 
+    /**
+     * Set page
+     */
     @Override
     public void setPage(int page) {
         this.page = page;
     }
 
+    /**
+     * @return the current page
+     */
     @Override
     public int getPage() {
         return page;
     }
 
+    /**
+     * View renderer.
+     *
+     * @param ctx  view context
+     * @param user authenticated user
+     * @return next view
+     */
     @Override
     public View render(ViewContext ctx, User user) {
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
@@ -65,9 +84,12 @@ public class ApplicantViewMyEnquiriesView implements PaginatedView, Authenticate
         return showOptions();
     }
 
-    private void showProjects() {
+    /**
+     * Show the projects with user's enquiries.
+     */
+    private void showProjectsWithEnquiries() {
         int lastIndex = Math.min(page * PAGE_SIZE, projects.size());
-        System.out.println(BashColors.format("Your Eqnuiries:", BashColors.BOLD));
+        System.out.println(BashColors.format("Projects with Your Eqnuiries:", BashColors.BOLD));
         System.out.println("Project Id | Project Name");
         if (projects.isEmpty()) {
             System.out.println(BashColors.format("(No projects with your enquiries found)", BashColors.LIGHT_GRAY));
@@ -80,11 +102,16 @@ public class ApplicantViewMyEnquiriesView implements PaginatedView, Authenticate
         }
     }
 
+    /**
+     * Show the options.
+     *
+     * @return next view
+     */
     private View showOptions() {
         final Scanner scanner = ctx.getScanner();
 
         while (true) {
-            showProjects();
+            showProjectsWithEnquiries();
             System.out.println("Page " + page + " / " + getLastPage() +
                     " - Type 'e' to enquire, 'n' to go to next page, 'p' to go to previous page, 'page' to go to a specific page, or leave empty ('') to go back:");
 

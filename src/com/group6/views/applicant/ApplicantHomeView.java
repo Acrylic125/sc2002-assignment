@@ -7,16 +7,31 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * Applicant portal view.
+ */
 public class ApplicantHomeView implements AuthenticatedView {
     private final boolean isRootView;
 
     private ViewContext ctx;
     private User user;
 
+    /**
+     * Constructor for ApplicantHomeView.
+     *
+     * @param isRootView whether this is the root view
+     */
     public ApplicantHomeView(boolean isRootView) {
         this.isRootView = isRootView;
     }
 
+    /**
+     * View renderer.
+     *
+     * @param ctx  view context
+     * @param user authenticated user
+     * @return next view
+     */
     @Override
     public View render(ViewContext ctx, User user) {
         this.ctx = ctx;
@@ -25,6 +40,11 @@ public class ApplicantHomeView implements AuthenticatedView {
         return showOptions();
     }
 
+    /**
+     * Show the options for the applicant portal.
+     *
+     * @return next view
+     */
     private View showOptions() {
         final Scanner scanner = ctx.getScanner();
 
@@ -87,9 +107,13 @@ public class ApplicantHomeView implements AuthenticatedView {
         }
     }
 
+    /**
+     * Logout the user.
+     */
     private void logout() {
         ctx.clearViewStack();
         ctx.setUser(null);
+        ctx.resetFilters();
         System.out.println(BashColors.format("Logged out!", BashColors.GREEN));
     }
 }

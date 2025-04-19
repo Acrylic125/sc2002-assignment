@@ -4,13 +4,38 @@ import com.group6.utils.BashColors;
 
 import java.util.Scanner;
 
+/**
+ * Represents a paginated view containing all the pagination utilities
+ * within a paginated view.
+ */
 public interface PaginatedView extends View {
+    /**
+     * Returns the last page number.
+     *
+     * @return The last page number.
+     */
     int getLastPage();
 
+    /**
+     * Returns the current page number.
+     *
+     * @return The current page number.
+     */
     int getPage();
 
+    /**
+     * Sets the current page number.
+     *
+     * @param page The page number to set.
+     */
     void setPage(int page);
 
+    /**
+     * Requests the user to input a page number.
+     *
+     * @param scanner The scanner to read user input.
+     * @return True if the page was set successfully, false otherwise.
+     */
     default boolean requestPage(Scanner scanner) {
         while (true) {
             System.out.println(BashColors.format("You are currently on page " + getPage() + " / " + getLastPage(),
@@ -50,6 +75,12 @@ public interface PaginatedView extends View {
         }
     }
 
+    /**
+     * Requests the user to go to the next page.
+     *
+     * @param scanner The scanner to read user input.
+     * @return True if the page was set successfully, false otherwise.
+     */
     default boolean requestNextPage(Scanner scanner) {
         if (!this.nextPage()) {
             System.out.println(BashColors.format("You are already on the last page.", BashColors.RED));
@@ -60,6 +91,12 @@ public interface PaginatedView extends View {
         return true;
     }
 
+    /**
+     * Requests the user to go to the previous page.
+     *
+     * @param scanner The scanner to read user input.
+     * @return True if the page was set successfully, false otherwise.
+     */
     default boolean requestPrevPage(Scanner scanner) {
         if (!this.prevPage()) {
             System.out.println(BashColors.format("You are already on the first page.", BashColors.RED));
@@ -70,6 +107,12 @@ public interface PaginatedView extends View {
         return true;
     }
 
+    /**
+     * Sets the page number if it is valid.
+     *
+     * @param page The page number to set.
+     * @return True if the page was set successfully, false otherwise.
+     */
     default boolean page(int page) {
         if (page >= 1 && page <= getLastPage()) {
             setPage(page);
@@ -78,6 +121,11 @@ public interface PaginatedView extends View {
         return false;
     }
 
+    /**
+     * Moves to the next page if it exists.
+     *
+     * @return True if the page was set successfully, false otherwise.
+     */
     default boolean nextPage() {
         int page = getPage();
         if (page < getLastPage()) {
@@ -87,6 +135,11 @@ public interface PaginatedView extends View {
         return false;
     }
 
+    /**
+     * Moves to the previous page if it exists.
+     *
+     * @return True if the page was set successfully, false otherwise.
+     */
     default boolean prevPage() {
         int page = getPage();
         if (page > 1) {

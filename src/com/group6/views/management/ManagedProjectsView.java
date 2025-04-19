@@ -15,6 +15,9 @@ import com.group6.views.applicant.ProjectEnquiryView;
 
 import java.util.*;
 
+/**
+ * View for the management to view the managed projects.
+ */
 public class ManagedProjectsView implements PaginatedView, AuthenticatedView {
 
     private static final int PAGE_SIZE = 3;
@@ -24,6 +27,9 @@ public class ManagedProjectsView implements PaginatedView, AuthenticatedView {
     private User user;
     private List<BTOProject> managedProjects = new ArrayList<>();
 
+    /**
+     * @return the last page
+     */
     @Override
     public int getLastPage() {
         int size = managedProjects.size();
@@ -33,21 +39,38 @@ public class ManagedProjectsView implements PaginatedView, AuthenticatedView {
         return size / PAGE_SIZE + 1;
     }
 
+    /**
+     * @param page the page to set
+     */
     @Override
     public void setPage(int page) {
         this.page = page;
     }
 
+    /**
+     * @return the current page
+     */
     @Override
     public int getPage() {
         return page;
     }
 
+    /**
+     * @param user The authenticated user.
+     * @return true if the user is authorized to view this page, false otherwise.
+     */
     @Override
     public boolean isAuthorized(User user) {
         return user.getPermissions().canManageProjects();
     }
 
+    /**
+     * View renderer.
+     *
+     * @param ctx  view context
+     * @param user authenticated user
+     * @return next view
+     */
     @Override
     public View render(ViewContext ctx, User user) {
         this.ctx = ctx;
@@ -61,6 +84,9 @@ public class ManagedProjectsView implements PaginatedView, AuthenticatedView {
         return showOptions();
     }
 
+    /**
+     * Show the managed projects.
+     */
     private void showManagedProjects() {
         final UserManager userManager = ctx.getBtoSystem().getUserManager();
 
@@ -113,6 +139,11 @@ public class ManagedProjectsView implements PaginatedView, AuthenticatedView {
         System.out.println("Showing " + (lastIndex - firstIndex) + " of " + managedProjects.size());
     }
 
+    /**
+     * Show the options for the managed projects.
+     *
+     * @return next view
+     */
     private View showOptions() {
         final Scanner scanner = ctx.getScanner();
         final List<String> options = new ArrayList<>();
@@ -223,6 +254,11 @@ public class ManagedProjectsView implements PaginatedView, AuthenticatedView {
         }
     }
 
+    /**
+     * Request the project ID from the user.
+     *
+     * @return the project ID
+     */
     private Optional<BTOProject> requestProject() {
         final Scanner scanner = ctx.getScanner();
         while (true) {
@@ -259,6 +295,11 @@ public class ManagedProjectsView implements PaginatedView, AuthenticatedView {
         }
     }
 
+    /**
+     * Show the delete project view.
+     *
+     * @param project the project to delete
+     */
     private void showDeleteProject(BTOProject project) {
         final Scanner scanner = ctx.getScanner();
         if (!project.getManagerUserId().equals(user.getId())) {

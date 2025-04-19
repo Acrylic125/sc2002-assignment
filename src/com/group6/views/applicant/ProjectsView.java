@@ -12,6 +12,9 @@ import com.group6.utils.BashColors;
 import com.group6.utils.Utils;
 import com.group6.views.*;
 
+/**
+ * View for the applicant to view all projects.
+ */
 public class ProjectsView implements PaginatedView, AuthenticatedView {
 
     private static final int PAGE_SIZE = 3;
@@ -21,6 +24,9 @@ public class ProjectsView implements PaginatedView, AuthenticatedView {
     private int page = 1;
     private List<BTOProject> filteredProjects = new ArrayList<>();
 
+    /**
+     * @return the last page
+     */
     @Override
     public int getLastPage() {
         int size = filteredProjects.size();
@@ -30,16 +36,29 @@ public class ProjectsView implements PaginatedView, AuthenticatedView {
         return size / PAGE_SIZE + 1;
     }
 
+    /**
+     * Set page
+     */
     @Override
     public void setPage(int page) {
         this.page = page;
     }
 
+    /**
+     * @return the current page
+     */
     @Override
     public int getPage() {
         return page;
     }
 
+    /**
+     * View renderer.
+     *
+     * @param ctx  view context
+     * @param user authenticated user
+     * @return next view
+     */
     @Override
     public View render(ViewContext ctx, User user) {
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
@@ -65,6 +84,11 @@ public class ProjectsView implements PaginatedView, AuthenticatedView {
         return this.showOptions();
     }
 
+    /**
+     * Request the next page.
+     *
+     * @param scanner the scanner
+     */
     private void showProjects() {
         List<BTOProject> projects = this.filteredProjects;
         System.out.println(BashColors.format("Projects", BashColors.BOLD));
@@ -135,6 +159,11 @@ public class ProjectsView implements PaginatedView, AuthenticatedView {
         System.out.println("Showing " + (lastIndex - firstIndex) + " of " + projects.size());
     }
 
+    /**
+     * Show options available.
+     *
+     * @return next view
+     */
     private View showOptions() {
         final Scanner scanner = ctx.getScanner();
 
@@ -204,6 +233,11 @@ public class ProjectsView implements PaginatedView, AuthenticatedView {
         }
     }
 
+    /**
+     * Show the project to request.
+     *
+     * @return the project
+     */
     private Optional<BTOProject> showRequestProject() {
         final Scanner scanner = ctx.getScanner();
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();

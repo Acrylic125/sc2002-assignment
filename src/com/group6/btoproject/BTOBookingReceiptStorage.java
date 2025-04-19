@@ -7,14 +7,27 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Storage class for {@link BTOBookingReceipt} objects.
+ */
 public class BTOBookingReceiptStorage implements Storage<BTOBookingReceipt> {
 
     private final String filename;
 
+    /**
+     * Constructor for BTOBookingReceiptStorage.
+     *
+     * @param filename The name of the file to store the booking receipts.
+     */
     public BTOBookingReceiptStorage(String filename) {
         this.filename = filename;
     }
 
+    /**
+     * Loads all booking receipts from the file.
+     *
+     * @return A list of booking receipts.
+     */
     @Override
     public List<BTOBookingReceipt> loadAll() {
         File file = new File(filename);
@@ -42,6 +55,11 @@ public class BTOBookingReceiptStorage implements Storage<BTOBookingReceipt> {
         return receipts;
     }
 
+    /**
+     * Saves all booking receipts to the file.
+     *
+     * @param data The list of booking receipts to save.
+     */
     @Override
     public void saveAll(List<BTOBookingReceipt> data) {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename))) {
@@ -52,6 +70,12 @@ public class BTOBookingReceiptStorage implements Storage<BTOBookingReceipt> {
         }
     }
 
+    /**
+     * Saves a single booking receipt to the file. If a receipt with the same ID
+     * already exists, it updates that receipt.
+     *
+     * @param data The booking receipt to save.
+     */
     @Override
     public void save(BTOBookingReceipt data) {
         List<BTOBookingReceipt> existingReceipts = loadAll();

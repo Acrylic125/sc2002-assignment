@@ -149,11 +149,21 @@ public class BTOProjectManager {
                 .toList();
     }
 
+    /**
+     * Data class representing a full application.
+     */
     public static class BTOFullApplication {
         private final BTOProject project;
         private final BTOApplication application;
         private final List<BTOApplicationWithdrawal> withdrawals;
 
+        /**
+         * Constructor for BTOFullApplication.
+         *
+         * @param project     project of the application.
+         * @param application application of the project.
+         * @param withdrawals withdrawals of the application.
+         */
         public BTOFullApplication(BTOProject project, BTOApplication application,
                 List<BTOApplicationWithdrawal> withdrawals) {
             this.project = project;
@@ -161,14 +171,23 @@ public class BTOProjectManager {
             this.withdrawals = withdrawals;
         }
 
+        /**
+         * Project Getter.
+         */
         public BTOProject getProject() {
             return project;
         }
 
+        /**
+         * Application Getter.
+         */
         public BTOApplication getApplication() {
             return application;
         }
 
+        /**
+         * Withdrawals Getter.
+         */
         public List<BTOApplicationWithdrawal> getWithdrawals() {
             return withdrawals;
         }
@@ -652,24 +671,45 @@ public class BTOProjectManager {
         }
     }
 
+    /**
+     * Data class representing a full officer registration.
+     */
     public static class BTOFullOfficerRegistration {
         private final BTOProject project;
         private final HDBOfficerRegistration registration;
 
+        /**
+         * Constructor for BTOFullOfficerRegistration.
+         *
+         * @param project     project of the registration.
+         * @param registration registration of the project.
+         */
         public BTOFullOfficerRegistration(BTOProject project, HDBOfficerRegistration registration) {
             this.project = project;
             this.registration = registration;
         }
 
+        /**
+         * Project Getter.
+         */
         public BTOProject getProject() {
             return project;
         }
 
+        /**
+         * Registration Getter.
+         */
         public HDBOfficerRegistration getRegistration() {
             return registration;
         }
     }
 
+    /**
+     * Get all officer registrations for a user.
+     *
+     * @param officerUserId id of the officer.
+     * @return list of officer registrations for the user.
+     */
     public List<BTOFullOfficerRegistration> getAllOfficerRegistrations(String officerUserId) {
         List<BTOFullOfficerRegistration> result = new LinkedList<>();
         projects.values().forEach(project -> {
@@ -683,24 +723,37 @@ public class BTOProjectManager {
         return result;
     }
 
-    public List<BTOProject> getManagerManagingProjects(String managerUserId) {
-        return projects.values().stream()
-                .filter(project -> project.getManagerUserId().equals(managerUserId))
-                .toList();
-    }
-
+    /**
+     * Get all officer registrations for a user.
+     *
+     * @param officerUserId id of the officer.
+     * @return list of officer registrations for the user.
+     */
     public List<BTOProject> getOfficerManagingProjects(String officerUserId) {
         return projects.values().stream()
                 .filter(project -> project.isManagingOfficer(officerUserId))
                 .toList();
     }
 
+    /**
+     * Get all officer registrations for a user.
+     *
+     * @param userId id of the officer.
+     * @return list of officer registrations for the user.
+     */
     public List<BTOProject> getManagingProjects(String userId) {
         return projects.values().stream()
                 .filter(project -> project.isManagingOfficer(userId) || project.getManagerUserId().equals(userId))
                 .toList();
     }
 
+    /**
+     * Generate a booking receipt for a project.
+     *
+     * @param projectId    id of the project.
+     * @param applicationId id of the application.
+     * @param applicant    applicant user.
+     */
     public void generateBookingReceipt(String projectId, String applicationId, User applicant) throws RuntimeException {
         final Optional<BTOProject> projectOpt = getProject(projectId);
         if (projectOpt.isEmpty()) {
@@ -742,14 +795,30 @@ public class BTOProjectManager {
         bookingReceipts.add(receipt);
     }
 
+    /**
+     * Get all booking receipts for a user.
+     *
+     * @param userId id of the user.
+     * @return list of booking receipts for the user.
+     */
     public List<BTOBookingReceipt> getBookingReceipts(String userId) {
         return bookingReceipts.stream().filter((receipt) -> receipt.getUserId().equals(userId)).toList();
     }
 
+    /**
+     * Get all booking receipts.
+     *
+     * @return list of all booking receipts.
+     */
     public Storage<BTOProject> getProjectStorage() {
         return projectStorage;
     }
 
+    /**
+     * Get all booking receipts.
+     *
+     * @return list of all booking receipts.
+     */
     public Storage<BTOBookingReceipt> getBookingReceiptStorage() {
         return bookingReceiptStorage;
     }

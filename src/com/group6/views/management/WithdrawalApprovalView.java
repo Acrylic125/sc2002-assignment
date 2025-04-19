@@ -20,6 +20,9 @@ import java.util.Optional;
 import java.util.Scanner;
 import java.util.Set;
 
+/**
+ * View for the management to approve or reject withdrawal requests.
+ */
 public class WithdrawalApprovalView implements PaginatedView, AuthenticatedView {
 
     private static final int PAGE_SIZE = 3;
@@ -30,11 +33,19 @@ public class WithdrawalApprovalView implements PaginatedView, AuthenticatedView 
     private ViewContext ctx;
     private int page = 1;
 
+    /**
+     * Constructor for the WithdrawalApprovalView.
+     *
+     * @param project the project to be managed.
+     */
     public WithdrawalApprovalView(BTOProject project) {
         this.project = project;
         this.applications = project.getWithdrawals();
     }
 
+    /**
+     * @return the last page
+     */
     @Override
     public int getLastPage() {
         int size = applications.size();
@@ -44,16 +55,28 @@ public class WithdrawalApprovalView implements PaginatedView, AuthenticatedView 
         return size / PAGE_SIZE + 1;
     }
 
+    /**
+     * @param page The page number to set.
+     */
     @Override
     public void setPage(int page) {
         this.page = page;
     }
 
+    /**
+     * @return the current page
+     */
     @Override
     public int getPage() {
         return page;
     }
 
+    /**
+     * Stringify the application status.
+     *
+     * @param status the application status
+     * @return the stringified application status
+     */
     private String stringifyApplicationStatus(BTOApplicationWithdrawalStatus status) {
         switch (status) {
             case PENDING:
@@ -66,17 +89,31 @@ public class WithdrawalApprovalView implements PaginatedView, AuthenticatedView 
         return BashColors.format("(Unknown)", BashColors.LIGHT_GRAY);
     }
 
+    /**
+     * @param user The check user.
+     * @return true if the user is authorized to approve withdrawals, false otherwise.
+     */
     @Override
     public boolean isAuthorized(User user) {
         return user.getPermissions().canApproveWithdrawal();
     }
 
+    /**
+     * View renderer.
+     *
+     * @param ctx  view context
+     * @param user authenticated user
+     * @return next view
+     */
     @Override
     public View render(ViewContext ctx, User user) {
         this.ctx = ctx;
         return showOptions();
     }
 
+    /**
+     * Show the withdrawals that the user can approve or reject.
+     */
     private void showWithdrawals() {
         final UserManager userManager = ctx.getBtoSystem().getUserManager();
 
@@ -118,6 +155,11 @@ public class WithdrawalApprovalView implements PaginatedView, AuthenticatedView 
         }
     }
 
+    /**
+     * Show the options for the user to approve or reject the withdrawals.
+     *
+     * @return next view
+     */
     private View showOptions() {
         final Scanner scanner = ctx.getScanner();
 
@@ -150,6 +192,9 @@ public class WithdrawalApprovalView implements PaginatedView, AuthenticatedView 
         }
     }
 
+    /**
+     * Show the request status change view.
+     */
     private void showRequestStatusChange() {
         Optional<BTOApplicationWithdrawal> withdrawalOpt = requestWithdrawal();
         if (withdrawalOpt.isEmpty()) {
@@ -183,6 +228,11 @@ public class WithdrawalApprovalView implements PaginatedView, AuthenticatedView 
         scanner.nextLine();
     }
 
+    /**
+     * Request the withdrawal to be modified.
+     *
+     * @return the withdrawal to be modified
+     */
     private Optional<BTOApplicationWithdrawal> requestWithdrawal() {
         final Scanner scanner = ctx.getScanner();
 
@@ -206,6 +256,12 @@ public class WithdrawalApprovalView implements PaginatedView, AuthenticatedView 
         }
     }
 
+    /**
+     * Request the status to be modified.
+     *
+     * @param withdrawal the withdrawal to be modified
+     * @return the status to be modified
+     */
     private Optional<BTOApplicationWithdrawalStatus> requestWithdrawalStatus(BTOApplicationWithdrawal withdrawal) {
         final Scanner scanner = ctx.getScanner();
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();

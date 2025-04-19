@@ -73,6 +73,12 @@ public class RegisterView implements View {
         return null;
     }
 
+    /**
+     * Requests the user to input their name.
+     *
+     * @return An Optional containing the name if valid, or an empty Optional if
+     *         cancelled.
+     */
     private Optional<String> requestName() {
         final Scanner scanner = ctx.getScanner();
         System.out.println(
@@ -85,6 +91,12 @@ public class RegisterView implements View {
         return Optional.of(value);
     }
 
+    /**
+     * Requests the user to input their NRIC.
+     *
+     * @return An Optional containing the NRIC if valid, or an empty Optional if
+     *         cancelled.
+     */
     private Optional<String> requestNric() {
         final Scanner scanner = ctx.getScanner();
         final UserManager userManager = ctx.getBtoSystem().getUserManager();
@@ -117,6 +129,12 @@ public class RegisterView implements View {
         }
     }
 
+    /**
+     * Requests the user to input their marital status.
+     *
+     * @return An Optional containing the marital status if valid, or an empty
+     *         Optional if cancelled.
+     */
     private Optional<UserMaritalStatus> requestMaritalStatus() {
         final Scanner scanner = ctx.getScanner();
         while (true) {
@@ -137,6 +155,12 @@ public class RegisterView implements View {
         }
     }
 
+    /**
+     * Requests the user to input their age.
+     *
+     * @return An Optional containing the age if valid, or an empty Optional if
+     *         cancelled.
+     */
     private Optional<Integer> requestAge() {
         final Scanner scanner = ctx.getScanner();
         while (true) {
@@ -163,6 +187,12 @@ public class RegisterView implements View {
         }
     }
 
+    /**
+     * Requests the user to input their password.
+     *
+     * @return An Optional containing the password if provided, or an empty Optional
+     *         if cancelled.
+     */
     private Optional<String> requestPassword() {
         final Scanner scanner = ctx.getScanner();
         System.out.println(BashColors.format("Type in your password or leave empty ('') to cancel.", BashColors.BOLD));

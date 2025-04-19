@@ -161,6 +161,9 @@ public final class ViewContext {
         return applicantReportFilters;
     }
 
+    /**
+     * Reset filters applied to this view context. Used on logout.
+     */
     public void resetFilters() {
         this.viewAllProjectsFilters = new ProjectsViewFilters();
         this.viewMyApplicationFilters = new ApplicantViewMyApplicationFilters();

@@ -9,11 +9,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * Role-based home view for authenticated users.
+ * This view allows users to select their role and navigate to the appropriate portal.
+ */
 public class RoleBasedHomeView implements AuthenticatedView {
 
     private ViewContext ctx;
     private User user;
 
+    /**
+     * View renderer.
+     *
+     * @param ctx  view context
+     * @param user authenticated user
+     * @return next view
+     */
     @Override
     public View render(ViewContext ctx, User user) {
         this.ctx = ctx;
@@ -22,6 +33,11 @@ public class RoleBasedHomeView implements AuthenticatedView {
         return showOptions();
     }
 
+    /**
+     * Show the options for the role-based home view.
+     *
+     * @return next view
+     */
     private View showOptions() {
         final Scanner scanner = ctx.getScanner();
 
@@ -84,6 +100,9 @@ public class RoleBasedHomeView implements AuthenticatedView {
         }
     }
 
+    /**
+     * Logout the user.
+     */
     private void logout() {
         ctx.clearViewStack();
         ctx.setUser(null);

@@ -791,6 +791,7 @@ public class BTOProjectManager {
         receipt.setProjectNeighbourhood(project.getNeighbourhood());
         receipt.setDateOfBooking(System.currentTimeMillis());
         receipt.setTypeID(type.getId());
+        receipt.setMaritalStatus(applicant.getMaritalStatus());
 
         bookingReceipts.add(receipt);
     }

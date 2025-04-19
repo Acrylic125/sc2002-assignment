@@ -64,17 +64,13 @@ public class RegisterProjectsView implements PaginatedView, AuthenticatedView {
     @Override
     public View render(ViewContext ctx, User user) {
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
-        final ProjectsViewFilters filters = ctx.getViewAllProjectsFilters();
 
         this.ctx = ctx;
         final List<BTOProject> projects = projectManager.getProjects().values().stream()
                 .filter((project) -> project.isVisibleToPublic() || user.getPermissions().canViewNonVisibleProjects())
                 .toList();
-        // We ASSUME filters cannot be applied UNTIL the user goes to the filters view
-        // and return which will call this.
-        //
-        // We just do it once here to avoid unnecessary filtering.
-        this.filteredProjects = filters.applyFilters(projects, user);
+        // No filtering lol.
+        this.filteredProjects = projects;
 
         return this.showOptions();
     }
@@ -150,7 +146,7 @@ public class RegisterProjectsView implements PaginatedView, AuthenticatedView {
             boolean isVisibleToPublic = project.isVisibleToPublic();
             System.out.println("Visible to public: " + BashColors.format(isVisibleToPublic ? "YES" : "NO",
                     isVisibleToPublic ? BashColors.GREEN : BashColors.RED));
-            System.out.println("");
+            System.out.println();
         }
         System.out.println("Showing " + (lastIndex - firstIndex) + " of " + projects.size());
     }

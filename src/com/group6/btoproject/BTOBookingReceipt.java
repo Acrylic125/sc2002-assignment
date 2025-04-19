@@ -1,9 +1,14 @@
 package com.group6.btoproject;
 
+import com.group6.users.UserMaritalStatus;
+
 import java.io.Serializable;
 
 /**
  * Represents a booking receipt generated upon a booking.
+ * This acts as a snapshot of the booking details at the time of booking which is why
+ * the attributes are copied over rather than referenced from the User and BTOProject
+ * respectively.
  */
 public class BTOBookingReceipt implements Serializable {
 
@@ -18,6 +23,7 @@ public class BTOBookingReceipt implements Serializable {
     private String projectName;
     private String projectNeighbourhood;
     private String nric;
+    private UserMaritalStatus maritalStatus;
     private BTOProjectTypeID typeID;
     private long dateOfBooking;
     private double price;
@@ -199,4 +205,21 @@ public class BTOBookingReceipt implements Serializable {
         this.price = price;
     }
 
+    /**
+     * MaritalStatus Getter.
+     *
+     * @return {@link #maritalStatus}
+     */
+    public UserMaritalStatus getMaritalStatus() {
+        return maritalStatus;
+    }
+
+    /**
+     * MaritalStatus Setter.
+     *
+     * @param maritalStatus maritalStatus
+     */
+    protected void setMaritalStatus(UserMaritalStatus maritalStatus) {
+        this.maritalStatus = maritalStatus;
+    }
 }

@@ -85,6 +85,7 @@ public class ApplicantReceiptsView implements AuthenticatedView, PaginatedView {
             System.out.println("Project ID: " + receipt.getProjectId());
             System.out.println("Project Type: " + receipt.getTypeID().getName());
             System.out.println("Applicant: " + receipt.getApplicantName() + " (" + BashColors.format(receipt.getNric(), BashColors.LIGHT_GRAY) + ")");
+            System.out.println("Marital Status: " + receipt.getMaritalStatus().getName());
             System.out.println("Price: $" + Utils.formatMoney(receipt.getPrice()));
             System.out.println("Booked on: " + Utils.formatToDDMMYYYY(new Date(receipt.getDateOfBooking())));
             System.out.println();

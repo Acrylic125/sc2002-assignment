@@ -38,7 +38,8 @@ public class ProjectEnquiryView implements PaginatedView, AuthenticatedView {
      * @param enquiriesSupplier the supplier for the list of enquiries
      * @param canRespond      whether the user can respond to enquiries
      */
-    public ProjectEnquiryView(BTOProject project, Supplier<List<BTOEnquiry>> enquiriesSupplier, boolean canRespond) {
+
+    public ProjectEnquiryView(BTOProject project, Supplier<List<BTOEnquiry>> enquiriesSupplier, boolean canRespond) { //A overloading Set of methods based on canRespond (Officer and Manager) or cannot (Applicant)
         this.project = project;
         this.enquiriesSupplier = enquiriesSupplier;
         this.enquiries = enquiriesSupplier.get();
@@ -51,7 +52,7 @@ public class ProjectEnquiryView implements PaginatedView, AuthenticatedView {
      * @param project         the project
      * @param enquiriesSupplier the supplier for the list of enquiries
      */
-    public ProjectEnquiryView(BTOProject project, Supplier<List<BTOEnquiry>> enquiriesSupplier) {
+    public ProjectEnquiryView(BTOProject project, Supplier<List<BTOEnquiry>> enquiriesSupplier) { //second overloaded method, this one for the users
         this.project = project;
         this.enquiriesSupplier = enquiriesSupplier;
         this.enquiries = enquiriesSupplier.get();
@@ -137,7 +138,7 @@ public class ProjectEnquiryView implements PaginatedView, AuthenticatedView {
 
         Utils.joinStringDelimiter(new ArrayList<>(), ", ", " or ");
         final List<String> options = new ArrayList<>();
-        if (canRespond) {
+        if (canRespond) { //response option only for Management team
             options.add("'r' to respond");
         }
         options.add("'v' to view");
@@ -267,7 +268,7 @@ public class ProjectEnquiryView implements PaginatedView, AuthenticatedView {
             if (opt.isEmpty()) {
                 return;
             }
-            Optional<BTOEnquiry> enquiryOpt = project.getEnquiries().stream()
+            Optional<BTOEnquiry> enquiryOpt = project.getEnquiries().stream() //A stream of filtered enquiries which equal to the enquiry id (Returns only first)
                     .filter((_enquiry) -> _enquiry.getId().equals(opt))
                     .findFirst();
             if (enquiryOpt.isEmpty()) {
@@ -295,7 +296,7 @@ public class ProjectEnquiryView implements PaginatedView, AuthenticatedView {
         if (newMessage.isEmpty()) {
             return;
         }
-        enquiry.setResponseMessage(new BTOEnquiryMessage(user.getId(), newMessage, System.currentTimeMillis()));
+        enquiry.setResponseMessage(new BTOEnquiryMessage(user.getId(), newMessage, System.currentTimeMillis())); //Sets a Response Message to the enquiry
         this.enquiries = enquiriesSupplier.get();
         System.out.println(BashColors.format("Message responded!", BashColors.GREEN));
         System.out.println("Type anything to continue.");

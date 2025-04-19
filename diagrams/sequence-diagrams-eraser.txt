@@ -1,0 +1,318 @@
+// Sequence Diagram #1
+title: HDB Officer applying to a project
+
+HDBOfficer [icon: user]
+ViewContext [color: blue]
+ProjectsView [color: blue]
+ApplicantApplyProjectView [color: blue, icon: circle]
+BTOProjectManager [color: blue]
+BTOProject [color: blue]
+BTOProjectType [color: blue]
+ProjectsViewFilters [color: blue]
+
+activate ViewContext  
+activate HDBOfficer
+  HDBOfficer > ViewContext: Go to Projects View
+  ViewContext > ProjectsView: render(ViewContext)
+  activate ProjectsView  
+    ProjectsView > ProjectsView: render(ViewContext, User)
+    ProjectsView > BTOProjectManager: getProjects()
+    activate BTOProjectManager  
+      BTOProjectManager --> ProjectsView: List<BTOProject>
+    deactivate BTOProjectManager 
+
+    ProjectsView > ProjectsViewFilters: applyFilters(List<BTOProject>)
+    activate ProjectsViewFilters  
+      ProjectsViewFilters > ProjectsViewFilters: canFilterProject(BTOProject, user)
+      ProjectsViewFilters --> ProjectsView:  List<BTOProject>
+    deactivate ProjectsViewFilters  
+
+    ProjectsView > ProjectsView: showProjects()
+
+    ProjectsView --> HDBOfficer: Show available projects
+    loop [label: until valid option chosen, color: green] {
+      ProjectsView > ProjectsView: showOptions()
+      ProjectsView --> HDBOfficer: Prompt to select option
+      HDBOfficer > ProjectsView: Selects 'Apply'
+      ProjectsView --> ViewContext: ApplicantApplyProjectView
+    }
+  deactivate ProjectsView 
+
+  ViewContext > ApplicantApplyProjectView: render(ViewContext)  
+  activate ApplicantApplyProjectView 
+    ApplicantApplyProjectView > ApplicantApplyProjectView: render(ViewContext, User)
+    opt [label: has booked projects, color: green] {
+      ApplicantApplyProjectView --> HDBOfficer: Already booked into another project. (Terminate)
+    }
+    
+    ApplicantApplyProjectView > ApplicantApplyProjectView: showRequestProject()
+    loop [label: until valid project chosen, color: green] {
+      ApplicantApplyProjectView --> HDBOfficer: Prompt to select project by id
+      HDBOfficer > ApplicantApplyProjectView: Selects project by id
+      ApplicantApplyProjectView > BTOProjectManager: getProject(String id)
+      activate BTOProjectManager
+        BTOProjectManager --> ApplicantApplyProjectView: Optional<BTOProject>
+      deactivate BTOProjectManager
+      opt [label: optional is empty, color: green] {
+        ApplicantApplyProjectView --> HDBOfficer: Project does not exist (Continue Loop)
+      }
+
+      ApplicantApplyProjectView > BTOProject: isVisibleToPublic()
+      activate BTOProject 
+        BTOProject --> ApplicantApplyProjectView: project application window is within current timestamp (inclusive)
+      deactivate BTOProject
+      opt [label: result of isVisibleToPublic is false, color: green] {
+        ApplicantApplyProjectView --> HDBOfficer: boolean, Project is not visible to public (Continue Loop)
+      }
+
+      ApplicantApplyProjectView > BTOProject: isApplicationWindowOpen()
+      activate BTOProject 
+        BTOProject --> ApplicantApplyProjectView: boolean, project application window is within current timestamp (inclusive)
+      deactivate BTOProject
+      opt [label: result of isApplicationWindowOpen is false, color: green] {
+        ApplicantApplyProjectView --> HDBOfficer: Project application window closed (Continue Loop)
+      }
+
+      ApplicantApplyProjectView > BTOProject: getActiveOfficerRegistration()
+      activate BTOProject 
+        BTOProject --> ApplicantApplyProjectView: List<HDBOfficerRegistration>
+      deactivate BTOProject
+      opt [label: result of getActiveOfficerRegistration contains a SUCCESSFUL registration from applicant, color: green] {
+        ApplicantApplyProjectView --> HDBOfficer: Project is being managed by applicant (Continue Loop)
+      }
+    }
+
+    ApplicantApplyProjectView > ApplicantApplyProjectView: showRequestProjectType(BTOProject)
+    loop [label: until valid project chosen, color: green] {
+      ApplicantApplyProjectView --> HDBOfficer: Select project type
+      HDBOfficer > ApplicantApplyProjectView: String, Project Type
+      opt [label: Project Type specified is not a valid project type, color: green] {
+        ApplicantApplyProjectView --> HDBOfficer: Project Type is not valid (Continue Loop)
+      }
+
+      ApplicantApplyProjectView > BTOProject: getProjectType(ProjectTypeID)
+      activate BTOProject
+        BTOProject --> ApplicantApplyProjectView: Optional<BTOProjectType>
+      deactivate BTOProject
+      opt [label: Project Type optional is empty, color: green] {
+        ApplicantApplyProjectView --> HDBOfficer: Project Type does not exist in project (Continue Loop)
+      }
+
+      ApplicantApplyProjectView > BTOProject: getBookedCountForType(ProjectTypeID)
+      activate BTOProject
+        BTOProject --> ApplicantApplyProjectView: int
+      deactivate BTOProject
+      ApplicantApplyProjectView > BTOProjectType: getMaxQuantity()
+      activate BTOProjectType
+        BTOProjectType --> ApplicantApplyProjectView: int
+      deactivate BTOProjectType
+
+      opt [label: booked count greate than equal to max quantity, color: green] {
+        ApplicantApplyProjectView --> HDBOfficer: Type has no availability (Continue Loop)
+      }
+
+      ApplicantApplyProjectView > BTOProject: verifyEligibilityToApply(UserId, ProjectTypeID)
+      activate BTOProject
+        BTOProject --> ApplicantApplyProjectView: Optional<String>, Error Message String
+      deactivate BTOProject
+      opt [label: Project Type optional is present, color: green] {
+        ApplicantApplyProjectView --> HDBOfficer: Error message string (Continue Loop)
+      }
+    }
+
+    ApplicantApplyProjectView > BTOProjectManager: requestApply(ProjectId, UserId, BTOProjectType)
+    activate BTOProjectManager  
+      BTOProjectManager > BTOProject: addHDBOfficerRegistration(HDBOfficerRegistration)
+      BTOProject --> BTOProjectManager: Void
+      BTOProjectManager > ApplicantApplyProjectView: Void (No errors thrown)
+    deactivate BTOProjectManager 
+    ApplicantApplyProjectView --> HDBOfficer: Applying Successful!
+  deactivate ApplicantApplyProjectView 
+deactivate HDBOfficer
+deactivate ViewContext 
+
+// Sequence Diagram #2
+title HDB Officer Registering to manage a Project
+
+HDBOfficer [icon: user]
+ViewContext [color: blue]
+RegisterProjectsView [color: blue]
+OfficerRegistrationView [color: blue]
+BTOProjectManager [color: blue]
+BTOProject [color: blue]
+
+activate HDBOfficer
+activate ViewContext
+  HDBOfficer > ViewContext: Go to Register Projects View
+  ViewContext > RegisterProjectsView: render(ViewContext)
+  activate RegisterProjectsView  
+
+    RegisterProjectsView > RegisterProjectsView: render(ViewContext, User)
+    RegisterProjectsView > BTOProjectManager: getProjects()
+    activate BTOProjectManager  
+      BTOProjectManager --> RegisterProjectsView: List<BTOProject>
+    deactivate BTOProjectManager 
+
+    RegisterProjectsView > RegisterProjectsView: showProjects()
+
+    RegisterProjectsView --> HDBOfficer: Show available projects
+    loop [label: until valid option chosen, color: green] {
+      RegisterProjectsView > RegisterProjectsView: showOptions()
+      RegisterProjectsView --> HDBOfficer: Prompt to select option
+      HDBOfficer > RegisterProjectsView: Selects 'register'
+      RegisterProjectsView --> ViewContext: OfficerRegistrationView
+    }
+  deactivate RegisterProjectsView
+
+  ViewContext > OfficerRegistrationView: render(ViewContext)  
+  activate OfficerRegistrationView  
+    OfficerRegistrationView > OfficerRegistrationView: render(ViewContext, User)
+
+    loop [label: until valid project chosen, color: green] {
+      OfficerRegistrationView --> HDBOfficer: Prompt to select project by id
+      HDBOfficer > OfficerRegistrationView: Selects project by id
+
+      OfficerRegistrationView > BTOProjectManager: getProject(String id)
+      activate BTOProjectManager
+        BTOProjectManager --> OfficerRegistrationView: Optional<BTOProject>
+        OfficerRegistrationView > BTOProjectManager: getOfficerManagingProjects(UserId)
+        BTOProjectManager --> OfficerRegistrationView: List<BTOProject>
+      deactivate BTOProjectManager
+      opt [label: project optional is empty, color: green] {
+        OfficerRegistrationView --> HDBOfficer: Project does not exist (Continue Loop)
+      }
+      opt [label: user is managing project with an application period that intersects with this project, color: green] {
+        OfficerRegistrationView --> HDBOfficer: Intersecting application period (Continue Loop)
+      }
+
+      OfficerRegistrationView > BTOProject: getOfficerLimit()
+      activate BTOProject
+        BTOProject --> OfficerRegistrationView: int
+        OfficerRegistrationView > BTOProject: getManagingOfficers()
+        BTOProject --> OfficerRegistrationView: Optional<HDBOfficerRegistration>
+        OfficerRegistrationView > BTOProject: isApplicantBooked(UserId)
+        BTOProject --> OfficerRegistrationView: boolean, is user booked
+      deactivate BTOProject
+
+      opt [label: Activae Registrations Count is greater than equal to officer limit, color: green] {
+        OfficerRegistrationView --> HDBOfficer: Project has no more officer slots (Continue Loop)
+      }
+      opt [label: Active Registrations contain user, color: green] {
+        OfficerRegistrationView --> HDBOfficer: User  already registered to manage this project (Continue Loop)
+      }
+      opt [label: isApplicantBooked is true, color: green] {
+        OfficerRegistrationView --> HDBOfficer: User is already booked into this project (Continue Loop)
+      }
+    }
+
+    OfficerRegistrationView > BTOProjectManager: requestRegisterOfficer(ProjectId, UserId)
+    activate BTOProjectManager  
+      BTOProjectManager > BTOProject: addHDBOfficerRegistration(HDBOfficerRegistration)
+      BTOProject --> BTOProjectManager: Void
+      BTOProjectManager > OfficerRegistrationView: Void (No errors thrown)
+    deactivate BTOProjectManager 
+    OfficerRegistrationView --> HDBOfficer: Registering Successful!
+  deactivate OfficerRegistrationView
+deactivate ViewContext
+deactivate HDBOfficer
+
+// Sequence Diagram #3
+title HDB Manager Creating a Project
+
+HDBManager [icon: user]
+ViewContext [color: blue]
+CreateBTOProjectView [color: blue]
+BTOProjectManager [color: blue]
+BTOProject [color: blue]
+
+activate HDBManager
+activate ViewContext
+  HDBManager > ViewContext: Go to Register Projects View
+  ViewContext > CreateBTOProjectView: render(ViewContext)
+  activate CreateBTOProjectView  
+
+    CreateBTOProjectView > CreateBTOProjectView: render(ViewContext, User)
+
+    CreateBTOProjectView > CreateBTOProjectView: showRequestProjectName()
+    loop [label: until valid name, color: green] {
+      CreateBTOProjectView --> HDBManager: Prompt for name
+      HDBManager > CreateBTOProjectView: String, Name
+      activate BTOProjectManager 
+        CreateBTOProjectView > BTOProjectManager: getProjectByName(name)
+        BTOProjectManager --> CreateBTOProjectView: Optional<BTOProject>
+      deactivate BTOProjectManager
+      alt [label: project is present, color: green] {
+        CreateBTOProjectView --> HDBManager: Project with name already exists (Continue Loop)
+      }
+    }
+
+    CreateBTOProjectView > CreateBTOProjectView: showRequestProjectNeighbourhood()
+    loop [label: until valid neighbourhood, color: green] {
+      CreateBTOProjectView --> HDBManager: Prompt for neighbourhood
+      HDBManager > CreateBTOProjectView: String, Neighbourhood
+    }
+  
+    CreateBTOProjectView > CreateBTOProjectView: showRequestOfficerLimit()
+    loop [label: until valid officer limit, color: green] {
+      CreateBTOProjectView --> HDBManager: Prompt for officer limit
+      HDBManager > CreateBTOProjectView: String, officer limit
+      alt [label: string officer limit is not an integer, color: green] {
+        CreateBTOProjectView --> HDBManager: Invalid officer limit (Continue Loop)
+      }
+      alt [label: officer limit is not between 0 and 10 inclusive, color: green] {
+        CreateBTOProjectView --> HDBManager: Invalid officer limit (Continue Loop)
+      }
+    }
+
+    CreateBTOProjectView > CreateBTOProjectView: showRequestProjectTypes()
+    loop [label: until user types next, color: green] {
+      CreateBTOProjectView --> HDBManager: Prompt for project type to set or 'next' to go next
+      HDBManager > CreateBTOProjectView: String, project type
+      alt [label: input is 'next', color: green] {
+        CreateBTOProjectView --> HDBManager: (Break out of Loop)
+      }
+      alt [label: input is not a valid project type, color: green] {
+        CreateBTOProjectView --> HDBManager: Invalid project type (Continue Loop)
+      }
+
+      CreateBTOProjectView > CreateBTOProjectView: requestProjectTypeEdit(BTOProjectType)
+
+      loop [label: until valid quantity and price, color: green] {
+        CreateBTOProjectView > HDBManager: Prompt for quantity and price
+        HDBManager > CreateBTOProjectView: String, (Quantity, Price)
+        alt [label: quantity is not an integer, color: green] {
+          CreateBTOProjectView --> HDBManager: Invalid quantity (Continue Loop)
+        }
+        alt [label: price is not a double, color: green] {
+          CreateBTOProjectView --> HDBManager: Invalid price (Continue Loop)
+        }
+      }
+    }
+
+    CreateBTOProjectView > CreateBTOProjectView: requestApplicationWindow()
+    CreateBTOProjectView > BTOProjectManager: getProjects()
+    BTOProjectManager --> CreateBTOProjectView: List<BTOProject>
+    loop [label: until valid application window, color: green] {
+      CreateBTOProjectView > HDBManager: Prompt for start and closing date (inclusive)
+      HDBManager > CreateBTOProjectView: String, (Start Date, End Date)
+
+      alt [label: start date does not match dd/mm/yyyy, color: green] {
+        CreateBTOProjectView --> HDBManager: Invalid start date (Continue Loop)
+      }
+      alt [label: end date does not match dd/mm/yyyy, color: green] {
+        CreateBTOProjectView --> HDBManager: Invalid end art date (Continue Loop)
+      }
+      alt [label: there exists a project managed by user which intersects with the input application window, color: green] {
+        CreateBTOProjectView --> HDBManager: Application window intersects with another managed project (Continue Loop)
+      }
+    }
+
+    CreateBTOProjectView > BTOProject: new BTOProject() and set attributes
+    BTOProject --> CreateBTOProjectView: BTOProject
+    CreateBTOProjectView > BTOProjectManager: addProject(BTOProject)
+    BTOProjectManager --> CreateBTOProjectView: Void
+    CreateBTOProjectView --> HDBManager: Successfully created project.
+  deactivate CreateBTOProjectView
+
+deactivate ViewContext
+deactivate HDBManager

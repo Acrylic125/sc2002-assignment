@@ -85,16 +85,14 @@ public class ProjectsView implements PaginatedView, AuthenticatedView {
     }
 
     /**
-     * Request the next page.
-     *
-     * @param scanner the scanner
+     * Show projects.
      */
     private void showProjects() {
         List<BTOProject> projects = this.filteredProjects;
         System.out.println(BashColors.format("Projects", BashColors.BOLD));
         if (projects.isEmpty()) {
             System.out.println(BashColors.format("(No Projects Found)", BashColors.LIGHT_GRAY));
-            System.out.println("");
+            System.out.println();
             return;
         }
 
@@ -109,9 +107,7 @@ public class ProjectsView implements PaginatedView, AuthenticatedView {
 
             Optional<User> managerOpt = userManager.getUser(project.getManagerUserId());
             List<User> officers = project.getManagingOfficerRegistrations().stream()
-                    .map((reg) -> {
-                        return userManager.getUser(reg.getOfficerUserId());
-                    })
+                    .map((reg) -> userManager.getUser(reg.getOfficerUserId()))
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .toList();
@@ -154,7 +150,7 @@ public class ProjectsView implements PaginatedView, AuthenticatedView {
                 System.out.println("Visible to public: " + BashColors.format(isVisibleToPublic ? "YES" : "NO",
                         isVisibleToPublic ? BashColors.GREEN : BashColors.RED));
             }
-            System.out.println("");
+            System.out.println();
         }
         System.out.println("Showing " + (lastIndex - firstIndex) + " of " + projects.size());
     }

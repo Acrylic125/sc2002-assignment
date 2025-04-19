@@ -10,6 +10,12 @@ import java.util.Scanner;
  */
 public class MenuView implements View {
 
+    /**
+     * View renderer.
+     *
+     * @param ctx view context
+     * @return next view
+     */
     @Override
     public View render(ViewContext ctx) {
         final Scanner scanner = ctx.getScanner();

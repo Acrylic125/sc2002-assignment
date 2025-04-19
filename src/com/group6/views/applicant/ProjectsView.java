@@ -12,6 +12,9 @@ import com.group6.utils.BashColors;
 import com.group6.utils.Utils;
 import com.group6.views.*;
 
+/**
+ * View for the applicant to view all projects.
+ */
 public class ProjectsView implements PaginatedView, AuthenticatedView {
 
     private static final int PAGE_SIZE = 3;
@@ -21,6 +24,9 @@ public class ProjectsView implements PaginatedView, AuthenticatedView {
     private int page = 1;
     private List<BTOProject> filteredProjects = new ArrayList<>();
 
+    /**
+     * @return the last page
+     */
     @Override
     public int getLastPage() {
         int size = filteredProjects.size();
@@ -30,16 +36,29 @@ public class ProjectsView implements PaginatedView, AuthenticatedView {
         return size / PAGE_SIZE + 1;
     }
 
+    /**
+     * Set page
+     */
     @Override
     public void setPage(int page) {
         this.page = page;
     }
 
+    /**
+     * @return the current page
+     */
     @Override
     public int getPage() {
         return page;
     }
 
+    /**
+     * View renderer.
+     *
+     * @param ctx  view context
+     * @param user authenticated user
+     * @return next view
+     */
     @Override
     public View render(ViewContext ctx, User user) {
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
@@ -65,12 +84,15 @@ public class ProjectsView implements PaginatedView, AuthenticatedView {
         return this.showOptions();
     }
 
+    /**
+     * Show projects.
+     */
     private void showProjects() {
         List<BTOProject> projects = this.filteredProjects;
         System.out.println(BashColors.format("Projects", BashColors.BOLD));
         if (projects.isEmpty()) {
             System.out.println(BashColors.format("(No Projects Found)", BashColors.LIGHT_GRAY));
-            System.out.println("");
+            System.out.println();
             return;
         }
 
@@ -85,9 +107,7 @@ public class ProjectsView implements PaginatedView, AuthenticatedView {
 
             Optional<User> managerOpt = userManager.getUser(project.getManagerUserId());
             List<User> officers = project.getManagingOfficerRegistrations().stream()
-                    .map((reg) -> {
-                        return userManager.getUser(reg.getOfficerUserId());
-                    })
+                    .map((reg) -> userManager.getUser(reg.getOfficerUserId()))
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .toList();
@@ -130,11 +150,16 @@ public class ProjectsView implements PaginatedView, AuthenticatedView {
                 System.out.println("Visible to public: " + BashColors.format(isVisibleToPublic ? "YES" : "NO",
                         isVisibleToPublic ? BashColors.GREEN : BashColors.RED));
             }
-            System.out.println("");
+            System.out.println();
         }
         System.out.println("Showing " + (lastIndex - firstIndex) + " of " + projects.size());
     }
 
+    /**
+     * Show options available.
+     *
+     * @return next view
+     */
     private View showOptions() {
         final Scanner scanner = ctx.getScanner();
 
@@ -147,6 +172,7 @@ public class ProjectsView implements PaginatedView, AuthenticatedView {
         if (permissions.canApply()) {
             options.add("'a' to apply");
         }
+        options.add("'f' to filter");
         options.add("'n' to go to next page");
         options.add("'p' to go to previous page");
         options.add("'page' to go to a specific page");
@@ -203,13 +229,18 @@ public class ProjectsView implements PaginatedView, AuthenticatedView {
         }
     }
 
+    /**
+     * Show the project to request.
+     *
+     * @return the project
+     */
     private Optional<BTOProject> showRequestProject() {
         final Scanner scanner = ctx.getScanner();
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
 
         while (true) {
             System.out.println(BashColors.format(
-                    "Type in the project id you or leave empty ('') to cancel:", BashColors.BOLD));
+                    "Type in the project id or leave empty ('') to cancel:", BashColors.BOLD));
             final String projectId = scanner.nextLine().trim();
             if (projectId.isEmpty()) {
                 return Optional.empty();

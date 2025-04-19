@@ -9,6 +9,9 @@ import com.group6.views.ViewContext;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+/**
+ * Main entry point for the BTO application.
+ */
 public class Main {
 
         /**

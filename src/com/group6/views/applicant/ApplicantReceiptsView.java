@@ -11,6 +11,9 @@ import com.group6.views.ViewContext;
 
 import java.util.*;
 
+/**
+ * View for the applicant to view their booking receipts.
+ */
 public class ApplicantReceiptsView implements AuthenticatedView, PaginatedView {
 
     private static final int PAGE_SIZE = 3;
@@ -19,6 +22,9 @@ public class ApplicantReceiptsView implements AuthenticatedView, PaginatedView {
     private int page = 1;
     private List<BTOBookingReceipt> receipts = new ArrayList<>();
 
+    /**
+     * @return the last page
+     */
     @Override
     public int getLastPage() {
         int size = receipts.size();
@@ -28,16 +34,29 @@ public class ApplicantReceiptsView implements AuthenticatedView, PaginatedView {
         return size / PAGE_SIZE + 1;
     }
 
+    /**
+     * Set page
+     */
     @Override
     public void setPage(int page) {
         this.page = page;
     }
 
+    /**
+     * @return the current page
+     */
     @Override
     public int getPage() {
         return page;
     }
 
+    /**
+     * View renderer.
+     *
+     * @param ctx  view context
+     * @param user authenticated user
+     * @return next view
+     */
     @Override
     public View render(ViewContext ctx, User user) {
         this.ctx = ctx;
@@ -46,11 +65,14 @@ public class ApplicantReceiptsView implements AuthenticatedView, PaginatedView {
         return showOptions();
     }
 
+    /**
+     * Show the receipts.
+     */
     private void showReceipts() {
         System.out.println(BashColors.format("My Booking Receipts", BashColors.BOLD));
         if (receipts.isEmpty()) {
             System.out.println(BashColors.format("(No Bookings Found)", BashColors.LIGHT_GRAY));
-            System.out.println("");
+            System.out.println();
             return;
         }
 
@@ -65,10 +87,15 @@ public class ApplicantReceiptsView implements AuthenticatedView, PaginatedView {
             System.out.println("Applicant: " + receipt.getApplicantName() + " (" + BashColors.format(receipt.getNric(), BashColors.LIGHT_GRAY) + ")");
             System.out.println("Price: $" + Utils.formatMoney(receipt.getPrice()));
             System.out.println("Booked on: " + Utils.formatToDDMMYYYY(new Date(receipt.getDateOfBooking())));
-            System.out.println("");
+            System.out.println();
         }
     }
 
+    /**
+     * Show options available.
+     *
+     * @return next view
+     */
     private View showOptions() {
         final Scanner scanner = ctx.getScanner();
 

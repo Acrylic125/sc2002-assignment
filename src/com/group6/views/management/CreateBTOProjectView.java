@@ -19,16 +19,30 @@ import com.group6.views.ViewContext;
 
 import java.util.*;
 
+/**
+ * View for the management to create a BTO project.
+ */
 public class CreateBTOProjectView implements AuthenticatedView {
 
     private ViewContext ctx;
     private User user;
 
+    /**
+     * @param user The authenticated user.
+     * @return true if the user is authorized to create a project, false otherwise.
+     */
     @Override
     public boolean isAuthorized(User user) {
         return user.getPermissions().canCreateProject();
     }
 
+    /**
+     * View renderer.
+     *
+     * @param ctx  view context
+     * @param user authenticated user
+     * @return next view
+     */
     @Override
     public View render(ViewContext ctx, User user) {
         this.ctx = ctx;
@@ -102,6 +116,11 @@ public class CreateBTOProjectView implements AuthenticatedView {
         return null;
     }
 
+    /**
+     * Show the request for project name.
+     *
+     * @return the project name
+     */
     private Optional<String> showRequestProjectName() {
         final Scanner scanner = ctx.getScanner();
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
@@ -127,6 +146,11 @@ public class CreateBTOProjectView implements AuthenticatedView {
         }
     }
 
+    /**
+     * Show the request for project neighbourhood.
+     *
+     * @return the project neighbourhood
+     */
     private Optional<String> showRequestProjectNeighbourhood() {
         final Scanner scanner = ctx.getScanner();
 
@@ -140,6 +164,11 @@ public class CreateBTOProjectView implements AuthenticatedView {
         return Optional.of(neighbourhood);
     }
 
+    /**
+     * Show the request for project officer limit.
+     *
+     * @return the project officer limit
+     */
     private Optional<Integer> showRequestOfficerLimit() {
         final Scanner scanner = ctx.getScanner();
 
@@ -172,6 +201,11 @@ public class CreateBTOProjectView implements AuthenticatedView {
         }
     }
 
+    /**
+     * Show the request for project types.
+     *
+     * @return the project types
+     */
     private Optional<Map<BTOProjectTypeID, BTOProjectType>> showRequestProjectTypes() {
         final Scanner scanner = ctx.getScanner();
 
@@ -245,6 +279,12 @@ public class CreateBTOProjectView implements AuthenticatedView {
         }
     }
 
+    /**
+     * Show the request for project type edit.
+     *
+     * @param _projectType the project type
+     * @return the project type
+     */
     private Optional<BTOProjectType> requestProjectTypeEdit(BTOProjectType _projectType) {
         final Scanner scanner = ctx.getScanner();
 
@@ -297,6 +337,11 @@ public class CreateBTOProjectView implements AuthenticatedView {
         }
     }
 
+    /**
+     * Show the request for application window.
+     *
+     * @return the application window
+     */
     private Optional<Date[]> requestApplicationWindow() {
         final Scanner scanner = ctx.getScanner();
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();

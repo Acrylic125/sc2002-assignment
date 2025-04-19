@@ -7,14 +7,27 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Storage class for {@link BTOProject} objects.
+ */
 public class BTOProjectStorage implements Storage<BTOProject> {
 
     private final String filename;
 
+    /**
+     * Constructor for BTOProjectStorage.
+     *
+     * @param filename The name of the file to store the projects.
+     */
     public BTOProjectStorage(String filename) {
         this.filename = filename;
     }
 
+    /**
+     * Loads all projects from the file.
+     *
+     * @return A list of projects.
+     */
     @Override
     public List<BTOProject> loadAll() {
         File file = new File(filename);
@@ -41,6 +54,11 @@ public class BTOProjectStorage implements Storage<BTOProject> {
         return projects;
     }
 
+    /**
+     * Saves all projects to the file.
+     *
+     * @param data A list of projects to be saved.
+     */
     @Override
     public void saveAll(List<BTOProject> data) {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename))) {

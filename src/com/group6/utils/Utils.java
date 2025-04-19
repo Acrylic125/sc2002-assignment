@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.function.Supplier;
 
+/**
+ * Utility class for various helper methods.
+ */
 public class Utils {
 
     /**

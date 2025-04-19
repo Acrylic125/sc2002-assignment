@@ -21,6 +21,9 @@ import com.group6.views.PaginatedView;
 import com.group6.views.View;
 import com.group6.views.ViewContext;
 
+/**
+ * View for the management to approve or reject officer registrations.
+ */
 public class OfficerRegistrationApprovalView implements AuthenticatedView, PaginatedView {
 
     private static final int PAGE_SIZE = 3;
@@ -32,11 +35,19 @@ public class OfficerRegistrationApprovalView implements AuthenticatedView, Pagin
     private User user;
     private int page = 1;
 
+    /**
+     * Constructor.
+     *
+     * @param project the project to be managed
+     */
     public OfficerRegistrationApprovalView(BTOProject project) {
         this.project = project;
         this.registrations = project.getHdbOfficerRegistrations();
     }
 
+    /**
+     * @return the last page
+     */
     @Override
     public int getLastPage() {
         int size = registrations.size();
@@ -46,16 +57,27 @@ public class OfficerRegistrationApprovalView implements AuthenticatedView, Pagin
         return size / PAGE_SIZE + 1;
     }
 
+    /**
+     * @param page the page number to set
+     */
     @Override
     public void setPage(int page) {
         this.page = page;
     }
 
+    /**
+     * @return the current page
+     */
     @Override
     public int getPage() {
         return page;
     }
 
+    /**
+     * Stringify the officer registration status.
+     * @param status the officer registration status
+     * @return the stringified officer registration status
+     */
     private String stringifyRegistrationStatus(HDBOfficerRegistrationStatus status) {
         switch (status) {
             case PENDING:
@@ -68,6 +90,13 @@ public class OfficerRegistrationApprovalView implements AuthenticatedView, Pagin
         return BashColors.format("(Unknown)", BashColors.LIGHT_GRAY);
     }
 
+    /**
+     * View renderer.
+     *
+     * @param ctx  view context
+     * @param user authenticated user
+     * @return next view
+     */
     @Override
     public View render(ViewContext ctx, User user) {
         this.ctx = ctx;
@@ -76,6 +105,9 @@ public class OfficerRegistrationApprovalView implements AuthenticatedView, Pagin
         return showOptions();
     }
 
+    /**
+     * Show the officer registrations.
+     */
     private void showRegistrations() {
         final UserManager userManager = ctx.getBtoSystem().getUserManager();
         System.out.println(BashColors.format(
@@ -101,6 +133,11 @@ public class OfficerRegistrationApprovalView implements AuthenticatedView, Pagin
         }
     }
 
+    /**
+     * Show the options for the officer registration approval view.
+     *
+     * @return next view
+     */
     private View showOptions() {
         final Scanner scanner = ctx.getScanner();
 
@@ -133,6 +170,9 @@ public class OfficerRegistrationApprovalView implements AuthenticatedView, Pagin
         }
     }
 
+    /**
+     * Show the request status change view.
+     */
     private void showRequestStatusChange() {
         Optional<HDBOfficerRegistration> applicationOpt = requestApplication();
         if (applicationOpt.isEmpty()) {
@@ -174,6 +214,11 @@ public class OfficerRegistrationApprovalView implements AuthenticatedView, Pagin
         scanner.nextLine();
     }
 
+    /**
+     * Request the application to modify.
+     *
+     * @return the application to modify
+     */
     private Optional<HDBOfficerRegistration> requestApplication() {
         final Scanner scanner = ctx.getScanner();
 
@@ -197,6 +242,12 @@ public class OfficerRegistrationApprovalView implements AuthenticatedView, Pagin
         }
     }
 
+    /**
+     * Request the application status to modify.
+     *
+     * @param application the application to modify
+     * @return the application status to modify
+     */
     private Optional<HDBOfficerRegistrationStatus> requestApplicationStatus(HDBOfficerRegistration application) {
         final Scanner scanner = ctx.getScanner();
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();

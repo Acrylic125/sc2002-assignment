@@ -1,5 +1,8 @@
 package com.group6.utils;
 
+/**
+ * Bash colors utility.
+ */
 public enum BashColors {
 
     RESET("\u001B[0m"),
@@ -18,19 +21,42 @@ public enum BashColors {
 
     private final String code;
 
+    /**
+     * Constructor for BashColors.
+     *
+     * @param code ANSI escape code for the color.
+     */
     BashColors(String code) {
         this.code = code;
     }
 
+    /**
+     * Get the ANSI escape code for the color.
+     *
+     * @return ANSI escape code.
+     */
     @Override
     public String toString() {
         return code;
     }
 
+    /**
+     * Format a string with the color.
+     *
+     * @param text The text to format.
+     * @return The formatted string.
+     */
     public String format(String text) {
         return this + text + RESET;
     }
 
+    /**
+     * Format a string with multiple colors.
+     *
+     * @param text   The text to format.
+     * @param colors The colors to apply.
+     * @return The formatted string.
+     */
     public static String format(String text, BashColors... colors) {
         StringBuilder sb = new StringBuilder();
         for (BashColors color : colors) {

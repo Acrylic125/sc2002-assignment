@@ -11,6 +11,9 @@ import com.group6.views.View;
 import com.group6.views.ViewContext;
 import com.group6.views.ViewSortType;
 
+/**
+ * View for the applicant to filter the projects view.
+ */
 public class ProjectsViewFiltersView implements AuthenticatedView {
 
     protected ViewContext ctx;
@@ -18,10 +21,19 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
 
     protected List<BTOProjectTypeID> projectTypes = new ArrayList<>();
 
+    /**
+     * @return the filters for the projects view
+     */
     protected ProjectsViewFilters getProjectFilters() {
         return ctx.getViewAllProjectsFilters();
     }
 
+    /**
+     * Stringify the sort name.
+     *
+     * @param sortType the sort type
+     * @return the stringified sort name
+     */
     protected String stringifySortName(ViewSortType sortType) {
         switch (sortType) {
             case ASC:
@@ -33,6 +45,12 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
         }
     }
 
+    /**
+     * Stringify the search term.
+     *
+     * @param searchTerm the search term
+     * @return the stringified search term
+     */
     protected String stringifySearchTerm(String searchTerm) {
         if (searchTerm.isEmpty()) {
             return BashColors.format("(Empty)", BashColors.LIGHT_GRAY);
@@ -40,6 +58,12 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
         return searchTerm;
     }
 
+    /**
+     * Stringify the location.
+     *
+     * @param location the location
+     * @return the stringified location
+     */
     protected String stringifyLocation(String location) {
         if (location.isEmpty()) {
             return BashColors.format("(Empty)", BashColors.LIGHT_GRAY);
@@ -47,6 +71,12 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
         return location;
     }
 
+    /**
+     * Stringify the project types availability.
+     *
+     * @param projectTypes the project types
+     * @return the stringified project types availability
+     */
     protected String stringifyProjectTypesAvailability(Collection<BTOProjectTypeID> projectTypes) {
         String value = this.projectTypes.stream()
                 .filter(projectTypes::contains)
@@ -63,6 +93,12 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
         return value;
     }
 
+    /**
+     * Stringify the show only managed projects.
+     *
+     * @param showOnlyManagedProjects the show only managed projects
+     * @return the stringified show only managed projects
+     */
     protected String stringifyShowOnlyManagedProjects(boolean showOnlyManagedProjects) {
         if (showOnlyManagedProjects) {
             return BashColors.format("YES", BashColors.GREEN);
@@ -70,6 +106,13 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
         return BashColors.format("NO", BashColors.RED);
     }
 
+    /**
+     * View renderer.
+     *
+     * @param ctx  view context
+     * @param user authenticated user
+     * @return next view
+     */
     @Override
     public View render(ViewContext ctx, User user) {
         this.ctx = ctx;
@@ -82,6 +125,9 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
         return null;
     }
 
+    /**
+     * Show the options for the projects view filters.
+     */
     protected void showOptions() {
         final ProjectsViewFilters filters = getProjectFilters();
         while (true) {
@@ -136,6 +182,9 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
         }
     }
 
+    /**
+     * Show the filter by search term.
+     */
     protected void showFilterBySearchTerm() {
         final Scanner scanner = ctx.getScanner();
         final ProjectsViewFilters filters = this.getProjectFilters();
@@ -150,6 +199,9 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
         scanner.nextLine();
     }
 
+    /**
+     * Show the filter by location.
+     */
     protected void showFilterByLocation() {
         final Scanner scanner = ctx.getScanner();
         final ProjectsViewFilters filters = this.getProjectFilters();
@@ -162,6 +214,9 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
         scanner.nextLine();
     }
 
+    /**
+     * Show the filter by project type.
+     */
     protected void showFilterByProjectType() {
         final Scanner scanner = ctx.getScanner();
         final ProjectsViewFilters filters = this.getProjectFilters();
@@ -228,6 +283,9 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
         scanner.nextLine();
     }
 
+    /**
+     * Show the name sort.
+     */
     protected void showNameSort() {
         final Scanner scanner = ctx.getScanner();
         final ProjectsViewFilters filters = this.getProjectFilters();
@@ -241,7 +299,7 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
             System.out.println("  A-Z");
             System.out.println("  Z-A");
             System.out.println("  None");
-            System.out.println("");
+            System.out.println();
             System.out.println("Type the sort type you want to filter.");
             String sort = scanner.nextLine().trim().toUpperCase();
 
@@ -252,7 +310,7 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
                 case "Z-A":
                     filters.setSortByName(ViewSortType.DSC);
                     break;
-                case "None":
+                case "NONE":
                     filters.setSortByName(ViewSortType.NONE);
                     break;
                 default:
@@ -269,6 +327,9 @@ public class ProjectsViewFiltersView implements AuthenticatedView {
         scanner.nextLine();
     }
 
+    /**
+     * Show the filter by managed projects.
+     */
     protected void showFilterByManagedProjects() {
         final Scanner scanner = ctx.getScanner();
         final ProjectsViewFilters filters = this.getProjectFilters();

@@ -1,8 +1,10 @@
 package com.group6.utils;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
+ * Utility data class to represent the result of a {@link Utils#tryCatch(Supplier)}.
  *
  * @param <T> data type
  * @param <E> error type

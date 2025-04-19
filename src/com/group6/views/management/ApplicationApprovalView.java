@@ -21,6 +21,9 @@ import com.group6.views.PaginatedView;
 import com.group6.views.ViewContext;
 import com.group6.views.View;
 
+/**
+ * View for the management to approve applications.
+ */
 public class ApplicationApprovalView implements PaginatedView, AuthenticatedView {
 
     private static final int PAGE_SIZE = 3;
@@ -31,11 +34,19 @@ public class ApplicationApprovalView implements PaginatedView, AuthenticatedView
     private ViewContext ctx;
     private int page = 1;
 
+    /**
+     * Constructor.
+     *
+     * @param project the project
+     */
     public ApplicationApprovalView(BTOProject project) {
         this.project = project;
         this.applications = project.getApplications();
     }
 
+    /**
+     * @return the last page
+     */
     @Override
     public int getLastPage() {
         int size = applications.size();
@@ -45,16 +56,28 @@ public class ApplicationApprovalView implements PaginatedView, AuthenticatedView
         return size / PAGE_SIZE + 1;
     }
 
+    /**
+     * Set page
+     */
     @Override
     public void setPage(int page) {
         this.page = page;
     }
 
+    /**
+     * @return the current page
+     */
     @Override
     public int getPage() {
         return page;
     }
 
+    /**
+     * Stringify the application status.
+     *
+     * @param status the application status
+     * @return the stringified application status
+     */
     private String stringifyApplicationStatus(BTOApplicationStatus status) {
         switch (status) {
             case PENDING:
@@ -69,17 +92,30 @@ public class ApplicationApprovalView implements PaginatedView, AuthenticatedView
         return BashColors.format("(Unknown)", BashColors.LIGHT_GRAY);
     }
 
+    /**
+     * @return true if the user is authorized to view this view
+     */
     @Override
     public boolean isAuthorized(User user) {
         return user.getPermissions().canApproveApplications();
     }
 
+    /**
+     * View renderer.
+     *
+     * @param ctx  view context
+     * @param user authenticated user
+     * @return next view
+     */
     @Override
     public View render(ViewContext ctx, User user) {
         this.ctx = ctx;
         return showOptions();
     }
 
+    /**
+     * Show the applications.
+     */
     private void showApplications() {
         final UserManager userManager = ctx.getBtoSystem().getUserManager();
         System.out.println(BashColors.format(
@@ -106,6 +142,11 @@ public class ApplicationApprovalView implements PaginatedView, AuthenticatedView
         }
     }
 
+    /**
+     * Show the options.
+     *
+     * @return next view
+     */
     private View showOptions() {
         final Scanner scanner = ctx.getScanner();
 
@@ -138,6 +179,9 @@ public class ApplicationApprovalView implements PaginatedView, AuthenticatedView
         }
     }
 
+    /**
+     * Show the request status change view.
+     */
     private void showRequestStatusChange() {
         Optional<BTOApplication> applicationOpt = requestApplication();
         if (applicationOpt.isEmpty()) {
@@ -198,6 +242,11 @@ public class ApplicationApprovalView implements PaginatedView, AuthenticatedView
         scanner.nextLine();
     }
 
+    /**
+     * Request the application.
+     *
+     * @return the application
+     */
     private Optional<BTOApplication> requestApplication() {
         final Scanner scanner = ctx.getScanner();
 
@@ -221,6 +270,12 @@ public class ApplicationApprovalView implements PaginatedView, AuthenticatedView
         }
     }
 
+    /**
+     * Request the application status.
+     *
+     * @param application the application
+     * @return the application status
+     */
     private Optional<BTOApplicationStatus> requestApplicationStatus(BTOApplication application) {
         final Scanner scanner = ctx.getScanner();
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();

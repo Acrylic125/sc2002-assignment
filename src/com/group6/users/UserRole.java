@@ -1,5 +1,8 @@
 package com.group6.users;
 
+/**
+ * Represents the roles available in a {@link RoleBasedUser}.
+ */
 public enum UserRole {
     APPLICANT(
             "Applicant",
@@ -32,6 +35,12 @@ public enum UserRole {
     private final String name;
     private final UserPermissions permissions;
 
+    /**
+     * Constructor for UserRole.
+     *
+     * @param name        name of the role.
+     * @param permissions permissions of the role.
+     */
     UserRole(String name, UserPermissions permissions) {
         this.name = name;
         this.permissions = permissions;

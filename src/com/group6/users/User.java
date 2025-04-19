@@ -30,6 +30,11 @@ public abstract class User {
         this.password = password;
     }
 
+    /**
+     * Abstract method to get permissions.
+     *
+     * @return {@link UserPermissions}
+     */
     public abstract UserPermissions getPermissions();
 
     /**

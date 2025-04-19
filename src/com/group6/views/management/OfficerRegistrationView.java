@@ -75,14 +75,6 @@ public class OfficerRegistrationView implements AuthenticatedView {
             }
 
             final BTOProject project = projectOpt.get();
-            // if (!project.isApplicationWindowOpen()) {
-            // System.out.println(
-            // BashColors.format("The registration window for this project is closed.",
-            // BashColors.RED));
-            // System.out.println("Type anything to continue.");
-            // scanner.nextLine();
-            // continue;
-            // }
 
             // check if user already registered to manage this project:
             Optional<HDBOfficerRegistration> registrationOpt = project.getActiveOfficerRegistration(user.getId());

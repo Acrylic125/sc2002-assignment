@@ -12,15 +12,28 @@ import java.util.*;
  */
 public class ApplicantViewMyApplicationsFilterView extends ProjectsViewFiltersView {
 
+    /**
+     *
+     * @return Overrided project filters.
+     */
     @Override
     protected ProjectsViewFilters getProjectFilters() {
         return getApplicationFilters().getProjectsViewFilters();
     }
 
+    /**
+     * @return application filters.
+     */
     protected ApplicantViewMyApplicationFilters getApplicationFilters() {
         return ctx.getViewApplicationFilters();
     }
 
+    /**
+     * Stringify statuses.
+     *
+     * @param statuses the statuses
+     * @return the stringified statuses
+     */
     protected String stringifyApplicationStatuses(Collection<BTOApplicationStatus> statuses) {
         String value = "";
         for (BTOApplicationStatus status : statuses) {
@@ -36,6 +49,9 @@ public class ApplicantViewMyApplicationsFilterView extends ProjectsViewFiltersVi
         return value;
     }
 
+    /**
+     * Show options.
+     */
     @Override
     protected void showOptions() {
         final ApplicantViewMyApplicationFilters applicationFilters = getApplicationFilters();
@@ -99,6 +115,9 @@ public class ApplicantViewMyApplicationsFilterView extends ProjectsViewFiltersVi
         }
     }
 
+    /**
+     * Show filter by application status.
+     */
     protected void showFilterApplicationStatuses() {
         final Scanner scanner = ctx.getScanner();
         final ApplicantViewMyApplicationFilters filters = this.getApplicationFilters();
@@ -112,7 +131,7 @@ public class ApplicantViewMyApplicationsFilterView extends ProjectsViewFiltersVi
             for (BTOApplicationStatus value : statuses) {
                 System.out.println("  " + value.toString().toUpperCase());
             }
-            System.out.println("");
+            System.out.println();
             System.out.println(
                     "Type the application status type you want to filter, or leave empty ('') to not set one.");
             System.out.println(BashColors.format(

@@ -13,6 +13,9 @@ import com.group6.views.PaginatedView;
 import com.group6.views.View;
 import com.group6.views.ViewContext;
 
+/**
+ * View for the applicant to view their applications.
+ */
 public class ApplicantViewMyApplicationsView implements PaginatedView, AuthenticatedView {
     private static final int PAGE_SIZE = 3;
 
@@ -22,6 +25,9 @@ public class ApplicantViewMyApplicationsView implements PaginatedView, Authentic
     private List<BTOFullApplication> applications = new ArrayList<>();
     private List<BTOFullApplication> filteredApplications = new ArrayList<>();
 
+    /**
+     * @return the last page
+     */
     @Override
     public int getLastPage() {
         int size = filteredApplications.size();
@@ -31,16 +37,26 @@ public class ApplicantViewMyApplicationsView implements PaginatedView, Authentic
         return size / PAGE_SIZE + 1;
     }
 
+    /**
+     * Set page
+     */
     @Override
     public void setPage(int page) {
         this.page = page;
     }
 
+    /**
+     * @return the current page
+     */
     @Override
     public int getPage() {
         return page;
     }
 
+    /**
+     * Stringify the application status.
+     * @return the stringified application status
+     */
     private String stringifyApplicationStatus(BTOApplicationStatus status) {
         switch (status) {
             case PENDING:
@@ -55,6 +71,10 @@ public class ApplicantViewMyApplicationsView implements PaginatedView, Authentic
         return BashColors.format("(Unknown)", BashColors.LIGHT_GRAY);
     }
 
+    /**
+     * Stringify the withdrawal status.
+     * @return the stringified withdrawal status
+     */
     private String stringifyWithdrawalStatus(BTOApplicationWithdrawalStatus status) {
         switch (status) {
             case PENDING:
@@ -67,6 +87,13 @@ public class ApplicantViewMyApplicationsView implements PaginatedView, Authentic
         return BashColors.format("(Unknown)", BashColors.LIGHT_GRAY);
     }
 
+    /**
+     * View renderer.
+     *
+     * @param ctx  view context
+     * @param user authenticated user
+     * @return next view
+     */
     @Override
     public View render(ViewContext ctx, User user) {
         this.ctx = ctx;
@@ -80,6 +107,9 @@ public class ApplicantViewMyApplicationsView implements PaginatedView, Authentic
         return showOptions();
     }
 
+    /**
+     * Show the applications.
+     */
     private void showApplications() {
         final List<BTOFullApplication> applications = this.filteredApplications;
         System.out.println(BashColors.format("My Applications", BashColors.BOLD));
@@ -164,13 +194,18 @@ public class ApplicantViewMyApplicationsView implements PaginatedView, Authentic
         System.out.println("Showing " + (lastIndex - firstIndex) + " of " + applications.size());
     }
 
+    /**
+     * Show the options for the applicant.
+     *
+     * @return next view
+     */
     private View showOptions() {
         final Scanner scanner = ctx.getScanner();
 
         while (true) {
             showApplications();
             System.out.println("Page " + page + " / " + getLastPage() +
-                    " - Type 'e' to enquire, 'f' to filter, 'n' to go to next page, 'p' to go to previous page, 'page' to go to a specific page,  or leave empty ('') to go back:");
+                    " - Type 'e' to enquire, 'w' to view withdrawals, 'f' to filter, 'n' to go to next page, 'p' to go to previous page, 'page' to go to a specific page, or leave empty ('') to go back:");
 
             String option = scanner.nextLine().trim();
             switch (option) {
@@ -206,6 +241,11 @@ public class ApplicantViewMyApplicationsView implements PaginatedView, Authentic
         }
     }
 
+    /**
+     * Show the request project view.
+     *
+     * @return the project
+     */
     private Optional<BTOProject> showRequestProject() {
         final Scanner scanner = ctx.getScanner();
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();

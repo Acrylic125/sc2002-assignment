@@ -15,6 +15,9 @@ import com.group6.views.PaginatedView;
 import com.group6.views.View;
 import com.group6.views.ViewContext;
 
+/**
+ * View for the management to view the officer registrations.
+ */
 public class MyOfficerRegistrationsView implements AuthenticatedView, PaginatedView {
 
     private static final int PAGE_SIZE = 3;
@@ -24,6 +27,11 @@ public class MyOfficerRegistrationsView implements AuthenticatedView, PaginatedV
     private ViewContext ctx;
     private List<BTOProjectManager.BTOFullOfficerRegistration> officerRegistrations = new ArrayList<>();
 
+    /**
+     * Stringify the officer registration status.
+     * @param status the officer registration status
+     * @return the stringified officer registration status
+     */
     private String stringifyOfficerStatus(HDBOfficerRegistrationStatus status) {
         return switch (status) {
             case PENDING -> BashColors.format("Pending", BashColors.YELLOW);
@@ -32,6 +40,9 @@ public class MyOfficerRegistrationsView implements AuthenticatedView, PaginatedV
         };
     }
 
+    /**
+     * @return the last page
+     */
     @Override
     public int getLastPage() {
         int size = officerRegistrations.size();
@@ -41,16 +52,29 @@ public class MyOfficerRegistrationsView implements AuthenticatedView, PaginatedV
         return size / PAGE_SIZE + 1;
     }
 
+    /**
+     * @param page The page number to set.
+     */
     @Override
     public void setPage(int page) {
         this.page = page;
     }
 
+    /**
+     * @return the current page
+     */
     @Override
     public int getPage() {
         return page;
     }
 
+    /**
+     * View renderer.
+     *
+     * @param ctx  view context
+     * @param user authenticated user
+     * @return next view
+     */
     @Override
     public View render(ViewContext ctx, User user) {
         this.ctx = ctx;
@@ -61,6 +85,9 @@ public class MyOfficerRegistrationsView implements AuthenticatedView, PaginatedV
         return showOptions();
     }
 
+    /**
+     * Show the officer registrations.
+     */
     private void showRegistrations() {
         final UserManager userManager = ctx.getBtoSystem().getUserManager();
 
@@ -116,6 +143,10 @@ public class MyOfficerRegistrationsView implements AuthenticatedView, PaginatedV
         System.out.println("Showing " + (lastIndex - firstIndex) + " of " + officerRegistrations.size());
     }
 
+    /**
+     * Show options to the user
+     * @return next view.
+     */
     private View showOptions() {
         final Scanner scanner = ctx.getScanner();
 

@@ -21,9 +21,9 @@ public final class ViewContext {
     private final Scanner scanner;
     private final Stack<View> viewStack = new Stack<>();
     private User user;
-    private final ProjectsViewFilters viewAllProjectsFilters = new ProjectsViewFilters();
-    private final ApplicantViewMyApplicationFilters viewMyApplicationFilters = new ApplicantViewMyApplicationFilters();
-    private final ApplicantReportFilters applicantReportFilters = new ApplicantReportFilters();
+    private ProjectsViewFilters viewAllProjectsFilters = new ProjectsViewFilters();
+    private ApplicantViewMyApplicationFilters viewMyApplicationFilters = new ApplicantViewMyApplicationFilters();
+    private ApplicantReportFilters applicantReportFilters = new ApplicantReportFilters();
 
     /**
      *
@@ -159,6 +159,15 @@ public final class ViewContext {
      */
     public ApplicantReportFilters getApplicantReportFilters() {
         return applicantReportFilters;
+    }
+
+    /**
+     * Reset filters applied to this view context. Used on logout.
+     */
+    public void resetFilters() {
+        this.viewAllProjectsFilters = new ProjectsViewFilters();
+        this.viewMyApplicationFilters = new ApplicantViewMyApplicationFilters();
+        this.applicantReportFilters = new ApplicantReportFilters();
     }
 
 }

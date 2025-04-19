@@ -15,6 +15,9 @@ import com.group6.utils.Utils;
 import com.group6.views.*;
 import com.group6.views.applicant.ProjectsViewFilters;
 
+/**
+ * View for the management to register to manage a project.
+ */
 public class RegisterProjectsView implements PaginatedView, AuthenticatedView {
 
     private static final int PAGE_SIZE = 3;
@@ -23,6 +26,9 @@ public class RegisterProjectsView implements PaginatedView, AuthenticatedView {
     private int page = 1;
     private List<BTOProject> filteredProjects = new ArrayList<>();
 
+    /**
+     * @return the last page
+     */
     @Override
     public int getLastPage() {
         int size = filteredProjects.size();
@@ -32,16 +38,29 @@ public class RegisterProjectsView implements PaginatedView, AuthenticatedView {
         return size / PAGE_SIZE + 1;
     }
 
+    /**
+     * @param page The page number to set.
+     */
     @Override
     public void setPage(int page) {
         this.page = page;
     }
 
+    /**
+     * @return the current page
+     */
     @Override
     public int getPage() {
         return page;
     }
 
+    /**
+     * View renderer.
+     *
+     * @param ctx  view context
+     * @param user authenticated user
+     * @return next view
+     */
     @Override
     public View render(ViewContext ctx, User user) {
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
@@ -60,12 +79,15 @@ public class RegisterProjectsView implements PaginatedView, AuthenticatedView {
         return this.showOptions();
     }
 
+    /**
+     * Show projects that the user can register for.
+     */
     private void showProjects() {
         List<BTOProject> projects = this.filteredProjects;
         System.out.println(BashColors.format("Projects", BashColors.BOLD));
         if (projects.isEmpty()) {
             System.out.println(BashColors.format("(No Projects Found)", BashColors.LIGHT_GRAY));
-            System.out.println("");
+            System.out.println();
             return;
         }
 
@@ -133,6 +155,11 @@ public class RegisterProjectsView implements PaginatedView, AuthenticatedView {
         System.out.println("Showing " + (lastIndex - firstIndex) + " of " + projects.size());
     }
 
+    /**
+     * Show options available.
+     *
+     * @return next view
+     */
     private View showOptions() {
         final Scanner scanner = ctx.getScanner();
 

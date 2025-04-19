@@ -15,6 +15,11 @@ import java.util.UUID;
  */
 public class DefaultFileGenerator {
 
+    /**
+     * Entry point to generating default files.
+     *
+     * @param args CLI args
+     */
     public static void main(String[] args) {
         System.out.println(
                 BashColors.format("Saving default files to " + System.getProperty("user.dir"), BashColors.BOLD)
@@ -43,6 +48,11 @@ public class DefaultFileGenerator {
         receiptsStorage.saveAll(new ArrayList<>(projectManager.getBookingReceipts()));
     }
 
+    /**
+     * Load users into the system.
+     *
+     * @param btoSystem BTO system
+     */
     public static void loadUsers(BTOSystem btoSystem) {
         final UserManager userManager = btoSystem.getUserManager();
 
@@ -69,6 +79,11 @@ public class DefaultFileGenerator {
         userManager.registerUser(jessica);
     }
 
+    /**
+     * Load projects into the system.
+     *
+     * @param btoSystem BTO system
+     */
     public static void loadProjects(BTOSystem btoSystem) {
         final UserManager userManager = btoSystem.getUserManager();
         final BTOProjectManager btoProjectManager = btoSystem.getProjectManager();

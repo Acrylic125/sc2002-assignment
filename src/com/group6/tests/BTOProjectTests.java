@@ -11,6 +11,11 @@ import java.util.UUID;
  */
 public class BTOProjectTests {
 
+    /**
+     * Main method to run the tests.
+     *
+     * @param args command line arguments.
+     */
     public static void main(String[] args) {
         final BTOProjectStorage projectStorage = new BTOProjectStorage(
                 "projects.txt"

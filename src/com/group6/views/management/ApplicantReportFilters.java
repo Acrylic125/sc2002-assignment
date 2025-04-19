@@ -21,54 +21,122 @@ public class ApplicantReportFilters {
 
     private ViewSortType sortByName = ViewSortType.ASC;
 
+    /**
+     * Marital status getter.
+     *
+     * @return {@link #filterMaritalStatuses}
+     */
     public Set<UserMaritalStatus> getFilterMaritalStatuses() {
         return filterMaritalStatuses;
     }
 
+    /**
+     * Marital status setter.
+     *
+     * @param filterMaritalStatuses marital status
+     */
     public void setFilterMaritalStatuses(Set<UserMaritalStatus> filterMaritalStatuses) {
         this.filterMaritalStatuses = filterMaritalStatuses;
     }
 
+    /**
+     * Name search term getter.
+     *
+     * @return {@link #nameSearchTerm}
+     */
     public String getNameSearchTerm() {
         return nameSearchTerm;
     }
 
+    /**
+     * Name search term setter.
+     *
+     * @param nameSearchTerm name search term
+     */
     public void setNameSearchTerm(String nameSearchTerm) {
         this.nameSearchTerm = nameSearchTerm;
     }
 
+    /**
+     * Age min getter.
+     *
+     * @return {@link #ageMin}
+     */
     public int getAgeMin() {
         return ageMin;
     }
 
+    /**
+     * Age min setter.
+     *
+     * @param ageMin age min
+     */
     public void setAgeMin(int ageMin) {
         this.ageMin = ageMin;
     }
 
+    /**
+     * Age max getter.
+     *
+     * @return {@link #ageMax}
+     */
     public int getAgeMax() {
         return ageMax;
     }
 
+    /**
+     * Age max setter.
+     *
+     * @param ageMax age max
+     */
     public void setAgeMax(int ageMax) {
         this.ageMax = ageMax;
     }
 
+    /**
+     * Flat types getter.
+     *
+     * @return {@link #filterFlatTypes}
+     */
     public Set<BTOProjectTypeID> getFilterFlatTypes() {
         return filterFlatTypes;
     }
 
+    /**
+     * Flat types setter.
+     *
+     * @param filterFlatTypes flat types
+     */
     public void setFilterFlatTypes(Set<BTOProjectTypeID> filterFlatTypes) {
         this.filterFlatTypes = filterFlatTypes;
     }
 
+    /**
+     * Sort by name getter.
+     *
+     * @return {@link #sortByName}
+     */
     public ViewSortType getSortByName() {
         return sortByName;
     }
 
+    /**
+     * Sort by name setter.
+     *
+     * @param sortByName sort by name
+     */
     public void setSortByName(ViewSortType sortByName) {
         this.sortByName = sortByName;
     }
 
+    /**
+     * Checks if the applicant can be filtered.
+     *
+     * @param projectManager project manager
+     * @param applicant      applicant
+     * @param user           user
+     * @return true if the applicant can be filtered, false otherwise
+     */
     public boolean canFilterApplicant(BTOProjectManager projectManager, User applicant, User user) {
         if (!filterMaritalStatuses.isEmpty() && !filterMaritalStatuses.contains(applicant.getMaritalStatus())) {
             return false;
@@ -104,6 +172,14 @@ public class ApplicantReportFilters {
         return true;
     }
 
+    /**
+     * Applies the filters to the list of applicants.
+     *
+     * @param projectManager project manager
+     * @param applicants     applicants
+     * @param user           user
+     * @return filtered list of applicants
+     */
     public List<User> applyFilters(BTOProjectManager projectManager, List<User> applicants, User user) {
         List<User> filteredProjects = applicants.stream()
                 .filter((project) -> canFilterApplicant(projectManager, project, user))

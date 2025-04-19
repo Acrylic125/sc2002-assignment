@@ -19,11 +19,22 @@ public class ApplicantApplyProjectView implements AuthenticatedView {
     private ViewContext ctx;
     private User user;
 
+    /**
+     * @param user viewer
+     * @return true if the user is authorized to view this page
+     */
     @Override
     public boolean isAuthorized(User user) {
         return user.getPermissions().canApply();
     }
 
+    /**
+     * View renderer.
+     *
+     * @param ctx  view context
+     * @param user authenticated user
+     * @return next view
+     */
     @Override
     public View render(ViewContext ctx, User user) {
         this.ctx = ctx;
@@ -89,6 +100,11 @@ public class ApplicantApplyProjectView implements AuthenticatedView {
         return null;
     }
 
+    /**
+     * Shows the user a list of projects to apply for.
+     *
+     * @return the project selected by the user
+     */
     private Optional<BTOProject> showRequestProject() {
         final Scanner scanner = ctx.getScanner();
         final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
@@ -157,6 +173,12 @@ public class ApplicantApplyProjectView implements AuthenticatedView {
         }
     }
 
+    /**
+     * Shows the user a list of project types to apply for.
+     *
+     * @param project the project to apply for
+     * @return the type selected by the user
+     */
     private Optional<BTOProjectTypeID> showRequestProjectType(BTOProject project) {
         final Scanner scanner = ctx.getScanner();
 

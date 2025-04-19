@@ -72,6 +72,12 @@ public class LoginView implements View {
         return null;
     }
 
+    /**
+     * Requests the user to input their NRIC.
+     *
+     * @return An Optional containing the NRIC if valid, or an empty Optional if
+     *         cancelled.
+     */
     private Optional<String> requestNric() {
         final Scanner scanner = ctx.getScanner();
         while (true) {
@@ -96,6 +102,12 @@ public class LoginView implements View {
         }
     }
 
+    /**
+     * Requests the user to input their password.
+     *
+     * @return An Optional containing the password if provided, or an empty Optional
+     *         if cancelled.
+     */
     private Optional<String> requestPassword() {
         final Scanner scanner = ctx.getScanner();
         System.out.println(BashColors.format("Type in your password or leave empty ('') to cancel.", BashColors.BOLD));

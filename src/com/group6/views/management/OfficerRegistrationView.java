@@ -14,41 +14,43 @@ import com.group6.utils.BashColors;
 import com.group6.utils.Utils;
 import com.group6.views.*;
 
+/**
+ * View for the officer to register to manage a project.
+ */
 public class OfficerRegistrationView implements AuthenticatedView {
 
     private ViewContext ctx;
     private User user;
 
+    /**
+     * @param user the user to be checked.
+     * @return true if the user is authorized to view this view.
+     */
     @Override
     public boolean isAuthorized(User user) {
         return user.getPermissions().canRegisterForProject();
     }
 
+    /**
+     * View renderer.
+     *
+     * @param ctx  view context
+     * @param user authenticated user
+     * @return next view
+     */
     @Override
     public View render(ViewContext ctx, User user) {
         this.ctx = ctx;
         this.user = user;
 
-        final Scanner scanner = ctx.getScanner();
-        final BTOProjectManager projectManager = ctx.getBtoSystem().getProjectManager();
-        // check if user is already registered for any project within the same period.
-
-        // final List<BTOProject> managedByOfficer =
-        // projectManager.getOfficerManagingProjects(user.getId());
-        // for (BTOProject managedProject : managedByOfficer) {
-        // if (managedProject.isApplicationWindowOpen()) {
-        // System.out.println(BashColors.format(
-        // "You are already registered to manage " + managedProject.getName() + ".",
-        // BashColors.RED));
-        // System.out.println("Type anything to continue.");
-        // scanner.nextLine();
-        // return null;
-        // }
-        // }
-
         return showRequestRegistration();
     }
 
+    /**
+     * Show the request registration view.
+     *
+     * @return next view
+     */
     private View showRequestRegistration() {
         final Scanner scanner = ctx.getScanner();
 

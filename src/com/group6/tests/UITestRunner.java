@@ -17,7 +17,7 @@ public class UITestRunner {
             // Launch your CLI program
             Main.main(new String[0]); // or BTOSystem.start()
         } catch (java.util.NoSuchElementException e) {
-            System.out.println("ERR : Input stream ended. Test may have finished early.");
+            System.out.println("ERR : Input stream ended. Test Objective may have been completed.");
         }
     }
 }

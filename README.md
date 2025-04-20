@@ -10,6 +10,7 @@ A CLI application that simulates a BTO System.
 1. cd into the root of this project (where you cloned the project)
 1. Run `javac -d bin -cp $(find src -name "*.java")` to compile the project
 1. Run `java -cp bin com.group6.Main` to run the project
+2. If you run it and see errors loading the default files, follow the instructions given in **BOLD TEXT**. Alternatively, run the `DefaultFileGenerator.java` to generate the right set of files. 
 
 ## Misc 
 - To test the logic of our application, we made a `BTOProjectTests.java` to do functional testing. 

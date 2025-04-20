@@ -13,5 +13,5 @@ A CLI application that simulates a BTO System.
 
 ## Misc 
 - To test the logic of our application, we made a `BTOProjectTests.java` to do functional testing. 
-  - Refer to `/diagrams` for UML diagrams of the project (Class and Sequence Diagrams).
+- Refer to `/diagrams` for UML diagrams of the project (Class and Sequence Diagrams).
 - Refer to `/html` for the project documentation.
